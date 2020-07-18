@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 
 import com.wya.env.base.BaseActivity;
+import com.wya.env.module.doodle.DoodleFragment;
 import com.wya.env.module.home.fragment.Fragment1;
 import com.wya.env.module.mine.Fragment2;
 import com.wya.uikit.tabbar.WYATabBar;
@@ -23,31 +24,35 @@ import butterknife.BindView;
  */
 
 public class MainActivity extends BaseActivity {
-    
+
     @BindView(R.id.tab)
     WYATabBar tab;
-    
+
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private Fragment1 fragment1;
     private Fragment2 fragment2;
-    
+    private DoodleFragment doodleFragment;
+
     @Override
     protected void initView() {
+        showToolBar(false);
         initFragment();
         setToolBar();
     }
-    
+
     private void initFragment() {
         fragment1 = new Fragment1();
         fragment2 = new Fragment2();
+        doodleFragment = new DoodleFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.content, fragment1);
+        fragmentTransaction.add(R.id.content, doodleFragment);
         fragmentTransaction.add(R.id.content, fragment2);
-        fragmentTransaction.show(fragment1).hide(fragment2).commit();
+        fragmentTransaction.show(doodleFragment).hide(fragment2).hide(fragment1).commit();
     }
-    
+
     private void setToolBar() {
         //取消偏移
         tab.disableShiftMode();
@@ -57,11 +62,14 @@ public class MainActivity extends BaseActivity {
         tab.setOnNavigationItemSelectedListener((MenuItem item) -> {
             fragmentTransaction = fragmentManager.beginTransaction();
             switch (item.getItemId()) {
-                case R.id.navigation_my:
-                    fragmentTransaction.show(fragment2).hide(fragment1).commit();
+                case R.id.navigation_home:
+                    fragmentTransaction.show(fragment1).hide(fragment2).hide(doodleFragment).commit();
                     break;
-                case R.id.navigation_my_study:
-                    fragmentTransaction.show(fragment1).hide(fragment2).commit();
+                case R.id.navigation_doodle:
+                    fragmentTransaction.show(doodleFragment).hide(fragment2).hide(fragment1).commit();
+                    break;
+                case R.id.navigation_equipment:
+                    fragmentTransaction.show(fragment2).hide(fragment1).hide(doodleFragment).commit();
                     break;
                 default:
                     break;
@@ -69,12 +77,12 @@ public class MainActivity extends BaseActivity {
             return true;
         });
     }
-    
+
     @Override
     protected int getLayoutId() {
         return R.layout.main_activity;
     }
-    
+
     /**
      * 双击返回键退出app
      */
@@ -86,9 +94,9 @@ public class MainActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-    
+
     private static boolean isExit = false;
-    
+
     private void exit() {
         if (!isExit) {
             isExit = true;
@@ -98,15 +106,15 @@ public class MainActivity extends BaseActivity {
             this.finish();
         }
     }
-    
+
     @SuppressLint("HandlerLeak")
     private static Handler handler = new Handler() {
-        
+
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             isExit = false;
         }
     };
-    
+
 }

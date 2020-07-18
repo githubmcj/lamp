@@ -16,4 +16,6 @@ public interface CommonValue {
      * SharedPreferences文件名
      */
     String SHARE_PREFERENCES_NAME = "share_preferences_name";
+
+    int COLUMN = 20;
 }

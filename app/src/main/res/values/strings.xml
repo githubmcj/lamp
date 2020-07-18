@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">微一案安卓项目模板</string>
 
-    <string name="title_my_study">我的学习</string>
-    <string name="title_my">我的</string>
+    <string name="title_home">首页</string>
+    <string name="title_doodle">涂鸦笔</string>
+    <string name="title_equipment">设备</string>
+
+
+    <string name="equipment_name">设备名称</string>
 
 </resources>
