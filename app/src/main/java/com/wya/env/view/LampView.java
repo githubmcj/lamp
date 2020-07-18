@@ -47,7 +47,6 @@ public class LampView extends View {
 
     public LampView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
-        ;
     }
 
     public LampView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
