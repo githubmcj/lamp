@@ -136,6 +136,14 @@ public class LampView extends View {
      */
     private int choseColor;
 
+    public int getChoseColor() {
+        return choseColor;
+    }
+
+    public void setChoseColor(int choseColor) {
+        this.choseColor = choseColor;
+    }
+
     private List<Doodle> data = new ArrayList<>();
 
 

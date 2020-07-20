@@ -7,5 +7,9 @@
 
 
     <string name="equipment_name">设备名称</string>
+    <string name="delete">删除</string>
+    <string name="clean">擦除</string>
+    <string name="bold_paint">粗笔</string>
+    <string name="thin_paint">细笔</string>
 
 </resources>

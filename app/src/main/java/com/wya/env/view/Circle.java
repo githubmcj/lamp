@@ -26,6 +26,16 @@ public class Circle extends View {
     private int mHeight;
     private int mColor;
     private Paint mPaint;
+
+    public boolean isCircle_chose() {
+        return circle_chose;
+    }
+
+    public void setCircle_chose(boolean circle_chose) {
+        this.circle_chose = circle_chose;
+        postInvalidate();
+    }
+
     private boolean circle_chose;
 
     public Circle(Context context) {
@@ -94,5 +104,10 @@ public class Circle extends View {
         canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2, mPaint);
 
 
+    }
+
+    public void setColor(int chose_color) {
+        mColor = chose_color;
+        postInvalidate();
     }
 }

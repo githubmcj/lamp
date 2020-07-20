@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20"
+        android:background="@drawable/white_pick_view_bg"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/dp_20"
+        android:paddingBottom="@dimen/dp_20">
+
+        <RelativeLayout
+            android:layout_width="@dimen/dp_300"
+            android:layout_height="@dimen/dp_300">
+
+            <com.wya.env.view.ColorPickerView
+                android:id="@+id/picker_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:indicator_width="8dp"
+                app:picker_width="@dimen/dp_300" />
+
+            <com.wya.env.view.Circle
+                android:id="@+id/circle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:circle_color="@color/cEA1318"
+                app:circle_width="@dimen/dp_40">
+
+            </com.wya.env.view.Circle>
+
+        </RelativeLayout>
+
+        <com.wya.uikit.button.WYAButton
+            android:id="@+id/sure"
+            android:layout_width="@dimen/dp_150"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_20"
+            android:padding="@dimen/dp_10"
+            android:paddingLeft="@dimen/dp_50"
+            android:paddingRight="@dimen/dp_50"
+            android:text="确定"
+            android:textSize="@dimen/sp_16"
+            app:buttonBackGroundColor="@color/app_blue"
+            app:buttonBackGroundColorPress="@color/app_blue_press"
+            app:buttonFillet="true"
+            app:buttonRadius="5dp"
+            app:buttonTextColor="@color/white" />
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

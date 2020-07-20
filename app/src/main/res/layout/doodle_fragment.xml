@@ -29,6 +29,7 @@
                 android:background="@drawable/lamp_view_bg">
 
                 <com.wya.env.view.LampView
+                    android:id="@+id/lamp_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_centerHorizontal="true"
@@ -68,158 +69,302 @@
                         </TextView>
                     </TableRow>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/dp_10"
+                        android:background="@drawable/paint_normal_bg"
+                        android:orientation="vertical">
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TableRow
+                                android:id="@+id/tab1"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <com.wya.env.view.Circle
+                                    android:id="@+id/circle1"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:circle_color="@color/cEA1318"
+                                    app:circle_width="@dimen/dp_40">
+                                </com.wya.env.view.Circle>
+
+                            </TableRow>
+
+                            <TableRow
+                                android:id="@+id/tab2"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <com.wya.env.view.Circle
+                                    android:id="@+id/circle2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:circle_color="@color/cF69218"
+                                    app:circle_width="@dimen/dp_40">
+
+                                </com.wya.env.view.Circle>
+
+                            </TableRow>
+
+                            <TableRow
+                                android:id="@+id/tab3"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <com.wya.env.view.Circle
+                                    android:id="@+id/circle3"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:circle_color="@color/cF2E93F"
+                                    app:circle_width="@dimen/dp_40">
+
+                                </com.wya.env.view.Circle>
+
+
+                            </TableRow>
+
+                            <TableRow
+                                android:id="@+id/tab4"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <com.wya.env.view.Circle
+                                    android:id="@+id/circle4"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:circle_color="@color/c6BBA2B"
+                                    app:circle_width="@dimen/dp_40">
+
+                                </com.wya.env.view.Circle>
+
+
+                            </TableRow>
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TableRow
+                                android:id="@+id/tab5"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <com.wya.env.view.Circle
+                                    android:id="@+id/circle5"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:circle_color="@color/c68C7DD"
+                                    app:circle_width="@dimen/dp_40">
+
+                                </com.wya.env.view.Circle>
+                            </TableRow>
+
+                            <TableRow
+                                android:id="@+id/tab6"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <com.wya.env.view.Circle
+                                    android:id="@+id/circle6"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:circle_color="@color/c1A489E"
+                                    app:circle_width="@dimen/dp_40">
+
+                                </com.wya.env.view.Circle>
+
+
+                            </TableRow>
+
+                            <TableRow
+                                android:id="@+id/tab7"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <com.wya.env.view.Circle
+                                    android:id="@+id/circle7"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:circle_color="@color/cB04F9C"
+                                    app:circle_width="@dimen/dp_40">
+
+                                </com.wya.env.view.Circle>
+
+
+                            </TableRow>
+
+                            <TableRow
+                                android:id="@+id/tab8"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <com.wya.env.view.Circle
+                                    android:id="@+id/circle8"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:circle_color="@color/white"
+                                    app:circle_width="@dimen/dp_40">
+
+                                </com.wya.env.view.Circle>
+
+
+                            </TableRow>
+                        </TableRow>
+
+                        <TableRow
+                            android:id="@+id/tab_chose_color"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:padding="@dimen/dp_12"
+                                android:text="颜色选择">
+
+                            </TextView>
+                        </TableRow>
+
+
+                    </LinearLayout>
+
                     <TableRow
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <TableRow
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_marginTop="@dimen/dp_10"
                             android:layout_marginBottom="@dimen/dp_10"
                             android:layout_weight="1"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
-                            <com.wya.env.view.Circle
+                            <ImageView
+                                android:layout_width="@dimen/dp_40"
+                                android:layout_height="@dimen/dp_40"
+                                android:background="@drawable/white_bg"
+                                android:padding="@dimen/dp_10"
+                                android:src="@drawable/icon_camera_flash_yelow">
+
+                            </ImageView>
+
+                            <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:circle_chose="true"
-                                app:circle_color="@color/cEA1318"
-                                app:circle_width="@dimen/dp_40">
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:text="@string/bold_paint"
+                                android:textSize="@dimen/sp_14"></TextView>
+                        </LinearLayout>
 
-                            </com.wya.env.view.Circle>
-                        </TableRow>
-
-                        <TableRow
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_marginTop="@dimen/dp_10"
                             android:layout_marginBottom="@dimen/dp_10"
                             android:layout_weight="1"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
-                            <com.wya.env.view.Circle
+                            <ImageView
+                                android:layout_width="@dimen/dp_40"
+                                android:layout_height="@dimen/dp_40"
+                                android:background="@drawable/white_bg"
+                                android:padding="@dimen/dp_10"
+                                android:src="@drawable/icon_camera_flash_yelow">
+
+                            </ImageView>
+
+                            <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:circle_color="@color/cF69218"
-                                app:circle_width="@dimen/dp_40">
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:text="@string/thin_paint"
+                                android:textSize="@dimen/sp_14"></TextView>
+                        </LinearLayout>
 
-                            </com.wya.env.view.Circle>
-
-
-                        </TableRow>
-
-                        <TableRow
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_marginTop="@dimen/dp_10"
                             android:layout_marginBottom="@dimen/dp_10"
                             android:layout_weight="1"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
-                            <com.wya.env.view.Circle
+                            <ImageView
+                                android:layout_width="@dimen/dp_40"
+                                android:layout_height="@dimen/dp_40"
+                                android:background="@drawable/white_bg"
+                                android:padding="@dimen/dp_10"
+                                android:src="@drawable/icon_camera_flash_yelow">
+
+                            </ImageView>
+
+                            <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:circle_color="@color/cF2E93F"
-                                app:circle_width="@dimen/dp_40">
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:text="@string/clean"
+                                android:textSize="@dimen/sp_14"></TextView>
+                        </LinearLayout>
 
-                            </com.wya.env.view.Circle>
-
-
-                        </TableRow>
-
-                        <TableRow
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_marginTop="@dimen/dp_10"
                             android:layout_marginBottom="@dimen/dp_10"
                             android:layout_weight="1"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
-                            <com.wya.env.view.Circle
+                            <ImageView
+                                android:layout_width="@dimen/dp_40"
+                                android:layout_height="@dimen/dp_40"
+                                android:background="@drawable/white_bg"
+                                android:padding="@dimen/dp_10"
+                                android:src="@drawable/icon_camera_flash_yelow">
+
+                            </ImageView>
+
+                            <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:circle_color="@color/c6BBA2B"
-                                app:circle_width="@dimen/dp_40">
-
-                            </com.wya.env.view.Circle>
-
-
-                        </TableRow>
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:text="@string/delete"
+                                android:textSize="@dimen/sp_14"></TextView>
+                        </LinearLayout>
                     </TableRow>
-
-                    <TableRow
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <TableRow
-                            android:layout_width="0dp"
-                            android:layout_marginTop="@dimen/dp_10"
-                            android:layout_marginBottom="@dimen/dp_10"
-                            android:layout_weight="1"
-                            android:gravity="center">
-
-                            <com.wya.env.view.Circle
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:circle_color="@color/c68C7DD"
-                                app:circle_width="@dimen/dp_40">
-
-                            </com.wya.env.view.Circle>
-                        </TableRow>
-
-                        <TableRow
-                            android:layout_width="0dp"
-                            android:layout_marginTop="@dimen/dp_10"
-                            android:layout_marginBottom="@dimen/dp_10"
-                            android:layout_weight="1"
-                            android:gravity="center">
-
-                            <com.wya.env.view.Circle
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:circle_color="@color/c1A489E"
-                                app:circle_width="@dimen/dp_40">
-
-                            </com.wya.env.view.Circle>
-
-
-                        </TableRow>
-
-                        <TableRow
-                            android:layout_width="0dp"
-                            android:layout_marginTop="@dimen/dp_10"
-                            android:layout_marginBottom="@dimen/dp_10"
-                            android:layout_weight="1"
-                            android:gravity="center">
-
-                            <com.wya.env.view.Circle
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:circle_color="@color/cB04F9C"
-                                app:circle_width="@dimen/dp_40">
-
-                            </com.wya.env.view.Circle>
-
-
-                        </TableRow>
-
-                        <TableRow
-                            android:layout_width="0dp"
-                            android:layout_marginTop="@dimen/dp_10"
-                            android:layout_marginBottom="@dimen/dp_10"
-                            android:layout_weight="1"
-                            android:gravity="center">
-
-                            <com.wya.env.view.Circle
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:circle_color="@color/white"
-                                app:circle_width="@dimen/dp_40">
-
-                            </com.wya.env.view.Circle>
-
-
-                        </TableRow>
-                    </TableRow>
-
                 </LinearLayout>
+
             </RelativeLayout>
 
 
