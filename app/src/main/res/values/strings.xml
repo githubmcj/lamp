@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">微一案安卓项目模板</string>
+    <string name="app_name">灯饰</string>
 
     <string name="title_home">首页</string>
     <string name="title_doodle">涂鸦笔</string>
@@ -9,6 +9,7 @@
     <string name="equipment_name">设备名称</string>
     <string name="delete">删除</string>
     <string name="clean">擦除</string>
+    <string name="twinkle">闪烁</string>
     <string name="bold_paint">粗笔</string>
     <string name="thin_paint">细笔</string>
 

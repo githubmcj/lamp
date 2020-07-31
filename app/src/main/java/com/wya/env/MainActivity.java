@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity {
         fragmentTransaction.add(R.id.content, fragment1);
         fragmentTransaction.add(R.id.content, doodleFragment);
         fragmentTransaction.add(R.id.content, fragment2);
-        fragmentTransaction.show(doodleFragment).hide(fragment2).hide(fragment1).commit();
+        fragmentTransaction.show(fragment1).hide(fragment2).hide(doodleFragment).commit();
     }
 
     private void setToolBar() {

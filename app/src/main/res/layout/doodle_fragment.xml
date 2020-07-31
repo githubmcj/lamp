@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <EditText
@@ -60,13 +62,25 @@
                         android:layout_height="wrap_content"
                         android:gravity="center">
 
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/biaoti_left">
+                        </ImageView>
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="@dimen/dp_12"
                             android:text="涂鸦笔">
-
                         </TextView>
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/biaoti_right">
+                        </ImageView>
                     </TableRow>
 
                     <LinearLayout
@@ -93,8 +107,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     app:circle_color="@color/cEA1318"
-                                    app:circle_width="@dimen/dp_40">
-                                </com.wya.env.view.Circle>
+                                    app:circle_width="@dimen/dp_40"></com.wya.env.view.Circle>
 
                             </TableRow>
 
@@ -247,6 +260,12 @@
                             android:layout_height="wrap_content"
                             android:gravity="center">
 
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/yansexuanze">
+                            </ImageView>
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -264,6 +283,7 @@
                         android:layout_height="wrap_content">
 
                         <LinearLayout
+                            android:id="@+id/ll_bold_paint"
                             android:layout_width="0dp"
                             android:layout_marginTop="@dimen/dp_10"
                             android:layout_marginBottom="@dimen/dp_10"
@@ -276,7 +296,7 @@
                                 android:layout_height="@dimen/dp_40"
                                 android:background="@drawable/white_bg"
                                 android:padding="@dimen/dp_10"
-                                android:src="@drawable/icon_camera_flash_yelow">
+                                android:src="@drawable/cubimoren">
 
                             </ImageView>
 
@@ -289,6 +309,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/ll_thin_paint"
                             android:layout_width="0dp"
                             android:layout_marginTop="@dimen/dp_10"
                             android:layout_marginBottom="@dimen/dp_10"
@@ -301,7 +322,7 @@
                                 android:layout_height="@dimen/dp_40"
                                 android:background="@drawable/white_bg"
                                 android:padding="@dimen/dp_10"
-                                android:src="@drawable/icon_camera_flash_yelow">
+                                android:src="@drawable/xibimoren">
 
                             </ImageView>
 
@@ -314,6 +335,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/ll_clean"
                             android:layout_width="0dp"
                             android:layout_marginTop="@dimen/dp_10"
                             android:layout_marginBottom="@dimen/dp_10"
@@ -326,7 +348,7 @@
                                 android:layout_height="@dimen/dp_40"
                                 android:background="@drawable/white_bg"
                                 android:padding="@dimen/dp_10"
-                                android:src="@drawable/icon_camera_flash_yelow">
+                                android:src="@drawable/cachumoren">
 
                             </ImageView>
 
@@ -339,6 +361,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/ll_twinkle"
                             android:layout_width="0dp"
                             android:layout_marginTop="@dimen/dp_10"
                             android:layout_marginBottom="@dimen/dp_10"
@@ -351,7 +374,33 @@
                                 android:layout_height="@dimen/dp_40"
                                 android:background="@drawable/white_bg"
                                 android:padding="@dimen/dp_10"
-                                android:src="@drawable/icon_camera_flash_yelow">
+                                android:src="@drawable/sahnshuomoren">
+
+                            </ImageView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:text="@string/twinkle"
+                                android:textSize="@dimen/sp_14"></TextView>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/ll_delete"
+                            android:layout_width="0dp"
+                            android:layout_marginTop="@dimen/dp_10"
+                            android:layout_marginBottom="@dimen/dp_10"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/dp_40"
+                                android:layout_height="@dimen/dp_40"
+                                android:background="@drawable/white_bg"
+                                android:padding="@dimen/dp_10"
+                                android:src="@drawable/baocunmoren">
 
                             </ImageView>
 

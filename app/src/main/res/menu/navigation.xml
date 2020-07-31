@@ -3,19 +3,18 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@mipmap/my_normal"
+        android:icon="@drawable/ye"
         android:title="@string/title_home" />
 
     <item
         android:id="@+id/navigation_doodle"
-        android:icon="@mipmap/my_normal"
+        android:icon="@drawable/tuyabi"
         android:title="@string/title_doodle" />
 
     <item
         android:id="@+id/navigation_equipment"
-        android:icon="@mipmap/mystudy_normal"
+        android:icon="@drawable/shebiemoern"
         android:title="@string/title_equipment" />
-
 
 
 </menu>

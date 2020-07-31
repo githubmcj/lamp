@@ -38,6 +38,40 @@
 
         </RelativeLayout>
 
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp_10"
+            android:gravity="center">
+
+            <SeekBar
+                android:id="@+id/seekbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_weight="1"
+                android:max="100"
+                android:maxHeight="@dimen/dp_10"
+                android:minHeight="@dimen/dp_10"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:progress="100"
+                android:progressDrawable="@drawable/seekbar_shape"
+                android:thumb="@drawable/seek_bar" />
+
+            <TextView
+                android:id="@+id/tv_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sp_16"></TextView>
+
+
+        </TableRow>
+
+
         <com.wya.uikit.button.WYAButton
             android:id="@+id/sure"
             android:layout_width="@dimen/dp_150"

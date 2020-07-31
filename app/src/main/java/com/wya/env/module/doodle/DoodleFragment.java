@@ -4,7 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TableRow;
+import android.widget.TextView;
 
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
@@ -70,10 +73,21 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
     Unbinder unbinder;
     @BindView(R.id.lamp_view)
     LampView lampView;
+    @BindView(R.id.ll_bold_paint)
+    LinearLayout llBoldPaint;
+    @BindView(R.id.ll_thin_paint)
+    LinearLayout llThinPaint;
+    @BindView(R.id.ll_clean)
+    LinearLayout llClean;
+    @BindView(R.id.ll_twinkle)
+    LinearLayout llTwinkle;
+    @BindView(R.id.ll_delete)
+    LinearLayout llDelete;
     private Fragment1Presenter fp = new Fragment1Presenter();
 
     private int color_index;
     private int chose_color;
+    private int chose_light;
     private WYACustomDialog choseColorDialog;
 
     @Override
@@ -112,7 +126,7 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
         return rootView;
     }
 
-    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab8, R.id.tab_chose_color})
+    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab8, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_delete})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab1:
@@ -147,6 +161,19 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
                 color_index = 8;
                 getColorIndex(color_index);
                 break;
+            case R.id.ll_bold_paint:
+                lampView.setPaintBold(true);
+                break;
+            case R.id.ll_thin_paint:
+                lampView.setPaintBold(false);
+                break;
+            case R.id.ll_clean:
+                lampView.clean();
+                break;
+            case R.id.ll_twinkle:
+                break;
+            case R.id.ll_delete:
+                break;
             case R.id.tab_chose_color:
                 choseColorDialog = new WYACustomDialog.Builder(getActivity())
                         .title("")
@@ -158,6 +185,7 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
                             public void customLayout(View v) {
                                 WYAButton sure = v.findViewById(R.id.sure);
                                 ColorPickerView colorPickerView = v.findViewById(R.id.picker_view);
+                                TextView tvLight = v.findViewById(R.id.tv_light);
                                 Circle circle = v.findViewById(R.id.circle);
                                 colorPickerView.setOnColorPickListener(new PickerViewListener() {
                                     @Override
@@ -173,6 +201,25 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
                                         color_index = 0;
                                         getColorIndex(color_index);
                                         choseColorDialog.dismiss();
+                                    }
+                                });
+
+                                SeekBar mSeekBar = (SeekBar) v.findViewById(R.id.seekbar);
+
+                                mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                    @Override
+                                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                        chose_light = progress;
+                                        tvLight.setText(chose_light+"");
+                                    }
+
+                                    @Override
+                                    public void onStartTrackingTouch(SeekBar seekBar) {
+                                    }
+
+                                    @Override
+                                    public void onStopTrackingTouch(SeekBar seekBar) {
+                                        lampView.setChoseLight(chose_light);
                                     }
                                 });
                             }
@@ -229,6 +276,8 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
             case 8:
                 circle8.setCircle_chose(true);
                 chose_color = getActivity().getResources().getColor(R.color.white);
+                break;
+            default:
                 break;
         }
         lampView.setChoseColor(chose_color);
