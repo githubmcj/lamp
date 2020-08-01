@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TableRow;
@@ -12,8 +13,8 @@ import android.widget.TextView;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.listener.PickerViewListener;
-import com.wya.env.module.home.fragment.Fragment1Presenter;
-import com.wya.env.module.home.fragment.Fragment1View;
+import com.wya.env.module.home.fragment.HomeFragmentPresenter;
+import com.wya.env.module.home.fragment.HomeFragmentView;
 import com.wya.env.view.Circle;
 import com.wya.env.view.ColorPickerView;
 import com.wya.env.view.LampView;
@@ -33,7 +34,7 @@ import butterknife.Unbinder;
  * @describe: Example Fragment
  */
 
-public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implements Fragment1View {
+public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> implements HomeFragmentView {
 
 
     @BindView(R.id.circle1)
@@ -81,14 +82,31 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
     LinearLayout llClean;
     @BindView(R.id.ll_twinkle)
     LinearLayout llTwinkle;
-    @BindView(R.id.ll_delete)
+    @BindView(R.id.ll_save)
     LinearLayout llDelete;
-    private Fragment1Presenter fp = new Fragment1Presenter();
+    @BindView(R.id.img_bold_painter)
+    ImageView imgBoldPainter;
+    @BindView(R.id.img_thin_painter)
+    ImageView imgThinPainter;
+    @BindView(R.id.img_twinkle)
+    ImageView imgTwinkle;
+    private HomeFragmentPresenter fp = new HomeFragmentPresenter();
 
     private int color_index;
     private int chose_color;
     private int chose_light;
+    /**
+     * 0 不选中， 1 粗笔， 2 细笔
+     */
+    private int painter_type;
+
+    /**
+     * 是否闪烁
+     */
+    private boolean isTwinkle;
+
     private WYACustomDialog choseColorDialog;
+
 
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
@@ -126,7 +144,7 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
         return rootView;
     }
 
-    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab8, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_delete})
+    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab8, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab1:
@@ -162,17 +180,36 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
                 getColorIndex(color_index);
                 break;
             case R.id.ll_bold_paint:
+                if (painter_type == 1) {
+                    painter_type = 0;
+                } else {
+                    painter_type = 1;
+                }
                 lampView.setPaintBold(true);
+                setPainter(painter_type);
                 break;
             case R.id.ll_thin_paint:
                 lampView.setPaintBold(false);
+                if (painter_type == 2) {
+                    painter_type = 0;
+                } else {
+                    painter_type = 2;
+                }
+                setPainter(painter_type);
                 break;
             case R.id.ll_clean:
                 lampView.clean();
                 break;
             case R.id.ll_twinkle:
+                isTwinkle = !isTwinkle;
+                if (isTwinkle) {
+                    imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
+                } else {
+                    imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
+                }
                 break;
-            case R.id.ll_delete:
+            case R.id.ll_save:
+
                 break;
             case R.id.tab_chose_color:
                 choseColorDialog = new WYACustomDialog.Builder(getActivity())
@@ -210,7 +247,7 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
                                     @Override
                                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                                         chose_light = progress;
-                                        tvLight.setText(chose_light+"");
+                                        tvLight.setText(chose_light + "");
                                     }
 
                                     @Override
@@ -226,11 +263,19 @@ public class DoodleFragment extends BaseMvpFragment<Fragment1Presenter> implemen
                         })
                         .build();
                 choseColorDialog.show();
-
-
                 break;
             default:
                 break;
+        }
+    }
+
+    private void setPainter(int painter_type) {
+        imgBoldPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.cubimoren));
+        imgThinPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.xibimoren));
+        if (painter_type == 1) {
+            imgBoldPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.cubidianji));
+        } else if (painter_type == 2) {
+            imgThinPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.xibidianji));
         }
     }
 

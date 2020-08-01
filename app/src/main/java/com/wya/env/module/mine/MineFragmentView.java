@@ -1,4 +1,4 @@
-package com.wya.env.module.home.fragment;
+package com.wya.env.module.mine;
 
 import com.wya.env.base.BaseView;
 
@@ -9,5 +9,5 @@ import com.wya.env.base.BaseView;
  * @describe:
  */
 
-public interface Fragment1View extends BaseView {
+public interface MineFragmentView extends BaseView {
 }

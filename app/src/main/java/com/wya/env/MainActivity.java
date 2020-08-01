@@ -10,8 +10,8 @@ import android.view.MenuItem;
 
 import com.wya.env.base.BaseActivity;
 import com.wya.env.module.doodle.DoodleFragment;
-import com.wya.env.module.home.fragment.Fragment1;
-import com.wya.env.module.mine.Fragment2;
+import com.wya.env.module.home.fragment.HomeFragment;
+import com.wya.env.module.mine.MineFragment;
 import com.wya.uikit.tabbar.WYATabBar;
 
 import butterknife.BindView;
@@ -30,8 +30,8 @@ public class MainActivity extends BaseActivity {
 
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
-    private Fragment1 fragment1;
-    private Fragment2 fragment2;
+    private HomeFragment fragment1;
+    private MineFragment fragment2;
     private DoodleFragment doodleFragment;
 
     @Override
@@ -39,11 +39,12 @@ public class MainActivity extends BaseActivity {
         showToolBar(false);
         initFragment();
         setToolBar();
+        getSwipeBackLayout().setEnableGesture(false);
     }
 
     private void initFragment() {
-        fragment1 = new Fragment1();
-        fragment2 = new Fragment2();
+        fragment1 = new HomeFragment();
+        fragment2 = new MineFragment();
         doodleFragment = new DoodleFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();

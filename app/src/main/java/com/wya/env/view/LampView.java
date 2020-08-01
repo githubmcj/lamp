@@ -100,6 +100,7 @@ public class LampView extends View {
      * 背景宽度
      */
     private int mWidth;
+
     /**
      * 背景高度
      */
@@ -144,6 +145,8 @@ public class LampView extends View {
 
     private boolean isPaintBold;
 
+    private int type;
+
 //    String has = "#";
 //    String PR_transparency = "50";// this text background color 50% transparent;
 //    String og_color = "FF001A";
@@ -165,17 +168,33 @@ public class LampView extends View {
 
     private List<Doodle> data = new ArrayList<>();
 
+    public void setData(List<Doodle> data) {
+        this.data = data;
+        postInvalidate();
+    }
 
     private void initAttr(AttributeSet attrs) {
         TypedArray typedArray = mContext.obtainStyledAttributes(attrs, R.styleable.LampView);
-        mWidth = (int) typedArray.getDimension(R.styleable.LampView_width, ScreenUtil.getScreenWidth(mContext) - (int) typedArray.getDimension(R.styleable.LampView_margin_left, 0) - (int) typedArray.getDimension(R.styleable.LampView_margin_right, 0));
+        type = typedArray.getColor(R.styleable.LampView_type, 1);
+
+        if (type == 1) {
+            mWidth = (int) typedArray.getDimension(R.styleable.LampView_width, ScreenUtil.getScreenWidth(mContext) - (int) typedArray.getDimension(R.styleable.LampView_margin_left, 0) - (int) typedArray.getDimension(R.styleable.LampView_margin_right, 0));
+        } else if (type == 2) {
+            mWidth = (int) typedArray.getDimension(R.styleable.LampView_width, ScreenUtil.getScreenWidth(mContext) / 2 - (int) typedArray.getDimension(R.styleable.LampView_margin_left, 0) - (int) typedArray.getDimension(R.styleable.LampView_margin_right, 0) - ScreenUtil.dip2px(mContext, 20));
+        }
 
         column = typedArray.getColor(R.styleable.LampView_column, 20);
-        lamp_margin = typedArray.getColor(R.styleable.LampView_lamp_margin, 2);
+        if (type == 1) {
+            lamp_margin = typedArray.getColor(R.styleable.LampView_lamp_margin, 2);
+        } else if (type == 2) {
+            lamp_margin = typedArray.getColor(R.styleable.LampView_lamp_margin, 1);
+        }
+
         size = typedArray.getColor(R.styleable.LampView_size, 600);
 
         // 灯的直径
         lamp_size = mWidth / column - 2 * lamp_margin;
+
         mHeight = (size / column) * (lamp_size + 2 * lamp_margin);
 
         mBackground = typedArray.getColor(R.styleable.LampView_bg_color,
@@ -219,37 +238,19 @@ public class LampView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        ViewParent parent = getParent();
-        if (parent != null) {
-            //父控件不拦截事件，全部交给子控件处理
-            parent.requestDisallowInterceptTouchEvent(true);
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    x = (int) event.getX();
-                    y = (int) event.getY();
-                    if (x > 0 && x < mWidth && y > 0 && y < mHeight) {
-                        LogUtil.e("x:" + x + "---y:" + y);
-                        old_x = event.getX();
-                        old_y = event.getY();
-                        int position = (int) ((event.getX()) / (lamp_size + 2 * lamp_margin) + ((int) ((event.getY()) / (lamp_size + 2 * lamp_margin))) * column);
-                        if (isPaintBold) {
-                            setBoldAllChoseColor(position);
-                        } else {
-                            if (data.get(position).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                                data.get(position).setColor(choseColor);
-                                data.get(position).setLight(choseLight);
-                                postInvalidate();
-                            }
-                        }
-                    } else {
-                        LogUtil.e("在外面");
-                    }
-                case MotionEvent.ACTION_MOVE:
-                    x = (int) event.getX();
-                    y = (int) event.getY();
-                    if (x > 0 && x < mWidth && y > 0 && y < mHeight) {
-                        LogUtil.e("x:" + x + "---y:" + y);
-                        if (old_x == 0 || old_y == 0 || Math.abs(old_x - event.getX()) > lamp_size + 2 * lamp_margin || Math.abs(old_y - event.getY()) > lamp_size + 2 * lamp_margin) {
+        if (type == 2) {
+            return super.onTouchEvent(event);
+        } else {
+            ViewParent parent = getParent();
+            if (parent != null) {
+                //父控件不拦截事件，全部交给子控件处理
+                parent.requestDisallowInterceptTouchEvent(true);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        x = (int) event.getX();
+                        y = (int) event.getY();
+                        if (x > 0 && x < mWidth && y > 0 && y < mHeight) {
+                            LogUtil.e("x:" + x + "---y:" + y);
                             old_x = event.getX();
                             old_y = event.getY();
                             int position = (int) ((event.getX()) / (lamp_size + 2 * lamp_margin) + ((int) ((event.getY()) / (lamp_size + 2 * lamp_margin))) * column);
@@ -262,19 +263,41 @@ public class LampView extends View {
                                     postInvalidate();
                                 }
                             }
+                        } else {
+                            LogUtil.e("在外面");
                         }
-                    } else {
-                        LogUtil.e("在外面");
-                    }
-                    break;
-                case MotionEvent.ACTION_UP:
-                    break;
+                    case MotionEvent.ACTION_MOVE:
+                        x = (int) event.getX();
+                        y = (int) event.getY();
+                        if (x > 0 && x < mWidth && y > 0 && y < mHeight) {
+                            LogUtil.e("x:" + x + "---y:" + y);
+                            if (old_x == 0 || old_y == 0 || Math.abs(old_x - event.getX()) > lamp_size + 2 * lamp_margin || Math.abs(old_y - event.getY()) > lamp_size + 2 * lamp_margin) {
+                                old_x = event.getX();
+                                old_y = event.getY();
+                                int position = (int) ((event.getX()) / (lamp_size + 2 * lamp_margin) + ((int) ((event.getY()) / (lamp_size + 2 * lamp_margin))) * column);
+                                if (isPaintBold) {
+                                    setBoldAllChoseColor(position);
+                                } else {
+                                    if (data.get(position).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                                        data.get(position).setColor(choseColor);
+                                        data.get(position).setLight(choseLight);
+                                        postInvalidate();
+                                    }
+                                }
+                            }
+                        } else {
+                            LogUtil.e("在外面");
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
+            return true;
         }
-        return true;
 
     }
 
@@ -449,5 +472,11 @@ public class LampView extends View {
 
     public void setChoseLight(int chose_light) {
         this.choseLight = chose_light * 255 / 100;
+    }
+
+
+    public void setmWidth(int mWidth) {
+        this.mWidth = mWidth;
+
     }
 }

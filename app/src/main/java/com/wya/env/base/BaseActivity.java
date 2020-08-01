@@ -1,5 +1,7 @@
 package com.wya.env.base;
 
+import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -31,6 +33,7 @@ public abstract class BaseActivity extends BaseToolBarActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutId());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initToolBar();
         unbinder = ButterKnife.bind(this);
         loadingDialog = new WYALoadingDialog(this, false, false);
@@ -50,9 +53,13 @@ public abstract class BaseActivity extends BaseToolBarActivity {
             }
         }, outMetrics.widthPixels);
     }
-    
+
     private void initToolBar() {
         setBackgroundColor(R.color.white, true);
+        setTitleColor(getResources().getColor(R.color.color_33));
+        showLeftIcon(true);
+        setTitleSize(18);
+        setLeftIcon(R.drawable.fanhui);
     }
     
     /**

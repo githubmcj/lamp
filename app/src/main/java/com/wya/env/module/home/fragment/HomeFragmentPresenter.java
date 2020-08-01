@@ -9,5 +9,5 @@ import com.wya.env.base.BasePresent;
  * @describe:
  */
 
-public class Fragment1Presenter extends BasePresent<Fragment1View> {
+public class HomeFragmentPresenter extends BasePresent<HomeFragmentView> {
 }

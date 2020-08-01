@@ -1,103 +1,218 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/f4f4f4"
-    android:fitsSystemWindows="true"
+    android:background="@color/white"
     android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/art"></ImageView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="30dp"
         android:orientation="vertical">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_40"
+            android:layout_marginBottom="@dimen/dp_20"
+            android:text="@string/login"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dp_25">
+
+
+        </TextView>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
-            android:background="@drawable/login_shape"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="4dp">
+                android:background="@drawable/login_bg"
+                android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/username_icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_margin="10dp"
-                    android:src="@mipmap/username" />
-
-                <!--    <ScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">-->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_6"
+                    android:text="@string/email_address"
+                    android:textColor="@color/c666666"></TextView>
 
                 <EditText
-                    android:id="@+id/username"
+                    android:id="@+id/email"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
-                    android:hint="用户名"
+                    android:hint="@string/email_hint"
                     android:inputType="textEmailAddress"
-                    android:text="admin"
-                    android:textColorHint="#ffffff" />
-                <!--</ScrollView>-->
+                    android:paddingLeft="@dimen/dp_10"
+                    android:paddingTop="@dimen/dp_6"
+                    android:paddingRight="@dimen/dp_10"
+                    android:paddingBottom="@dimen/dp_6"
+                    android:textColor="@color/color_33"
+                    android:textColorHint="@color/c999999"
+                    android:textSize="@dimen/sp_14" />
 
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.6dp"
-                android:background="#f2f2f2" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="4dp">
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@drawable/login_bg"
+                android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/password_icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_margin="10dp"
-                    android:src="@mipmap/password" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_6"
+                    android:text="@string/password"
+                    android:textColor="@color/c666666"></TextView>
 
                 <EditText
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
-                    android:hint="密码"
-                    android:inputType="textPassword"
-                    android:text="admin"
-                    android:textColorHint="#ffffff" />
+                    android:hint="@string/pass_hint"
+                    android:inputType="textEmailAddress"
+                    android:paddingLeft="@dimen/dp_10"
+                    android:paddingTop="@dimen/dp_6"
+                    android:paddingRight="@dimen/dp_10"
+                    android:paddingBottom="@dimen/dp_6"
+                    android:textColor="@color/color_33"
+                    android:textColorHint="@color/c999999"
+                    android:textSize="@dimen/sp_14" />
 
             </LinearLayout>
+
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right">
+
+                <TextView
+                    android:id="@+id/tv_forget_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/dp_10"
+                    android:paddingBottom="@dimen/dp_10"
+                    android:text="@string/forget_password"
+                    android:textColor="@color/app_blue"></TextView>
+            </TableRow>
+
         </LinearLayout>
 
-        <Button
+
+        <com.wya.uikit.button.WYAButton
             android:id="@+id/but_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_marginTop="10dp"
-            android:background="@color/colorPrimary"
-            android:text="登录"
-            android:textColor="#ffffff" />
+            android:layout_marginLeft="@dimen/dp_40"
+            android:layout_marginRight="@dimen/dp_40"
+            android:padding="@dimen/dp_10"
+            android:text="@string/login"
+            android:textSize="@dimen/sp_18"
+            app:buttonBackGroundColor="@color/app_blue"
+            app:buttonBackGroundColorPress="@color/app_blue"
+            app:buttonFillet="true"
+            app:buttonRadius="10dp"
+            app:buttonTextColor="@color/white" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/dp_10"
+                android:paddingBottom="@dimen/dp_10"
+                android:text="@string/no_account"
+                android:textColor="@color/color_33"></TextView>
+
+            <TextView
+                android:id="@+id/register"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/dp_10"
+                android:paddingBottom="@dimen/dp_10"
+                android:text="@string/to_register"
+                android:textColor="@color/app_blue"></TextView>
+        </TableRow>
 
 
     </LinearLayout>
 
 
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/biaoti_left"></ImageView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/dp_12"
+                android:text="@string/third"></TextView>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/biaoti_right"></ImageView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_20"
+            android:gravity="center">
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/dp_30"
+                android:background="@drawable/google"></ImageView>
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/fk"></ImageView>
+        </TableRow>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

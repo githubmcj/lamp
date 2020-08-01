@@ -17,6 +17,7 @@
         <attr name="margin_left" format="dimension"/>
         <attr name="margin_right" format="dimension"/>
         <attr name="column" format="integer"/>
+        <attr name="type" format="integer"/>
         <attr name="lamp_margin" format="integer"/>
         <attr name="size" format="integer"/>
     </declare-styleable>
