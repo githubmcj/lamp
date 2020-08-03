@@ -19,8 +19,13 @@ import com.wya.env.util.ColorUtil;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @date: 2020/7/18 9:13
@@ -89,11 +94,20 @@ public class LampView extends View {
 
         for (int i = 0; i < column; i++) {
             for (int j = 0; j < size / column; j++) {
-                lampPaint.setColor(data.get(i + column * j).getLampColor());
+                if (isTwinkle || hasTwinkle) {
+                    if (data.get(i + column * j).isTwinkle()) {
+                        lampPaint.setColor(data.get(i + column * j).getShowLampColor());
+                    } else {
+                        lampPaint.setColor(data.get(i + column * j).getLampColor());
+                    }
+                } else {
+                    lampPaint.setColor(data.get(i + column * j).getLampColor());
+                }
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, lampPaint);
             }
         }
     }
+
 
     //拖动圆的属性
     /**
@@ -147,6 +161,69 @@ public class LampView extends View {
 
     private int type;
 
+    /**
+     * 是否闪烁
+     */
+    private boolean isTwinkle;
+
+    /**
+     * 是否存在闪烁
+     */
+    private boolean hasTwinkle;
+
+    /**
+     * 闪烁一次时间  ms
+     */
+    private int period;
+
+    /**
+     * 每一帧时间
+     */
+    private int frameTime;
+
+    /**
+     * 是否开启线程
+     */
+    private boolean isStart;
+
+    public void setTwinkle(boolean twinkle) {
+        isTwinkle = twinkle;
+        if (isTwinkle && !isStart) {
+            isStart = true;
+            toTwinkle();
+        }
+    }
+
+    private int add;
+
+    private void toTwinkle() {
+        add = 0;
+        LogUtil.e("开始闪烁");
+        ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1,
+                new BasicThreadFactory.Builder().namingPattern("twinkle").daemon(true).build());
+        executorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.e("闪烁:" + System.currentTimeMillis() + "----次数:" + add);
+                for (int i = 0; i < data.size(); i++) {
+                    if (data.get(i).isTwinkle()) {
+                        int phase = (int) ((data.get(i).getCreateTime() + 5 * add) % 511);
+                        LogUtil.e(phase + "-----phase-------灯序号" + i);
+                        if (255 > phase) {
+                            data.get(i).setShowLight(phase);
+                        } else {
+                            data.get(i).setShowLight(510 - phase);
+                        }
+                    }
+                }
+                add++;
+                postInvalidate();
+            }
+        }, 0, frameTime, TimeUnit.MILLISECONDS);
+
+    }
+
+
 //    String has = "#";
 //    String PR_transparency = "50";// this text background color 50% transparent;
 //    String og_color = "FF001A";
@@ -170,7 +247,21 @@ public class LampView extends View {
 
     public void setData(List<Doodle> data) {
         this.data = data;
+        hasTwinkle = false;
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i).isTwinkle()) {
+                hasTwinkle = true;
+                if (hasTwinkle && !isStart) {
+                    isStart = true;
+                    toTwinkle();
+                }
+            }
+        }
         postInvalidate();
+    }
+
+    public List<Doodle> getData() {
+        return data;
     }
 
     private void initAttr(AttributeSet attrs) {
@@ -215,10 +306,16 @@ public class LampView extends View {
         choseLight = 255;
         choseColor = mContext.getResources().getColor(R.color.black);
 
+        hasTwinkle = false;
+        period = 2000;
+        frameTime = 20;
+
+
         data.clear();
         for (int i = 0; i < size; i++) {
             Doodle doodle = new Doodle();
             doodle.setColor(mLampColor);
+            doodle.setTwinkle(false);
             doodle.setLight(255);
             data.add(doodle);
         }
@@ -235,6 +332,7 @@ public class LampView extends View {
     float old_y = 0;
     int x;
     int y;
+    long createTime;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -247,6 +345,7 @@ public class LampView extends View {
                 parent.requestDisallowInterceptTouchEvent(true);
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        createTime = System.currentTimeMillis();
                         x = (int) event.getX();
                         y = (int) event.getY();
                         if (x > 0 && x < mWidth && y > 0 && y < mHeight) {
@@ -260,6 +359,12 @@ public class LampView extends View {
                                 if (data.get(position).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                                     data.get(position).setColor(choseColor);
                                     data.get(position).setLight(choseLight);
+                                    if (isTwinkle) {
+                                        data.get(position).setTwinkle(true);
+                                    } else {
+                                        data.get(position).setTwinkle(false);
+                                    }
+                                    data.get(position).setCreateTime(createTime);
                                     postInvalidate();
                                 }
                             }
@@ -281,6 +386,12 @@ public class LampView extends View {
                                     if (data.get(position).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                                         data.get(position).setColor(choseColor);
                                         data.get(position).setLight(choseLight);
+                                        if (isTwinkle) {
+                                            data.get(position).setTwinkle(true);
+                                        } else {
+                                            data.get(position).setTwinkle(false);
+                                        }
+                                        data.get(position).setCreateTime(createTime);
                                         postInvalidate();
                                     }
                                 }
@@ -315,6 +426,12 @@ public class LampView extends View {
         if (data.get(position).getLampColor() != getChoseArgb(choseColor, choseLight)) {
             data.get(position).setColor(choseColor);
             data.get(position).setLight(choseLight);
+            if (isTwinkle) {
+                data.get(position).setTwinkle(true);
+            } else {
+                data.get(position).setTwinkle(false);
+            }
+            data.get(position).setCreateTime(createTime);
             toPostInvalidate = true;
         }
         if (position == 0) {
@@ -322,11 +439,23 @@ public class LampView extends View {
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + 1).setTwinkle(true);
+                } else {
+                    data.get(position + 1).setTwinkle(false);
+                }
+                data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + column).setColor(choseColor);
                 data.get(position + column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + column).setTwinkle(true);
+                } else {
+                    data.get(position + column).setTwinkle(false);
+                }
+                data.get(position + column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position > 0 && position < column - 1) {
@@ -334,16 +463,34 @@ public class LampView extends View {
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + 1).setTwinkle(true);
+                } else {
+                    data.get(position + 1).setTwinkle(false);
+                }
+                data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - 1).setColor(choseColor);
                 data.get(position - 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - 1).setTwinkle(true);
+                } else {
+                    data.get(position - 1).setTwinkle(false);
+                }
+                data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + column).setColor(choseColor);
                 data.get(position + column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + column).setTwinkle(true);
+                } else {
+                    data.get(position + column).setTwinkle(false);
+                }
+                data.get(position + column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == column - 1) {
@@ -351,11 +498,23 @@ public class LampView extends View {
             if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - 1).setColor(choseColor);
                 data.get(position - 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - 1).setTwinkle(true);
+                } else {
+                    data.get(position - 1).setTwinkle(false);
+                }
+                data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + column).setColor(choseColor);
                 data.get(position + column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + column).setTwinkle(true);
+                } else {
+                    data.get(position + column).setTwinkle(false);
+                }
+                data.get(position + column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == data.size() - 1) {
@@ -363,11 +522,23 @@ public class LampView extends View {
             if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - 1).setColor(choseColor);
                 data.get(position - 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - 1).setTwinkle(true);
+                } else {
+                    data.get(position - 1).setTwinkle(false);
+                }
+                data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - column).setColor(choseColor);
                 data.get(position - column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - column).setTwinkle(true);
+                } else {
+                    data.get(position - column).setTwinkle(false);
+                }
+                data.get(position - column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == data.size() - column) {
@@ -375,11 +546,23 @@ public class LampView extends View {
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + 1).setTwinkle(true);
+                } else {
+                    data.get(position + 1).setTwinkle(false);
+                }
+                data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - column).setColor(choseColor);
                 data.get(position - column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - column).setTwinkle(true);
+                } else {
+                    data.get(position - column).setTwinkle(false);
+                }
+                data.get(position - column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position % column == 0) {
@@ -387,16 +570,34 @@ public class LampView extends View {
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + 1).setTwinkle(true);
+                } else {
+                    data.get(position + 1).setTwinkle(false);
+                }
+                data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - column).setColor(choseColor);
                 data.get(position - column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - column).setTwinkle(true);
+                } else {
+                    data.get(position - column).setTwinkle(false);
+                }
+                data.get(position - column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + column).setColor(choseColor);
                 data.get(position + column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + column).setTwinkle(true);
+                } else {
+                    data.get(position + column).setTwinkle(false);
+                }
+                data.get(position + column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if ((position + 1) % column == 0) {
@@ -404,16 +605,34 @@ public class LampView extends View {
             if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - 1).setColor(choseColor);
                 data.get(position - 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - 1).setTwinkle(true);
+                } else {
+                    data.get(position - 1).setTwinkle(false);
+                }
+                data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - column).setColor(choseColor);
                 data.get(position - column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - column).setTwinkle(true);
+                } else {
+                    data.get(position - column).setTwinkle(false);
+                }
+                data.get(position - column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + column).setColor(choseColor);
                 data.get(position + column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + column).setTwinkle(true);
+                } else {
+                    data.get(position + column).setTwinkle(false);
+                }
+                data.get(position + column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position < data.size() - 1 && position > data.size() - column) {
@@ -421,16 +640,34 @@ public class LampView extends View {
             if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - 1).setColor(choseColor);
                 data.get(position - 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - 1).setTwinkle(true);
+                } else {
+                    data.get(position - 1).setTwinkle(false);
+                }
+                data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + 1).setTwinkle(true);
+                } else {
+                    data.get(position + 1).setTwinkle(false);
+                }
+                data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - column).setColor(choseColor);
                 data.get(position - column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - column).setTwinkle(true);
+                } else {
+                    data.get(position - column).setTwinkle(false);
+                }
+                data.get(position - column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else {
@@ -438,21 +675,45 @@ public class LampView extends View {
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + 1).setTwinkle(true);
+                } else {
+                    data.get(position + 1).setTwinkle(false);
+                }
+                data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - 1).setColor(choseColor);
                 data.get(position - 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - 1).setTwinkle(true);
+                } else {
+                    data.get(position - 1).setTwinkle(false);
+                }
+                data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - column).setColor(choseColor);
                 data.get(position - column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - column).setTwinkle(true);
+                } else {
+                    data.get(position - column).setTwinkle(false);
+                }
+                data.get(position - column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + column).setColor(choseColor);
                 data.get(position + column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + column).setTwinkle(true);
+                } else {
+                    data.get(position + column).setTwinkle(false);
+                }
+                data.get(position + column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         }
@@ -465,6 +726,7 @@ public class LampView extends View {
         for (int i = 0; i < data.size(); i++) {
             data.get(i).setColor(mContext.getResources().getColor(R.color.black));
             data.get(i).setLight(255);
+            data.get(i).setTwinkle(false);
         }
         postInvalidate();
     }
@@ -477,6 +739,6 @@ public class LampView extends View {
 
     public void setmWidth(int mWidth) {
         this.mWidth = mWidth;
-
     }
 }
+

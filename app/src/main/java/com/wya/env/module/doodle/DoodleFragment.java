@@ -1,20 +1,24 @@
 package com.wya.env.module.doodle;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
+import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.UserInfo;
+import com.wya.env.common.CommonValue;
 import com.wya.env.listener.PickerViewListener;
 import com.wya.env.module.home.fragment.HomeFragmentPresenter;
 import com.wya.env.module.home.fragment.HomeFragmentView;
+import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.Circle;
 import com.wya.env.view.ColorPickerView;
 import com.wya.env.view.LampView;
@@ -22,10 +26,11 @@ import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
 import com.wya.uikit.dialog.WYACustomDialog;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * @date: 2018/7/3 13:55
@@ -71,7 +76,8 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
     TableRow tab8;
     @BindView(R.id.tab_chose_color)
     TableRow tabChoseColor;
-    Unbinder unbinder;
+    @BindView(R.id.et_name)
+    EditText etName;
     @BindView(R.id.lamp_view)
     LampView lampView;
     @BindView(R.id.ll_bold_paint)
@@ -107,6 +113,9 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
 
     private WYACustomDialog choseColorDialog;
 
+    private UserInfo userInfo;
+    private List<DoodlePattern> doodlePatterns = new ArrayList<>();
+
 
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
@@ -119,6 +128,16 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
     private void initData() {
         //        if (!isFirst) {
         initListData();
+        getData();
+    }
+
+    private void getData() {
+        userInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.USER_INFO), UserInfo.class);
+        if (userInfo.getDoodlePatterns() == null) {
+            userInfo.setDoodlePatterns(new ArrayList<>());
+        }
+        doodlePatterns = userInfo.getDoodlePatterns();
+
     }
 
     private void initListData() {
@@ -134,14 +153,6 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
     protected void initView() {
         fp.mView = this;
         initData();//初始化数据
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // TODO: inflate a fragment view
-        View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        unbinder = ButterKnife.bind(this, rootView);
-        return rootView;
     }
 
     @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab8, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save})
@@ -202,6 +213,7 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
                 break;
             case R.id.ll_twinkle:
                 isTwinkle = !isTwinkle;
+                lampView.setTwinkle(isTwinkle);
                 if (isTwinkle) {
                     imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
                 } else {
@@ -209,7 +221,12 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
                 }
                 break;
             case R.id.ll_save:
-
+                if (TextUtils.isEmpty(etName.getText().toString())) {
+                    showShort("请输入模式名称");
+                    return;
+                }
+                toSave();
+                toCleanChose();
                 break;
             case R.id.tab_chose_color:
                 choseColorDialog = new WYACustomDialog.Builder(getActivity())
@@ -267,6 +284,32 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
             default:
                 break;
         }
+    }
+
+    private void toCleanChose() {
+        lampView.clean();
+        color_index = 0;
+        getColorIndex(color_index);
+        isTwinkle = false;
+        lampView.setTwinkle(isTwinkle);
+        if (isTwinkle) {
+            imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
+        } else {
+            imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
+        }
+        painter_type = 0;
+        setPainter(painter_type);
+        etName.setText("");
+    }
+
+    private void toSave() {
+        getData();
+        DoodlePattern doodlePattern = new DoodlePattern();
+        doodlePattern.setDoodles(lampView.getData());
+        doodlePattern.setName(etName.getText().toString());
+        doodlePatterns.add(doodlePattern);
+        SaveSharedPreferences.save(getActivity(), CommonValue.USER_INFO, new Gson().toJson(userInfo));
+        showShort("保存成功");
     }
 
     private void setPainter(int painter_type) {

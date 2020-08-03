@@ -8,11 +8,12 @@
     android:orientation="vertical">
 
     <EditText
+        android:id="@+id/et_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
         android:padding="@dimen/dp_12"
-        android:text="@string/equipment_name"
+        android:hint="@string/equipment_name"
         android:textSize="@dimen/sp_18"></EditText>
 
     <ScrollView

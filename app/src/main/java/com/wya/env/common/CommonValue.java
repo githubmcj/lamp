@@ -18,4 +18,9 @@ public interface CommonValue {
     String SHARE_PREFERENCES_NAME = "share_preferences_name";
 
     int COLUMN = 20;
+
+    /**
+     * 用户信息
+     */
+    String USER_INFO = "UserInfo";
 }

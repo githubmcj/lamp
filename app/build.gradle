@@ -3,6 +3,24 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
+
+    signingConfigs {
+        debug {
+            keyAlias 'wya'
+            keyPassword 'wya123'
+            storeFile file("$rootDir/wya.jks")
+            storePassword 'wya123'
+        }
+        release {
+            keyAlias 'wya'
+            keyPassword 'wya123'
+            storeFile file("$rootDir/wya.jks")
+            storePassword 'wya123'
+        }
+    }
+
+
+
     defaultConfig {
         applicationId "com.wya.env"
         minSdkVersion 15
@@ -51,4 +69,6 @@ dependencies {
     implementation 'com.wya.hardware:hardware:0.1.5'
     implementation 'com.wya.helper:helper:0.1.5'
     implementation 'com.wya.utils:utils:0.1.5'
+
+    implementation 'org.apache.commons:commons-lang3:3.7'
 }

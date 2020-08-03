@@ -2,19 +2,25 @@ package com.wya.env.module.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpActivity;
+import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.UserInfo;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.module.forgetpassword.ForgetPasswordActivity;
 import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,6 +46,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     @BindView(R.id.register)
     TextView register;
     private LoginPresent loginPresent = new LoginPresent();
+
+    private  UserInfo userInfo;
 
     @Override
     protected void initView() {
@@ -83,10 +91,20 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                 String pwd = password.getText().toString().trim();
                 boolean isRight = loginPresent.checkInfo(userName, pwd, this);
                 if (isRight) {
+                    //  loginPresent.login(userName, pwd);
+                    userInfo = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.USER_INFO), UserInfo.class);
+                    if(userInfo == null){
+                        UserInfo userInfo = new UserInfo();
+                        userInfo.setDoodlePatterns(new ArrayList<>());
+                        userInfo.setEmail("dsad");
+                        userInfo.setUserName("abc");
+                        SaveSharedPreferences.save(this, CommonValue.USER_INFO, new Gson().toJson(userInfo));
+                    }
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
-                    //  loginPresent.login(userName, pwd);
                 }
+
+
                 break;
             case R.id.register:
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));

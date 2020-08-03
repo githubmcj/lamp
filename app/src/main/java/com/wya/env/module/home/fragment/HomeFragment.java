@@ -4,11 +4,15 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
-import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.UserInfo;
+import com.wya.env.common.CommonValue;
+import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
+import com.wya.utils.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     TextView name;
     private LampModelAdapter adapter;
 
+    private UserInfo userInfo;
     private List<DoodlePattern> doodlePatterns = new ArrayList<>();
 
     private HomeFragmentPresenter fp = new HomeFragmentPresenter();
@@ -40,52 +45,24 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
-      /*  fp.mView=this;
+        fp.mView = this;
+        LogUtil.e(isVisible + "------------");
         if (isVisible) {
             initData();//初始化数据
-        }*/
+        }
     }
 
     private void initData() {
-        initListData();
+        getData();
         initRecyclerView();
     }
 
-    private void initListData() {
-        doodlePatterns.clear();
-        for (int i = 0; i < listSize; i++) {
-            DoodlePattern doodlePattern = new DoodlePattern();
-            List<Doodle> doodles = new ArrayList<>();
-            for (int j = 0; j < 300; j++) {
-                Doodle doodle = new Doodle();
-                switch (i % 5) {
-                    case 0:
-                        doodle.setColor(getActivity().getResources().getColor(R.color.app_blue_press));
-                        break;
-                    case 1:
-                        doodle.setColor(getActivity().getResources().getColor(R.color.red));
-                        break;
-                    case 2:
-                        doodle.setColor(getActivity().getResources().getColor(R.color.green));
-                        break;
-                    case 3:
-                        doodle.setColor(getActivity().getResources().getColor(R.color.blue));
-                        break;
-                    case 4:
-                        doodle.setColor(getActivity().getResources().getColor(R.color.c999999));
-                        break;
-                    default:
-                        doodle.setColor(getActivity().getResources().getColor(R.color.black));
-                        break;
-                }
-                doodle.setLight(255);
-                doodles.add(doodle);
-            }
-            doodlePattern.setDoodles(doodles);
-            doodlePattern.setName("模式" + i);
-            doodlePatterns.add(doodlePattern);
+    private void getData() {
+        userInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.USER_INFO), UserInfo.class);
+        if (userInfo.getDoodlePatterns() == null) {
+            userInfo.setDoodlePatterns(new ArrayList<>());
         }
-
+        doodlePatterns = userInfo.getDoodlePatterns();
     }
 
     private void initRecyclerView() {
@@ -114,5 +91,17 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         fp.mView = this;
         lampView.setFocusable(false);
         initData();//初始化数据
+    }
+
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            getData();
+            if (adapter != null) {
+                adapter.setNewData(doodlePatterns);
+            }
+        }
     }
 }
