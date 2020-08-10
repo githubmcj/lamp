@@ -22,6 +22,7 @@ import com.wya.utils.utils.ScreenUtil;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -92,16 +93,17 @@ public class LampView extends View {
         // 防抖动
         lampPaint.setDither(true);
 
+
         for (int i = 0; i < column; i++) {
             for (int j = 0; j < size / column; j++) {
                 if (isTwinkle || hasTwinkle) {
-                    if (data.get(i + column * j).isTwinkle()) {
-                        lampPaint.setColor(data.get(i + column * j).getShowLampColor());
+                    if (data.get(j + (size / column) * i).isTwinkle()) {
+                        lampPaint.setColor(data.get(j + size / column * i).getShowLampColor());
                     } else {
-                        lampPaint.setColor(data.get(i + column * j).getLampColor());
+                        lampPaint.setColor(data.get(j + size / column * i).getLampColor());
                     }
                 } else {
-                    lampPaint.setColor(data.get(i + column * j).getLampColor());
+                    lampPaint.setColor(data.get(j + size / column * i).getLampColor());
                 }
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, lampPaint);
             }
@@ -352,7 +354,9 @@ public class LampView extends View {
                             LogUtil.e("x:" + x + "---y:" + y);
                             old_x = event.getX();
                             old_y = event.getY();
-                            int position = (int) ((event.getX()) / (lamp_size + 2 * lamp_margin) + ((int) ((event.getY()) / (lamp_size + 2 * lamp_margin))) * column);
+                            int position = ((int) ((event.getX()) / (lamp_size + 2 * lamp_margin)) * (size / column) + ((int) (event.getY() / (lamp_size + 2 * lamp_margin))));
+                            LogUtil.e("i----" + (int) ((event.getX()) / (lamp_size + 2 * lamp_margin)) + "j----" + ((int) (event.getY() / (lamp_size + 2 * lamp_margin))));
+                            LogUtil.e("postion----" + position);
                             if (isPaintBold) {
                                 setBoldAllChoseColor(position);
                             } else {
@@ -379,7 +383,9 @@ public class LampView extends View {
                             if (old_x == 0 || old_y == 0 || Math.abs(old_x - event.getX()) > lamp_size + 2 * lamp_margin || Math.abs(old_y - event.getY()) > lamp_size + 2 * lamp_margin) {
                                 old_x = event.getX();
                                 old_y = event.getY();
-                                int position = (int) ((event.getX()) / (lamp_size + 2 * lamp_margin) + ((int) ((event.getY()) / (lamp_size + 2 * lamp_margin))) * column);
+                                int position = ((int) ((event.getX()) / (lamp_size + 2 * lamp_margin)) * (size / column) + ((int) (event.getY() / (lamp_size + 2 * lamp_margin))));
+                                LogUtil.e("i----" + (int) ((event.getX()) / (lamp_size + 2 * lamp_margin)) + "j----" + ((int) (event.getY() / (lamp_size + 2 * lamp_margin))));
+                                LogUtil.e("postion----" + position);
                                 if (isPaintBold) {
                                     setBoldAllChoseColor(position);
                                 } else {
@@ -447,19 +453,19 @@ public class LampView extends View {
                 data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + column).setColor(choseColor);
-                data.get(position + column).setLight(choseLight);
+            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position + size / column).setColor(choseColor);
+                data.get(position + size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + column).setTwinkle(true);
+                    data.get(position + size / column).setTwinkle(true);
                 } else {
-                    data.get(position + column).setTwinkle(false);
+                    data.get(position + size / column).setTwinkle(false);
                 }
-                data.get(position + column).setCreateTime(createTime);
+                data.get(position + size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-        } else if (position > 0 && position < column - 1) {
-            LogUtil.e("上边缘点");
+        } else if (position > 0 && position < size / column - 1) {
+            LogUtil.e("左边缘点");
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
@@ -482,19 +488,19 @@ public class LampView extends View {
                 data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + column).setColor(choseColor);
-                data.get(position + column).setLight(choseLight);
+            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position + size / column).setColor(choseColor);
+                data.get(position + size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + column).setTwinkle(true);
+                    data.get(position + size / column).setTwinkle(true);
                 } else {
-                    data.get(position + column).setTwinkle(false);
+                    data.get(position + size / column).setTwinkle(false);
                 }
-                data.get(position + column).setCreateTime(createTime);
+                data.get(position + size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-        } else if (position == column - 1) {
-            LogUtil.e("右上角落点");
+        } else if (position == size / column - 1) {
+            LogUtil.e("左下角落点");
             if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - 1).setColor(choseColor);
                 data.get(position - 1).setLight(choseLight);
@@ -506,15 +512,15 @@ public class LampView extends View {
                 data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + column).setColor(choseColor);
-                data.get(position + column).setLight(choseLight);
+            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position + size / column).setColor(choseColor);
+                data.get(position + size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + column).setTwinkle(true);
+                    data.get(position + size / column).setTwinkle(true);
                 } else {
-                    data.get(position + column).setTwinkle(false);
+                    data.get(position + size / column).setTwinkle(false);
                 }
-                data.get(position + column).setCreateTime(createTime);
+                data.get(position + size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == data.size() - 1) {
@@ -530,19 +536,19 @@ public class LampView extends View {
                 data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - column).setColor(choseColor);
-                data.get(position - column).setLight(choseLight);
+            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position - size / column).setColor(choseColor);
+                data.get(position - size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - column).setTwinkle(true);
+                    data.get(position - size / column).setTwinkle(true);
                 } else {
-                    data.get(position - column).setTwinkle(false);
+                    data.get(position - size / column).setTwinkle(false);
                 }
-                data.get(position - column).setCreateTime(createTime);
+                data.get(position - size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-        } else if (position == data.size() - column) {
-            LogUtil.e("左下角落点");
+        } else if (position == data.size() - size / column) {
+            LogUtil.e("右上角落点");
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
@@ -554,19 +560,19 @@ public class LampView extends View {
                 data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - column).setColor(choseColor);
-                data.get(position - column).setLight(choseLight);
+            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position - size / column).setColor(choseColor);
+                data.get(position - size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - column).setTwinkle(true);
+                    data.get(position - size / column).setTwinkle(true);
                 } else {
-                    data.get(position - column).setTwinkle(false);
+                    data.get(position - size / column).setTwinkle(false);
                 }
-                data.get(position - column).setCreateTime(createTime);
+                data.get(position - size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-        } else if (position % column == 0) {
-            LogUtil.e("左边缘点");
+        } else if (position % (size / column) == 0) {
+            LogUtil.e("上边缘点");
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
@@ -578,64 +584,29 @@ public class LampView extends View {
                 data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - column).setColor(choseColor);
-                data.get(position - column).setLight(choseLight);
+            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position - size / column).setColor(choseColor);
+                data.get(position - size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - column).setTwinkle(true);
+                    data.get(position - size / column).setTwinkle(true);
                 } else {
-                    data.get(position - column).setTwinkle(false);
+                    data.get(position - size / column).setTwinkle(false);
                 }
-                data.get(position - column).setCreateTime(createTime);
+                data.get(position - size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + column).setColor(choseColor);
-                data.get(position + column).setLight(choseLight);
+            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position + size / column).setColor(choseColor);
+                data.get(position + size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + column).setTwinkle(true);
+                    data.get(position + size / column).setTwinkle(true);
                 } else {
-                    data.get(position + column).setTwinkle(false);
+                    data.get(position + size / column).setTwinkle(false);
                 }
-                data.get(position + column).setCreateTime(createTime);
+                data.get(position + size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-        } else if ((position + 1) % column == 0) {
-            LogUtil.e("右边缘点");
-            if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - 1).setColor(choseColor);
-                data.get(position - 1).setLight(choseLight);
-                if (isTwinkle) {
-                    data.get(position - 1).setTwinkle(true);
-                } else {
-                    data.get(position - 1).setTwinkle(false);
-                }
-                data.get(position - 1).setCreateTime(createTime);
-                toPostInvalidate = true;
-            }
-            if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - column).setColor(choseColor);
-                data.get(position - column).setLight(choseLight);
-                if (isTwinkle) {
-                    data.get(position - column).setTwinkle(true);
-                } else {
-                    data.get(position - column).setTwinkle(false);
-                }
-                data.get(position - column).setCreateTime(createTime);
-                toPostInvalidate = true;
-            }
-            if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + column).setColor(choseColor);
-                data.get(position + column).setLight(choseLight);
-                if (isTwinkle) {
-                    data.get(position + column).setTwinkle(true);
-                } else {
-                    data.get(position + column).setTwinkle(false);
-                }
-                data.get(position + column).setCreateTime(createTime);
-                toPostInvalidate = true;
-            }
-        } else if (position < data.size() - 1 && position > data.size() - column) {
+        } else if ((position + 1) % size / column == 0) {
             LogUtil.e("下边缘点");
             if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position - 1).setColor(choseColor);
@@ -648,6 +619,41 @@ public class LampView extends View {
                 data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
+            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position - size / column).setColor(choseColor);
+                data.get(position - size / column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - size / column).setTwinkle(true);
+                } else {
+                    data.get(position - size / column).setTwinkle(false);
+                }
+                data.get(position - size / column).setCreateTime(createTime);
+                toPostInvalidate = true;
+            }
+            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position + size / column).setColor(choseColor);
+                data.get(position + size / column).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position + size / column).setTwinkle(true);
+                } else {
+                    data.get(position + size / column).setTwinkle(false);
+                }
+                data.get(position + size / column).setCreateTime(createTime);
+                toPostInvalidate = true;
+            }
+        } else if (position < data.size() - 1 && position > data.size() - size / column) {
+            LogUtil.e("又边缘点");
+            if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position - 1).setColor(choseColor);
+                data.get(position - 1).setLight(choseLight);
+                if (isTwinkle) {
+                    data.get(position - 1).setTwinkle(true);
+                } else {
+                    data.get(position - 1).setTwinkle(false);
+                }
+                data.get(position - 1).setCreateTime(createTime);
+                toPostInvalidate = true;
+            }
             if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
                 data.get(position + 1).setColor(choseColor);
                 data.get(position + 1).setLight(choseLight);
@@ -659,15 +665,15 @@ public class LampView extends View {
                 data.get(position + 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - column).setColor(choseColor);
-                data.get(position - column).setLight(choseLight);
+            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position - size / column).setColor(choseColor);
+                data.get(position - size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - column).setTwinkle(true);
+                    data.get(position - size / column).setTwinkle(true);
                 } else {
-                    data.get(position - column).setTwinkle(false);
+                    data.get(position - size / column).setTwinkle(false);
                 }
-                data.get(position - column).setCreateTime(createTime);
+                data.get(position - size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else {
@@ -694,26 +700,26 @@ public class LampView extends View {
                 data.get(position - 1).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - column).setColor(choseColor);
-                data.get(position - column).setLight(choseLight);
+            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position - size / column).setColor(choseColor);
+                data.get(position - size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - column).setTwinkle(true);
+                    data.get(position - size / column).setTwinkle(true);
                 } else {
-                    data.get(position - column).setTwinkle(false);
+                    data.get(position - size / column).setTwinkle(false);
                 }
-                data.get(position - column).setCreateTime(createTime);
+                data.get(position - size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + column).setColor(choseColor);
-                data.get(position + column).setLight(choseLight);
+            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(position + size / column).setColor(choseColor);
+                data.get(position + size / column).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + column).setTwinkle(true);
+                    data.get(position + size / column).setTwinkle(true);
                 } else {
-                    data.get(position + column).setTwinkle(false);
+                    data.get(position + size / column).setTwinkle(false);
                 }
-                data.get(position + column).setCreateTime(createTime);
+                data.get(position + size / column).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         }
@@ -739,6 +745,39 @@ public class LampView extends View {
 
     public void setmWidth(int mWidth) {
         this.mWidth = mWidth;
+    }
+
+    List<Doodle> mirror_doodles;
+
+    public void setMirror(boolean isMirror) {
+        data = toMirror(data);
+        postInvalidate();
+    }
+
+    private List<Doodle> toMirror(List<Doodle> doodles) {
+        mirror_doodles = depCopy(doodles);
+        for (int i = 0; i < mirror_doodles.size() / 2; i++) {
+            for (int j = 0; j < column / 2; j++) {
+                if (i >= mirror_doodles.size() / column * j && i < mirror_doodles.size() / column + mirror_doodles.size() / column * j) {
+                    Collections.swap(mirror_doodles, i, (mirror_doodles.size() - (mirror_doodles.size() / column)) - j * 2 * (mirror_doodles.size() / column) + i);
+                }
+            }
+        }
+        return mirror_doodles;
+    }
+
+    /**
+     * 深拷贝
+     *
+     * @param doodles
+     * @return
+     */
+    public List<Doodle> depCopy(List<Doodle> doodles) {
+        List<Doodle> destList = new ArrayList<>();
+        for (Doodle doodle : doodles) {
+            destList.add((Doodle) doodle.clone());
+        }
+        return destList;
     }
 }
 

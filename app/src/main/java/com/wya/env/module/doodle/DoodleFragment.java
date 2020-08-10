@@ -40,8 +40,6 @@ import butterknife.OnClick;
  */
 
 public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> implements HomeFragmentView {
-
-
     @BindView(R.id.circle1)
     Circle circle1;
     @BindView(R.id.tab1)
@@ -96,6 +94,8 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
     ImageView imgThinPainter;
     @BindView(R.id.img_twinkle)
     ImageView imgTwinkle;
+    @BindView(R.id.img_mirror)
+    ImageView imgMirror;
     private HomeFragmentPresenter fp = new HomeFragmentPresenter();
 
     private int color_index;
@@ -110,6 +110,11 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
      * 是否闪烁
      */
     private boolean isTwinkle;
+
+    /**
+     * 镜像
+     */
+    private boolean isMirror;
 
     private WYACustomDialog choseColorDialog;
 
@@ -155,7 +160,7 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
         initData();//初始化数据
     }
 
-    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab8, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save})
+    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab8, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.ll_mirror})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab1:
@@ -218,6 +223,15 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
                     imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
                 } else {
                     imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
+                }
+                break;
+            case R.id.ll_mirror:
+                isMirror = !isMirror;
+                lampView.setMirror(isMirror);
+                if (isMirror) {
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji_15));
+                } else {
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.baocunmoren));
                 }
                 break;
             case R.id.ll_save:

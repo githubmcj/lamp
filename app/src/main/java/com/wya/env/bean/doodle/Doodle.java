@@ -4,7 +4,7 @@ import android.graphics.Color;
 
 import com.wya.env.util.ColorUtil;
 
-public class Doodle {
+public class Doodle implements Cloneable{
     private int color;
 
     private int light;
@@ -98,5 +98,16 @@ public class Doodle {
         } else {
             return Color.argb(0, rgb[0], rgb[1], rgb[2]);
         }
+    }
+
+    @Override
+    public Object clone() {
+        Doodle doodle = null;
+        try {
+            doodle = (Doodle) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return doodle;
     }
 }
