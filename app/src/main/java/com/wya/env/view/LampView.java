@@ -203,35 +203,36 @@ public class LampView extends View {
     }
 
     private int add;
+    private ScheduledExecutorService twinkleExecutorService;
 
     private void toTwinkle() {
         add = 0;
-        addMode = -1;
         LogUtil.e("开始闪烁");
-        ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1,
-                new BasicThreadFactory.Builder().namingPattern("twinkle").daemon(true).build());
-        executorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.e("闪烁:" + System.currentTimeMillis() + "----次数:" + add);
-                if (add != -1) {
-                    for (int i = 0; i < data.size(); i++) {
-                        if (data.get(String.valueOf(i)).isFlash() == 1) {
-                            int phase = (int) ((data.get(String.valueOf(i)).getCreateTime() + 5 * add) % 511);
-                            LogUtil.e(phase + "-----phase-------灯序号" + i);
-                            if (255 > phase) {
-                                data.get(String.valueOf(i)).setShowLight(phase);
-                            } else {
-                                data.get(String.valueOf(i)).setShowLight(510 - phase);
+        if (twinkleExecutorService == null) {
+            twinkleExecutorService = new ScheduledThreadPoolExecutor(1,
+                    new BasicThreadFactory.Builder().namingPattern("twinkle").daemon(true).build());
+            twinkleExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    LogUtil.e("闪烁:" + System.currentTimeMillis() + "----次数:" + add);
+                    if (add != -1) {
+                        for (int i = 0; i < data.size(); i++) {
+                            if (data.get(String.valueOf(i)).isFlash() == 1) {
+                                int phase = (int) ((data.get(String.valueOf(i)).getCreateTime() + 5 * add) % 511);
+                                LogUtil.e(phase + "-----phase-------灯序号" + i);
+                                if (255 > phase) {
+                                    data.get(String.valueOf(i)).setShowLight(phase);
+                                } else {
+                                    data.get(String.valueOf(i)).setShowLight(510 - phase);
+                                }
                             }
                         }
+                        add++;
+                        postInvalidate();
                     }
-                    add++;
-                    postInvalidate();
                 }
-            }
-        }, 0, frameTime, TimeUnit.MILLISECONDS);
-
+            }, 0, frameTime, TimeUnit.MILLISECONDS);
+        }
     }
 
 
@@ -273,6 +274,7 @@ public class LampView extends View {
 
     public void setModel(List<DoodlePattern> modeArr) {
         if (modeArr.size() == 1) {
+            addMode = -1;
             this.data = modeArr.get(0).getLight_status();
             hasTwinkle = false;
             for (int i = 0; i < data.size(); i++) {
@@ -286,6 +288,7 @@ public class LampView extends View {
             }
             postInvalidate();
         } else {
+            add = -1;
             toShowModel(modeArr);
         }
     }
@@ -295,7 +298,6 @@ public class LampView extends View {
 
     private void toShowModel(List<DoodlePattern> modeArr) {
         addMode = 0;
-        add = -1;
         if (modelExecutorService == null) {
             modelExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("toShowModel").daemon(true).build());
