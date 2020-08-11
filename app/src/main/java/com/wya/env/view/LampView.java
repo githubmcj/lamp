@@ -13,17 +13,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
 
-import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.Doodle;
+import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.util.ColorUtil;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -98,13 +98,13 @@ public class LampView extends View {
         for (int i = 0; i < column; i++) {
             for (int j = 0; j < size / column; j++) {
                 if (isTwinkle || hasTwinkle) {
-                    if (data.get(j + (size / column) * i).isFlash() == 1) {
-                        lampPaint.setColor(data.get(j + size / column * i).getShowLampColor());
+                    if (data.get(String.valueOf(j + (size / column) * i)).isFlash() == 1) {
+                        lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getShowLampColor());
                     } else {
-                        lampPaint.setColor(data.get(j + size / column * i).getLampColor());
+                        lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
                     }
                 } else {
-                    lampPaint.setColor(data.get(j + size / column * i).getLampColor());
+                    lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
                 }
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, lampPaint);
             }
@@ -185,6 +185,11 @@ public class LampView extends View {
     private int frameTime;
 
     /**
+     * 模板每一帧时间
+     */
+    private int modelFrameTime;
+
+    /**
      * 是否开启线程
      */
     private boolean isStart;
@@ -201,6 +206,7 @@ public class LampView extends View {
 
     private void toTwinkle() {
         add = 0;
+        addMode = -1;
         LogUtil.e("开始闪烁");
         ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1,
                 new BasicThreadFactory.Builder().namingPattern("twinkle").daemon(true).build());
@@ -208,19 +214,21 @@ public class LampView extends View {
             @Override
             public void run() {
                 LogUtil.e("闪烁:" + System.currentTimeMillis() + "----次数:" + add);
-                for (int i = 0; i < data.size(); i++) {
-                    if (data.get(i).isFlash() == 1) {
-                        int phase = (int) ((data.get(i).getCreateTime() + 5 * add) % 511);
-                        LogUtil.e(phase + "-----phase-------灯序号" + i);
-                        if (255 > phase) {
-                            data.get(i).setShowLight(phase);
-                        } else {
-                            data.get(i).setShowLight(510 - phase);
+                if (add != -1) {
+                    for (int i = 0; i < data.size(); i++) {
+                        if (data.get(String.valueOf(i)).isFlash() == 1) {
+                            int phase = (int) ((data.get(String.valueOf(i)).getCreateTime() + 5 * add) % 511);
+                            LogUtil.e(phase + "-----phase-------灯序号" + i);
+                            if (255 > phase) {
+                                data.get(String.valueOf(i)).setShowLight(phase);
+                            } else {
+                                data.get(String.valueOf(i)).setShowLight(510 - phase);
+                            }
                         }
                     }
+                    add++;
+                    postInvalidate();
                 }
-                add++;
-                postInvalidate();
             }
         }, 0, frameTime, TimeUnit.MILLISECONDS);
 
@@ -246,13 +254,13 @@ public class LampView extends View {
         this.choseColor = choseColor;
     }
 
-    private List<Doodle> data = new ArrayList<>();
+    private HashMap<String, Doodle> data = new HashMap<>();
 
-    public void setData(List<Doodle> data) {
+    public void setData(HashMap<String, Doodle> data) {
         this.data = data;
         hasTwinkle = false;
         for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).isFlash() == 1) {
+            if (data.get(String.valueOf(i)).isFlash() == 1) {
                 hasTwinkle = true;
                 if (hasTwinkle && !isStart) {
                     isStart = true;
@@ -260,11 +268,51 @@ public class LampView extends View {
                 }
             }
         }
-        LogUtil.e("data-----:" + new Gson().toJson(data));
         postInvalidate();
     }
 
-    public List<Doodle> getData() {
+    public void setModel(List<DoodlePattern> modeArr) {
+        if (modeArr.size() == 1) {
+            this.data = modeArr.get(0).getLight_status();
+            hasTwinkle = false;
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(String.valueOf(i)).isFlash() == 1) {
+                    hasTwinkle = true;
+                    if (hasTwinkle && !isStart) {
+                        isStart = true;
+                        toTwinkle();
+                    }
+                }
+            }
+            postInvalidate();
+        } else {
+            toShowModel(modeArr);
+        }
+    }
+
+    private int addMode;
+    ScheduledExecutorService modelExecutorService;
+
+    private void toShowModel(List<DoodlePattern> modeArr) {
+        addMode = 0;
+        add = -1;
+        if (modelExecutorService == null) {
+            modelExecutorService = new ScheduledThreadPoolExecutor(1,
+                    new BasicThreadFactory.Builder().namingPattern("toShowModel").daemon(true).build());
+            modelExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    if (addMode != -1) {
+                        data = modeArr.get(addMode % modeArr.size()).getLight_status();
+                        addMode++;
+                        postInvalidate();
+                    }
+                }
+            }, 0, modelFrameTime, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    public HashMap<String, Doodle> getData() {
         return data;
     }
 
@@ -313,15 +361,17 @@ public class LampView extends View {
         hasTwinkle = false;
         period = 2000;
         frameTime = 20;
+        modelFrameTime = 200;
 
 
         data.clear();
         for (int i = 0; i < size; i++) {
             Doodle doodle = new Doodle();
             doodle.setmColor(mLampColor);
+            doodle.setColor("#000000");
             doodle.setFlash(0);
             doodle.setLight(255);
-            data.add(doodle);
+            data.put(String.valueOf(i), doodle);
         }
     }
 
@@ -362,15 +412,15 @@ public class LampView extends View {
                             if (isPaintBold) {
                                 setBoldAllChoseColor(position);
                             } else {
-                                if (data.get(position).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                                    data.get(position).setmColor(choseColor);
-                                    data.get(position).setLight(choseLight);
+                                if (data.get(String.valueOf(String.valueOf(position))).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                                    data.get(String.valueOf(position)).setmColor(choseColor);
+                                    data.get(String.valueOf(position)).setLight(choseLight);
                                     if (isTwinkle) {
-                                        data.get(position).setFlash(1);
+                                        data.get(String.valueOf(position)).setFlash(1);
                                     } else {
-                                        data.get(position).setFlash(0);
+                                        data.get(String.valueOf(position)).setFlash(0);
                                     }
-                                    data.get(position).setCreateTime(createTime);
+                                    data.get(String.valueOf(position)).setCreateTime(createTime);
                                     postInvalidate();
                                 }
                             }
@@ -391,15 +441,15 @@ public class LampView extends View {
                                 if (isPaintBold) {
                                     setBoldAllChoseColor(position);
                                 } else {
-                                    if (data.get(position).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                                        data.get(position).setmColor(choseColor);
-                                        data.get(position).setLight(choseLight);
+                                    if (data.get(String.valueOf(position)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                                        data.get(String.valueOf(position)).setmColor(choseColor);
+                                        data.get(String.valueOf(position)).setLight(choseLight);
                                         if (isTwinkle) {
-                                            data.get(position).setFlash(1);
+                                            data.get(String.valueOf(position)).setFlash(1);
                                         } else {
-                                            data.get(position).setFlash(0);
+                                            data.get(String.valueOf(position)).setFlash(0);
                                         }
-                                        data.get(position).setCreateTime(createTime);
+                                        data.get(String.valueOf(position)).setCreateTime(createTime);
                                         postInvalidate();
                                     }
                                 }
@@ -431,297 +481,297 @@ public class LampView extends View {
 
     private void setBoldAllChoseColor(int position) {
         toPostInvalidate = false;
-        if (data.get(position).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-            data.get(position).setmColor(choseColor);
-            data.get(position).setLight(choseLight);
+        if (data.get(String.valueOf(position)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+            data.get(String.valueOf(position)).setmColor(choseColor);
+            data.get(String.valueOf(position)).setLight(choseLight);
             if (isTwinkle) {
-                data.get(position).setFlash(1);
+                data.get(String.valueOf(position)).setFlash(1);
             } else {
-                data.get(position).setFlash(0);
+                data.get(String.valueOf(position)).setFlash(0);
             }
-            data.get(position).setCreateTime(createTime);
+            data.get(String.valueOf(position)).setCreateTime(createTime);
             toPostInvalidate = true;
         }
         if (position == 0) {
             LogUtil.e("左上角落点");
-            if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + 1).setmColor(choseColor);
-                data.get(position + 1).setLight(choseLight);
+            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + 1).setFlash(1);
+                    data.get(String.valueOf(position + 1)).setFlash(1);
                 } else {
-                    data.get(position + 1).setFlash(0);
+                    data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(position + 1).setCreateTime(createTime);
+                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + size / column).setmColor(choseColor);
-                data.get(position + size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + size / column).setFlash(1);
+                    data.get(String.valueOf(position + size / column)).setFlash(1);
                 } else {
-                    data.get(position + size / column).setFlash(0);
+                    data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(position + size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position > 0 && position < size / column - 1) {
             LogUtil.e("左边缘点");
-            if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + 1).setmColor(choseColor);
-                data.get(position + 1).setLight(choseLight);
+            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + 1).setFlash(1);
+                    data.get(String.valueOf(position + 1)).setFlash(1);
                 } else {
-                    data.get(position + 1).setFlash(0);
+                    data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(position + 1).setCreateTime(createTime);
+                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - 1).setmColor(choseColor);
-                data.get(position - 1).setLight(choseLight);
+            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - 1).setFlash(1);
+                    data.get(String.valueOf(position - 1)).setFlash(1);
                 } else {
-                    data.get(position - 1).setFlash(0);
+                    data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(position - 1).setCreateTime(createTime);
+                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + size / column).setmColor(choseColor);
-                data.get(position + size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + size / column).setFlash(1);
+                    data.get(String.valueOf(position + size / column)).setFlash(1);
                 } else {
-                    data.get(position + size / column).setFlash(0);
+                    data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(position + size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == size / column - 1) {
             LogUtil.e("左下角落点");
-            if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - 1).setmColor(choseColor);
-                data.get(position - 1).setLight(choseLight);
+            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - 1).setFlash(1);
+                    data.get(String.valueOf(position - 1)).setFlash(1);
                 } else {
-                    data.get(position - 1).setFlash(0);
+                    data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(position - 1).setCreateTime(createTime);
+                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + size / column).setmColor(choseColor);
-                data.get(position + size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + size / column).setFlash(1);
+                    data.get(String.valueOf(position + size / column)).setFlash(1);
                 } else {
-                    data.get(position + size / column).setFlash(0);
+                    data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(position + size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == data.size() - 1) {
             LogUtil.e("右下角落点");
-            if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - 1).setmColor(choseColor);
-                data.get(position - 1).setLight(choseLight);
+            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - 1).setFlash(1);
+                    data.get(String.valueOf(position - 1)).setFlash(1);
                 } else {
-                    data.get(position - 1).setFlash(0);
+                    data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(position - 1).setCreateTime(createTime);
+                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - size / column).setmColor(choseColor);
-                data.get(position - size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - size / column).setFlash(1);
+                    data.get(String.valueOf(position - size / column)).setFlash(1);
                 } else {
-                    data.get(position - size / column).setFlash(0);
+                    data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(position - size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == data.size() - size / column) {
             LogUtil.e("右上角落点");
-            if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + 1).setmColor(choseColor);
-                data.get(position + 1).setLight(choseLight);
+            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + 1).setFlash(1);
+                    data.get(String.valueOf(position + 1)).setFlash(1);
                 } else {
-                    data.get(position + 1).setFlash(0);
+                    data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(position + 1).setCreateTime(createTime);
+                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - size / column).setmColor(choseColor);
-                data.get(position - size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - size / column).setFlash(1);
+                    data.get(String.valueOf(position - size / column)).setFlash(1);
                 } else {
-                    data.get(position - size / column).setFlash(0);
+                    data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(position - size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position % (size / column) == 0) {
             LogUtil.e("上边缘点");
-            if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + 1).setmColor(choseColor);
-                data.get(position + 1).setLight(choseLight);
+            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + 1).setFlash(1);
+                    data.get(String.valueOf(position + 1)).setFlash(1);
                 } else {
-                    data.get(position + 1).setFlash(0);
+                    data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(position + 1).setCreateTime(createTime);
+                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - size / column).setmColor(choseColor);
-                data.get(position - size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - size / column).setFlash(1);
+                    data.get(String.valueOf(position - size / column)).setFlash(1);
                 } else {
-                    data.get(position - size / column).setFlash(0);
+                    data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(position - size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + size / column).setmColor(choseColor);
-                data.get(position + size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + size / column).setFlash(1);
+                    data.get(String.valueOf(position + size / column)).setFlash(1);
                 } else {
-                    data.get(position + size / column).setFlash(0);
+                    data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(position + size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-        } else if ((position + 1) % size / column == 0) {
+        } else if ((position + 1) % (size / column) == 0) {
             LogUtil.e("下边缘点");
-            if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - 1).setmColor(choseColor);
-                data.get(position - 1).setLight(choseLight);
+            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - 1).setFlash(1);
+                    data.get(String.valueOf(position - 1)).setFlash(1);
                 } else {
-                    data.get(position - 1).setFlash(0);
+                    data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(position - 1).setCreateTime(createTime);
+                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - size / column).setmColor(choseColor);
-                data.get(position - size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - size / column).setFlash(1);
+                    data.get(String.valueOf(position - size / column)).setFlash(1);
                 } else {
-                    data.get(position - size / column).setFlash(0);
+                    data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(position - size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + size / column).setmColor(choseColor);
-                data.get(position + size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + size / column).setFlash(1);
+                    data.get(String.valueOf(position + size / column)).setFlash(1);
                 } else {
-                    data.get(position + size / column).setFlash(0);
+                    data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(position + size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position < data.size() - 1 && position > data.size() - size / column) {
-            LogUtil.e("又边缘点");
-            if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - 1).setmColor(choseColor);
-                data.get(position - 1).setLight(choseLight);
+            LogUtil.e("右边缘点");
+            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - 1).setFlash(1);
+                    data.get(String.valueOf(position - 1)).setFlash(1);
                 } else {
-                    data.get(position - 1).setFlash(0);
+                    data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(position - 1).setCreateTime(createTime);
+                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + 1).setmColor(choseColor);
-                data.get(position + 1).setLight(choseLight);
+            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + 1).setFlash(1);
+                    data.get(String.valueOf(position + 1)).setFlash(1);
                 } else {
-                    data.get(position + 1).setFlash(0);
+                    data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(position + 1).setCreateTime(createTime);
+                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - size / column).setmColor(choseColor);
-                data.get(position - size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - size / column).setFlash(1);
+                    data.get(String.valueOf(position - size / column)).setFlash(1);
                 } else {
-                    data.get(position - size / column).setFlash(0);
+                    data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(position - size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else {
             LogUtil.e("中间点");
-            if (data.get(position + 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + 1).setmColor(choseColor);
-                data.get(position + 1).setLight(choseLight);
+            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + 1).setFlash(1);
+                    data.get(String.valueOf(position + 1)).setFlash(1);
                 } else {
-                    data.get(position + 1).setFlash(0);
+                    data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(position + 1).setCreateTime(createTime);
+                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - 1).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - 1).setmColor(choseColor);
-                data.get(position - 1).setLight(choseLight);
+            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - 1).setFlash(1);
+                    data.get(String.valueOf(position - 1)).setFlash(1);
                 } else {
-                    data.get(position - 1).setFlash(0);
+                    data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(position - 1).setCreateTime(createTime);
+                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position - size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position - size / column).setmColor(choseColor);
-                data.get(position - size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position - size / column).setFlash(1);
+                    data.get(String.valueOf(position - size / column)).setFlash(1);
                 } else {
-                    data.get(position - size / column).setFlash(0);
+                    data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(position - size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(position + size / column).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(position + size / column).setmColor(choseColor);
-                data.get(position + size / column).setLight(choseLight);
+            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
+                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
-                    data.get(position + size / column).setFlash(1);
+                    data.get(String.valueOf(position + size / column)).setFlash(1);
                 } else {
-                    data.get(position + size / column).setFlash(0);
+                    data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(position + size / column).setCreateTime(createTime);
+                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         }
@@ -732,9 +782,9 @@ public class LampView extends View {
 
     public void clean() {
         for (int i = 0; i < data.size(); i++) {
-            data.get(i).setmColor(mContext.getResources().getColor(R.color.black));
-            data.get(i).setLight(255);
-            data.get(i).setFlash(0);
+            data.get(String.valueOf(i)).setmColor(mContext.getResources().getColor(R.color.black));
+            data.get(String.valueOf(i)).setLight(255);
+            data.get(String.valueOf(i)).setFlash(0);
         }
         postInvalidate();
     }
@@ -749,23 +799,29 @@ public class LampView extends View {
         this.mWidth = mWidth;
     }
 
-    List<Doodle> mirror_doodles;
+    HashMap<String, Doodle> mirror_doodles;
 
-    public void setMirror(boolean isMirror) {
+    public void setMirror() {
         data = toMirror(data);
         postInvalidate();
     }
 
-    private List<Doodle> toMirror(List<Doodle> doodles) {
+    private HashMap<String, Doodle> toMirror(HashMap<String, Doodle> doodles) {
         mirror_doodles = depCopy(doodles);
         for (int i = 0; i < mirror_doodles.size() / 2; i++) {
             for (int j = 0; j < column / 2; j++) {
                 if (i >= mirror_doodles.size() / column * j && i < mirror_doodles.size() / column + mirror_doodles.size() / column * j) {
-                    Collections.swap(mirror_doodles, i, (mirror_doodles.size() - (mirror_doodles.size() / column)) - j * 2 * (mirror_doodles.size() / column) + i);
+                    toChangeValue(mirror_doodles, i, (mirror_doodles.size() - (mirror_doodles.size() / column)) - j * 2 * (mirror_doodles.size() / column) + i);
                 }
             }
         }
         return mirror_doodles;
+    }
+
+    private void toChangeValue(HashMap<String, Doodle> mirror_doodles, int i, int i1) {
+        Doodle emp = mirror_doodles.get(String.valueOf(i));
+        mirror_doodles.put(String.valueOf(i), mirror_doodles.get(String.valueOf(i1)));
+        mirror_doodles.put(String.valueOf(i1), emp);
     }
 
     /**
@@ -774,12 +830,15 @@ public class LampView extends View {
      * @param doodles
      * @return
      */
-    public List<Doodle> depCopy(List<Doodle> doodles) {
-        List<Doodle> destList = new ArrayList<>();
-        for (Doodle doodle : doodles) {
-            destList.add((Doodle) doodle.clone());
+    public HashMap<String, Doodle> depCopy(HashMap<String, Doodle> doodles) {
+        HashMap<String, Doodle> destList = new HashMap<String, Doodle>();
+        for (Iterator keyIt = doodles.keySet().iterator(); keyIt.hasNext(); ) {
+            String key = (String) keyIt.next();
+            destList.put(key, doodles.get(key));
         }
         return destList;
     }
+
+
 }
 

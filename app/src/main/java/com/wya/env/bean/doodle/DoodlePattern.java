@@ -1,47 +1,23 @@
 package com.wya.env.bean.doodle;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
+/**
+ * @date: 2020/8/11 10:01
+ * @author: Chunjiang Mao
+ * @classname: DoodlePattern
+ * @describe: 一帧的样式
+ */
 public class DoodlePattern {
-    private int column = 20;
-    boolean isChose;
-    HashMap<String, Doodle> light_status;
-    List<Doodle> doodles;
-    String name;
-    boolean music;
 
-    public boolean isMusic() {
-        return music;
+    private HashMap<String, Doodle> light_status;
+
+    public HashMap<String, Doodle> getLight_status() {
+        return light_status;
     }
 
-    public void setMusic(boolean music) {
-        this.music = music;
+    public void setLight_status(HashMap<String, Doodle> light_status) {
+        this.light_status = light_status;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isChose() {
-        return isChose;
-    }
-
-    public void setChose(boolean chose) {
-        isChose = chose;
-    }
-
-    public List<Doodle> getDoodles() {
-        return doodles;
-    }
-
-    public void setDoodles(List<Doodle> doodles) {
-        this.doodles = doodles;
-    }
 }

@@ -13,7 +13,7 @@ import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
-import com.wya.env.bean.doodle.ModeArr;
+import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.UserInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.listener.PickerViewListener;
@@ -26,13 +26,8 @@ import com.wya.env.view.LampView;
 import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
 import com.wya.uikit.dialog.WYACustomDialog;
-import com.wya.utils.utils.LogUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -118,14 +113,14 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
     private boolean isTwinkle;
 
     /**
-     * 镜像
+     * 是否镜像
      */
     private boolean isMirror;
 
     private WYACustomDialog choseColorDialog;
 
     private UserInfo userInfo;
-    private List<DoodlePattern> doodlePatterns = new ArrayList<>();
+    private List<LampModel> lampModels = new ArrayList<>();
 
 
     @Override
@@ -144,31 +139,11 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
 
     private void getData() {
         userInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.USER_INFO), UserInfo.class);
-        if (userInfo.getDoodlePatterns() == null) {
-            userInfo.setDoodlePatterns(new ArrayList<>());
+        if (userInfo.getLampModels() == null) {
+            userInfo.setLampModels(new ArrayList<>());
         }
-        doodlePatterns = userInfo.getDoodlePatterns();
-
-        ModeArr modeArr = new Gson().fromJson(data_str, ModeArr.class);
+        lampModels = userInfo.getLampModels();
     }
-
-//    private void dealData() {
-//        JSONObject jsonObject = null;
-//        try {
-//            jsonObject = new JSONObject(data_str);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        //通过迭代器获取这段json当中所有的key值
-//        Iterator keys = jsonObject.keys();
-//        //然后通过一个循环取出所有的key值
-//        while (keys.hasNext()) {
-//            String key = String.valueOf(keys.next());
-//            String
-//            LogUtil.e(key);
-//            //最后就可以通过刚刚得到的key值去解析后面的json了
-//        }
-//    }
 
     private void initListData() {
     }
@@ -252,12 +227,12 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
                 break;
             case R.id.ll_mirror:
                 isMirror = !isMirror;
-                lampView.setMirror(isMirror);
                 if (isMirror) {
-                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji_15));
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
                 } else {
-                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.baocunmoren));
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
                 }
+                lampView.setMirror();
                 break;
             case R.id.ll_save:
                 if (TextUtils.isEmpty(etName.getText().toString())) {
@@ -343,10 +318,14 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
 
     private void toSave() {
         getData();
+        LampModel lampModel = new LampModel();
+        lampModel.setName(etName.getText().toString());
         DoodlePattern doodlePattern = new DoodlePattern();
-        doodlePattern.setDoodles(lampView.getData());
-        doodlePattern.setName(etName.getText().toString());
+        doodlePattern.setLight_status(lampView.getData());
+        List<DoodlePattern> doodlePatterns  = new ArrayList<>();
         doodlePatterns.add(doodlePattern);
+        lampModel.setModeArr(doodlePatterns);
+        lampModels.add(lampModel);
         SaveSharedPreferences.save(getActivity(), CommonValue.USER_INFO, new Gson().toJson(userInfo));
         showShort("保存成功");
     }
@@ -409,276 +388,4 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
         }
         lampView.setChoseColor(chose_color);
     }
-
-
-    private String data_str = "{\n" +
-            "    \"modeArr\": [\n" +
-            "        {\n" +
-            "            \"lightRow\": 15,\n" +
-            "            \"light_status\": {\n" +
-            "                \"136\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"91\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"181\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"271\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"226\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"166\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"272\": {\n" +
-            "                    \"color\": \"#000000\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"256\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"1\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"196\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"121\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"257\": {\n" +
-            "                    \"color\": \"#000000\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"211\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"286\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"151\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"106\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"16\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"287\": {\n" +
-            "                    \"color\": \"#000000\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"76\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"31\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"61\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"241\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"46\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                }\n" +
-            "            }\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"lightRow\": 15,\n" +
-            "            \"light_status\": {\n" +
-            "                \"77\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"121\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"3\": {\n" +
-            "                    \"color\": \"#000000\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"226\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"167\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"122\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"31\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"227\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"136\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"32\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"271\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"16\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"137\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"17\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"272\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"61\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"181\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"106\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"62\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"286\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"241\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"46\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"107\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"182\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"287\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"47\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"196\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"242\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"91\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"151\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"256\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"197\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"92\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"211\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"152\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"76\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"257\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"1\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"166\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"2\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                },\n" +
-            "                \"212\": {\n" +
-            "                    \"color\": \"#69BB2B\",\n" +
-            "                    \"isFlash\": 0\n" +
-            "                }\n" +
-            "            }\n" +
-            "        }\n" +
-            "\t]\n" +
-            "}";
 }

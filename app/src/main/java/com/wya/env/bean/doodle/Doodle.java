@@ -71,6 +71,7 @@ public class Doodle implements Cloneable{
     }
 
     public void setmColor(int mColor) {
+        color = String.format("#%06X", (0xFFFFFF & mColor));
         this.mColor = mColor;
     }
 
@@ -86,7 +87,7 @@ public class Doodle implements Cloneable{
         if (light > 255) {
             return Color.argb(255, rgb[0], rgb[1], rgb[2]);
         } else if (light > 0) {
-            rgb = ColorUtil.int2Rgb(mColor);
+            rgb = ColorUtil.int2Rgb(Color.parseColor(color));
             return Color.argb(light, rgb[0], rgb[1], rgb[2]);
         } else {
             return Color.argb(255, 0, 0, 0);
@@ -102,7 +103,7 @@ public class Doodle implements Cloneable{
         if (showLight > 255) {
             return Color.argb(255, rgb[0], rgb[1], rgb[2]);
         } else if (showLight > 0) {
-            rgb = ColorUtil.int2Rgb(mColor);
+            rgb = ColorUtil.int2Rgb(Color.parseColor(color));
             return Color.argb(showLight, rgb[0], rgb[1], rgb[2]);
         } else {
             return Color.argb(0, rgb[0], rgb[1], rgb[2]);

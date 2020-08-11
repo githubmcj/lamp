@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.UserInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.util.SaveSharedPreferences;
@@ -38,10 +39,9 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private UserInfo userInfo;
     private List<DoodlePattern> doodlePatterns = new ArrayList<>();
+    private List<LampModel> lampModels = new ArrayList<>();
 
     private HomeFragmentPresenter fp = new HomeFragmentPresenter();
-
-    private int listSize = 31;
 
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
@@ -59,24 +59,22 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private void getData() {
         userInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.USER_INFO), UserInfo.class);
-        if (userInfo.getDoodlePatterns() == null) {
-            userInfo.setDoodlePatterns(new ArrayList<>());
-        }
-        doodlePatterns = userInfo.getDoodlePatterns();
+        lampModels = userInfo.getLampModels();
     }
+
 
     private void initRecyclerView() {
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        adapter = new LampModelAdapter(getActivity(), R.layout.lamp_pattern_item, doodlePatterns);
+        adapter = new LampModelAdapter(getActivity(), R.layout.lamp_pattern_item, lampModels);
         recyclerView.setAdapter(adapter);
         //RecyclerView条目点击事件
         adapter.setOnItemClickListener((adapter, view, position) -> {
-            name.setText(doodlePatterns.get(position).getName());
-            for (int i = 0; i < doodlePatterns.size(); i++) {
-                doodlePatterns.get(i).setChose(false);
-                lampView.setData(doodlePatterns.get(position).getDoodles());
+            name.setText(lampModels.get(position).getName());
+            lampView.setModel(lampModels.get(position).getModeArr());
+            for (int i = 0; i < lampModels.size(); i++) {
+                lampModels.get(i).setChose(false);
             }
-            doodlePatterns.get(position).setChose(true);
+            lampModels.get(position).setChose(true);
             adapter.notifyDataSetChanged();
         });
     }
@@ -100,7 +98,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         if (!hidden) {
             getData();
             if (adapter != null) {
-                adapter.setNewData(doodlePatterns);
+                adapter.setNewData(lampModels);
             }
         }
     }

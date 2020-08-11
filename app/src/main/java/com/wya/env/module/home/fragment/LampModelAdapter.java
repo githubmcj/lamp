@@ -10,7 +10,7 @@ import android.widget.Toast;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.wya.env.R;
-import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.view.LampView;
 
 import java.util.List;
@@ -22,21 +22,21 @@ import java.util.List;
  * @describe: 灯光模式
  */
 
-public class LampModelAdapter extends BaseQuickAdapter<DoodlePattern, BaseViewHolder> {
+public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder> {
 
     private Context context;
 
 
-    public LampModelAdapter(Context context, int layoutResId, @Nullable List<DoodlePattern> data) {
+    public LampModelAdapter(Context context, int layoutResId, @Nullable List<LampModel> data) {
         super(layoutResId, data);
         this.context = context;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    protected void convert(BaseViewHolder helper, DoodlePattern item) {
+    protected void convert(BaseViewHolder helper, LampModel item) {
         helper.setText(R.id.tv_mode_name, item.getName());
-        ((LampView) helper.getView(R.id.lamp_view)).setData(item.getDoodles());
+        ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr());
         if (item.isChose()) {
             helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
         } else {

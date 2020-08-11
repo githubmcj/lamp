@@ -11,7 +11,9 @@ import com.google.gson.Gson;
 import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpActivity;
+import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.UserInfo;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
@@ -21,6 +23,8 @@ import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -94,8 +98,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     //  loginPresent.login(userName, pwd);
                     userInfo = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.USER_INFO), UserInfo.class);
                     if(userInfo == null){
-                        UserInfo userInfo = new UserInfo();
-                        userInfo.setDoodlePatterns(new ArrayList<>());
+                        userInfo = new UserInfo();
+                        addModel();
                         userInfo.setEmail("dsad");
                         userInfo.setUserName("abc");
                         SaveSharedPreferences.save(this, CommonValue.USER_INFO, new Gson().toJson(userInfo));
@@ -113,4 +117,67 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                 break;
         }
     }
+
+    private void addModel() {
+        List<LampModel> lampModels = new ArrayList<>();
+        LampModel lampModel = new LampModel();
+        lampModel.setName("第一个模板");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int j = 0; j < 300; j++) {
+                Doodle doodle = new Doodle();
+                if (j % 15 == i) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255);
+                } else if (j % 15 == i + 1) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255 - 30);
+                } else if (j % 15 == i + 2) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255 - 60);
+                } else if (j % 15 == i + 3) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255 - 90);
+                } else if (j % 15 == i + 4) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255 - 120);
+                } else if (j % 15 == i + 5) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255 - 150);
+                } else if (j % 15 == i + 6) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255 - 180);
+                } else if (j % 15 == i + 7) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255 - 210);
+                } else if (j % 15 == i + 8) {
+                    doodle.setmColor(this.getResources().getColor(R.color.white));
+                    doodle.setColor("#ffffff");
+                    doodle.setLight(255 - 240);
+                } else {
+                    doodle.setmColor(this.getResources().getColor(R.color.black));
+                    doodle.setColor("#000000");
+                    doodle.setLight(255);
+                }
+                doodle.setFlash(0);
+                light_status.put(String.valueOf(j), doodle);
+            }
+            doodlePattern.setLight_status(light_status);
+            modeArr.add(doodlePattern);
+        }
+        lampModel.setModeArr(modeArr);
+        lampModels.add(lampModel);
+        userInfo.setLampModels(lampModels);
+    }
+
 }

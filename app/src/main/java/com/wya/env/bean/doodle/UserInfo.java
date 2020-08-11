@@ -11,7 +11,15 @@ import java.util.List;
 public class UserInfo {
     private String userName;
     private String email;
-    private List<DoodlePattern> doodlePatterns = new ArrayList<>();
+    private List<LampModel> lampModels = new ArrayList<>();
+
+    public List<LampModel> getLampModels() {
+        return lampModels;
+    }
+
+    public void setLampModels(List<LampModel> lampModels) {
+        this.lampModels = lampModels;
+    }
 
     public String getUserName() {
         return userName;
@@ -29,11 +37,4 @@ public class UserInfo {
         this.email = email;
     }
 
-    public List<DoodlePattern> getDoodlePatterns() {
-        return doodlePatterns;
-    }
-
-    public void setDoodlePatterns(List<DoodlePattern> doodlePatterns) {
-        this.doodlePatterns = doodlePatterns;
-    }
 }
