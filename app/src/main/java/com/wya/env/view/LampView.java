@@ -22,6 +22,10 @@ import com.wya.utils.utils.ScreenUtil;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -424,6 +428,7 @@ public class LampView extends View {
                                     }
                                     data.get(String.valueOf(position)).setCreateTime(createTime);
                                     postInvalidate();
+                                    sendMessage();
                                 }
                             }
                         } else {
@@ -453,6 +458,7 @@ public class LampView extends View {
                                         }
                                         data.get(String.valueOf(position)).setCreateTime(createTime);
                                         postInvalidate();
+                                        sendMessage();
                                     }
                                 }
                             }
@@ -779,6 +785,7 @@ public class LampView extends View {
         }
         if (toPostInvalidate) {
             postInvalidate();
+            sendMessage();
         }
     }
 
@@ -789,6 +796,7 @@ public class LampView extends View {
             data.get(String.valueOf(i)).setFlash(0);
         }
         postInvalidate();
+        sendMessage();
     }
 
 
@@ -839,6 +847,129 @@ public class LampView extends View {
             destList.put(key, doodles.get(key));
         }
         return destList;
+    }
+
+
+    /**
+     * 获取Udp实时数据
+     *
+     * @return
+     */
+    public byte[] getUdpByteData() {
+        byte[] upd_data = new byte[1 + 2 + 2 + 3 * size];
+        upd_data[0] = 0x01;
+        upd_data[1] = 0x00;
+        upd_data[2] = 0x00;
+        if (size == 300) {
+            upd_data[3] = 0x2C;
+            upd_data[4] = 0x01;
+        } else if (size == 600) {
+            upd_data[3] = 0x58;
+            upd_data[4] = 0x02;
+        }
+        for (int i = 0; i < size; i++) {
+            String color = data.get(String.valueOf(i)).getColor();
+            upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+            upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+            upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+        }
+        return upd_data;
+    }
+
+
+    private void sendMessage() {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    send("255.255.255.255", 6000, getUdpByteData());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    private void send(String destip, int port, byte[] udpByteData) throws IOException {
+        InetAddress address = InetAddress.getByName(destip);
+        byte[] send_head_data = getHeadByteData(udpByteData);
+        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
+        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
+        byte[] send_data = byteMerger(send_head_data, udpByteData);
+        LogUtil.e("send_data:" + byte2hex(send_data));
+        // 2.创建数据报，包含发送的数据信息
+        DatagramPacket packet = new DatagramPacket(send_data, send_data.length, address, port);
+        // 3.创建DatagramSocket对象
+        DatagramSocket socket = new DatagramSocket();
+        // 4.向服务器端发送数据报
+        socket.send(packet);
+        // 5.关闭资源
+        socket.close();
+    }
+
+    private byte[] getHeadByteData(byte[] udpByteData) {
+        byte[] head_data = new byte[8];
+        head_data[0] = 0x53;
+        head_data[1] = 0x48;
+        head_data[2] = 0x59;
+        head_data[3] = 0x55;
+        if (udpByteData.length == 905) {
+            head_data[4] = (byte) 0x89;
+            head_data[5] = 0x03;
+        } else {
+            head_data[4] = (byte) 0x0d;
+            head_data[5] = 0x07;
+        }
+        head_data[6] = (byte) (0xff & Integer.parseInt(CheckDigit(udpByteData), 16));
+        head_data[7] = (byte) (0xff & (Integer.parseInt("ff", 16) - Integer.parseInt(CheckDigit(udpByteData), 16)));
+        return head_data;
+    }
+
+    /**
+     * @param udpByteData
+     * @return 校验位计算，取低8位为校验位
+     */
+    private String CheckDigit(byte[] udpByteData) {
+        int sum = 0;
+        for (int i = 0; i < udpByteData.length; i++) {
+            sum += udpByteData[i];
+        }
+        String CheckSumBinary = Integer.toBinaryString(sum);
+        String CheckSum = "";
+        String CheckSum_hex = "";
+        if (CheckSumBinary.length() > 8) {
+            CheckSum =
+                    CheckSumBinary.substring(CheckSumBinary.length() - 8, CheckSumBinary.length());
+            sum = Integer.parseInt(CheckSum, 2);
+            CheckSum_hex = Integer.toHexString(sum);
+        } else {
+            sum = Integer.parseInt(CheckSumBinary, 2);
+            CheckSum_hex = Integer.toHexString(sum);
+        }
+
+        return CheckSum_hex;
+    }
+
+
+    public String byte2hex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        String tmp = null;
+        for (byte b : bytes) {
+            //将每个字节与0xFF进行与运算，然后转化为10进制，然后借助于Integer再转化为16进制
+            tmp = Integer.toHexString(0xFF & b);
+            if (tmp.length() == 1) {
+                tmp = "0" + tmp;
+            }
+            sb.append(tmp + " ");
+        }
+        return sb.toString();
+    }
+
+    public static byte[] byteMerger(byte[] byte_1, byte[] byte_2) {
+        byte[] byte_3 = new byte[byte_1.length + byte_2.length];
+        System.arraycopy(byte_1, 0, byte_3, 0, byte_1.length);
+        System.arraycopy(byte_2, 0, byte_3, byte_1.length, byte_2.length);
+        return byte_3;
     }
 
 

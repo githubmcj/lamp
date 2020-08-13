@@ -1,8 +1,6 @@
 package com.wya.env.module.login;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
@@ -51,7 +48,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     TextView register;
     private LoginPresent loginPresent = new LoginPresent();
 
-    private  UserInfo userInfo;
+    private UserInfo userInfo;
 
     @Override
     protected void initView() {
@@ -97,7 +94,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                 if (isRight) {
                     //  loginPresent.login(userName, pwd);
                     userInfo = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.USER_INFO), UserInfo.class);
-                    if(userInfo == null){
+                    if (userInfo == null) {
                         userInfo = new UserInfo();
                         addModel();
                         userInfo.setEmail("dsad");
@@ -107,8 +104,6 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 }
-
-
                 break;
             case R.id.register:
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));

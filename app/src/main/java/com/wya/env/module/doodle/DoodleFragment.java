@@ -26,7 +26,12 @@ import com.wya.env.view.LampView;
 import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
 import com.wya.uikit.dialog.WYACustomDialog;
+import com.wya.utils.utils.LogUtil;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,7 +140,9 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
         //        if (!isFirst) {
         initListData();
         getData();
+
     }
+
 
     private void getData() {
         userInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.USER_INFO), UserInfo.class);
@@ -322,7 +329,7 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
         lampModel.setName(etName.getText().toString());
         DoodlePattern doodlePattern = new DoodlePattern();
         doodlePattern.setLight_status(lampView.getData());
-        List<DoodlePattern> doodlePatterns  = new ArrayList<>();
+        List<DoodlePattern> doodlePatterns = new ArrayList<>();
         doodlePatterns.add(doodlePattern);
         lampModel.setModeArr(doodlePatterns);
         lampModels.add(lampModel);
