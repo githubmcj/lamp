@@ -25,7 +25,7 @@ public class ResultApi {
      */
     public Observable<BaseResult<LoginInfo>> loginApi(String userName, String pwd) {
         HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("user_name", userName);
+        hashMap.put("userEmail", userName);
         hashMap.put("password", pwd);
         return RetrofitFactory.getInstance().create(Api.class).login(hashMap);
     }

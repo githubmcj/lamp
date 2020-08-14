@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
+import android.widget.Toast;
 
 import com.wya.env.R;
 import com.wya.env.util.GestureFlingRightHelper;
 import com.wya.uikit.dialog.WYALoadingDialog;
-import com.wya.uikit.toast.WYAToast;
 import com.wya.uikit.toolbar.BaseToolBarActivity;
 
 import butterknife.ButterKnife;
@@ -76,18 +76,14 @@ public abstract class BaseActivity extends BaseToolBarActivity {
     protected abstract int getLayoutId();
     
     public void showShort(String msg) {
-        WYAToast.showShort(this, msg);
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     public void toastShowLong(String msg) {
-        WYAToast.showLong(this, msg);
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
-    public void toastShowLong(String msg, int res, int gravity) {
-        WYAToast.showToastWithImage(this, msg, res, gravity);
-    }
 
-    
     @Override
     protected void onDestroy() {
         if (unbinder != null) {

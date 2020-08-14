@@ -88,11 +88,11 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                 startActivity(new Intent(LoginActivity.this, ForgetPasswordActivity.class));
                 break;
             case R.id.but_login:
-                String userName = email.getText().toString().trim();
+                String userEmail = email.getText().toString().trim();
                 String pwd = password.getText().toString().trim();
-                boolean isRight = loginPresent.checkInfo(userName, pwd, this);
+                boolean isRight = loginPresent.checkInfo(userEmail, pwd, this);
                 if (isRight) {
-                    //  loginPresent.login(userName, pwd);
+//                      loginPresent.login(userEmail, pwd);
                     userInfo = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.USER_INFO), UserInfo.class);
                     if (userInfo == null) {
                         userInfo = new UserInfo();

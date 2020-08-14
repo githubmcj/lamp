@@ -11,7 +11,6 @@ import com.wya.env.net.BaseExt;
 import com.wya.env.net.BaseSubscriber;
 import com.wya.env.net.api.ResultApi;
 import com.wya.env.util.ResultStatusUtil;
-import com.wya.uikit.toast.WYAToast;
 
 /**
  * @date: 2018/5/31 13:57
@@ -22,7 +21,7 @@ import com.wya.uikit.toast.WYAToast;
 
 public class LoginPresent extends BasePresent<LoginView> {
     private ResultApi resultApi = new ResultApi();
-    
+
     /**
      * 登录的方法
      *
@@ -42,19 +41,19 @@ public class LoginPresent extends BasePresent<LoginView> {
             }
         });
     }
-    
+
     public boolean checkInfo(String username, String password, Activity activity) {
         if (TextUtils.isEmpty(username) || "".equals(username) || username == null) {
-            WYAToast.showShort(activity, "请输入用户名");
+            Toast.makeText(activity, "请输入用户名", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (TextUtils.isEmpty(password) || "".equals(password) || password == null) {
-            WYAToast.showShort(activity, "请输入密码");
+            Toast.makeText(activity, "请输入密码", Toast.LENGTH_SHORT).show();
             return false;
         }
-        
+
         return true;
-        
+
     }
-    
+
 }

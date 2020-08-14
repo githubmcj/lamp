@@ -26,6 +26,6 @@ public interface Api {
      * @return
      */
     @FormUrlEncoded
-    @POST("app/login")
+    @POST("loanFlow/user/login")
     Observable<BaseResult<LoginInfo>> login(@FieldMap HashMap<String, String> hashMap);
 }

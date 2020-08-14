@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatDelegate;
 
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
+import com.squareup.leakcanary.LeakCanary;
 import com.wya.env.util.DynamicTimeFormatUtil;
 
 /**
@@ -35,5 +36,14 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // 内存检测
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+        LeakCanary.install(this);
+
     }
 }

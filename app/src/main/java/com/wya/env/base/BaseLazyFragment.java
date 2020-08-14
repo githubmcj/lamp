@@ -6,8 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.wya.uikit.toast.WYAToast;
+import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -60,15 +59,11 @@ public abstract class BaseLazyFragment extends Fragment {
     protected abstract void initView();
 
     public void showShort(String msg) {
-        WYAToast.showShort(getActivity(), msg);
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
     }
 
     public void toastShowLong(String msg) {
-        WYAToast.showLong(getActivity(), msg);
-    }
-
-    public void toastShowLong(String msg, int res, int gravity) {
-        WYAToast.showToastWithImage(getActivity(), msg, res, gravity);
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -8,15 +8,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
 import com.wya.uikit.dialog.WYACustomDialog;
-import com.wya.uikit.toast.WYAToast;
 import com.wya.utils.utils.ScreenUtil;
 
 import butterknife.BindView;
@@ -60,7 +59,7 @@ public class AboutUsActivity extends BaseActivity {
 
     private void checkPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE ) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
                 callPhone();
             } else {
                 // 不具有获取权限，需要进行权限申请
@@ -85,12 +84,11 @@ public class AboutUsActivity extends BaseActivity {
                     callPhone();
                 } else {
                     // TODO 跳转权限设置页面
-                    WYAToast.showToastWithImage(this.getApplicationContext(), "请到设置-权限管理中开启", 0, Gravity.CENTER);
+                    Toast.makeText(this, "请到设置-权限管理中开启", Toast.LENGTH_SHORT).show();
                 }
             }
         }
     }
-
 
 
     private void showPhone() {
