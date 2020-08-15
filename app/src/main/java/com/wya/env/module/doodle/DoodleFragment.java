@@ -14,7 +14,7 @@ import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
-import com.wya.env.bean.doodle.UserInfo;
+import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.listener.PickerViewListener;
 import com.wya.env.module.home.fragment.HomeFragmentPresenter;
@@ -26,12 +26,7 @@ import com.wya.env.view.LampView;
 import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
 import com.wya.uikit.dialog.WYACustomDialog;
-import com.wya.utils.utils.LogUtil;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,7 +119,7 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
 
     private WYACustomDialog choseColorDialog;
 
-    private UserInfo userInfo;
+    private LoginInfo loginInfo;
     private List<LampModel> lampModels = new ArrayList<>();
 
 
@@ -145,11 +140,11 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
 
 
     private void getData() {
-        userInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.USER_INFO), UserInfo.class);
-        if (userInfo.getLampModels() == null) {
-            userInfo.setLampModels(new ArrayList<>());
+        loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
+        if (loginInfo.getLampModels() == null) {
+            loginInfo.setLampModels(new ArrayList<>());
         }
-        lampModels = userInfo.getLampModels();
+        lampModels = loginInfo.getLampModels();
     }
 
     private void initListData() {
@@ -233,13 +228,14 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
                 }
                 break;
             case R.id.ll_mirror:
-                isMirror = !isMirror;
-                if (isMirror) {
-                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
-                } else {
-                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
-                }
-                lampView.setMirror();
+//                isMirror = !isMirror;
+//                if (isMirror) {
+//                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
+//                } else {
+//                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
+//                }
+//                lampView.setMirror();
+                lampView.stopSendUdpData();
                 break;
             case R.id.ll_save:
                 if (TextUtils.isEmpty(etName.getText().toString())) {
@@ -333,7 +329,7 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
         doodlePatterns.add(doodlePattern);
         lampModel.setModeArr(doodlePatterns);
         lampModels.add(lampModel);
-        SaveSharedPreferences.save(getActivity(), CommonValue.USER_INFO, new Gson().toJson(userInfo));
+        SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
         showShort("保存成功");
     }
 
@@ -394,5 +390,19 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
                 break;
         }
         lampView.setChoseColor(chose_color);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        lampView.stopSendUdpData();
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            lampView.startSendUpdData();
+        }
     }
 }

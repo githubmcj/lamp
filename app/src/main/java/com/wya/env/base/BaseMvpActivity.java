@@ -3,7 +3,11 @@ package com.wya.env.base;
 import android.app.Activity;
 import android.content.Intent;
 
+import com.google.gson.Gson;
 import com.wya.env.MainActivity;
+import com.wya.env.common.CommonValue;
+import com.wya.env.manager.ActivityManager;
+import com.wya.env.util.SaveSharedPreferences;
 
 /**
  * @date: 2018/7/3 13:48
@@ -44,9 +48,11 @@ public abstract class BaseMvpActivity<T extends BasePresent> extends BaseActivit
      * token失效
      */
     @Override
-    public void tokenFaile(Activity activity) {
-        //跳转到登陆界面
-        startActivity(new Intent(activity, MainActivity.class));
-        activity.finish();
+    public void tokenFail(String msg) {
+        showShort(msg);
+        SaveSharedPreferences.save(this, CommonValue.IS_LOGIN, false);
+        SaveSharedPreferences.save(this, CommonValue.TOKEN, "");
+        SaveSharedPreferences.save(this, CommonValue.LOGIN_INFO, "");
+        ActivityManager.getInstance().leaveFirstActivity();
     }
 }

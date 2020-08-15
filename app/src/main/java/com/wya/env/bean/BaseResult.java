@@ -8,7 +8,8 @@ package com.wya.env.bean;
  */
 
 public class BaseResult<T> {
-    public int status;
+    public String code;
     public String msg;
+    public boolean success;
     public T data;
 }

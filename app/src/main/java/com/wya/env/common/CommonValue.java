@@ -20,7 +20,9 @@ public interface CommonValue {
     int COLUMN = 20;
 
     /**
-     * 用户信息
+     * 登录信息
      */
-    String USER_INFO = "UserInfo";
+    String LOGIN_INFO = "LoginInfo";
+
+    String TOKEN = "token";
 }

@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 
 import com.wya.env.MainActivity;
+import com.wya.env.common.CommonValue;
+import com.wya.env.manager.ActivityManager;
+import com.wya.env.util.SaveSharedPreferences;
 
 /**
  * @date: 2018/7/3 13:48
@@ -43,10 +46,12 @@ public abstract class BaseMvpFragment<T extends BasePresent> extends BaseLazyFra
      * token失效
      */
     @Override
-    public void tokenFaile(Activity activity) {
-        //跳转到登陆界面
-        startActivity(new Intent(activity, MainActivity.class));
-        activity.finish();
+    public void tokenFail(String msg) {
+        showShort(msg);
+        SaveSharedPreferences.save(getActivity(), CommonValue.IS_LOGIN, false);
+        SaveSharedPreferences.save(getActivity(), CommonValue.TOKEN, "");
+        SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, "");
+        ActivityManager.getInstance().leaveFirstActivity();
         
     }
     

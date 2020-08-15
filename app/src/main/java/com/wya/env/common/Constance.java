@@ -8,5 +8,5 @@ package com.wya.env.common;
  */
 
 public class Constance {
-    public static final String BASE_URL = "https://app-wsapp.ruishan666.com/";
+    public static final String BASE_URL = "http://47.97.174.34:8080/";
 }

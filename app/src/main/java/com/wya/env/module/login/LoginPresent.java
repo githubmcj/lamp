@@ -34,7 +34,7 @@ public class LoginPresent extends BasePresent<LoginView> {
         BaseExt.ext(resultApi.loginApi(userName, pwd), new BaseSubscriber<BaseResult<LoginInfo>>(mView) {
             @Override
             public void onNext(BaseResult<LoginInfo> loginInfoBaseResult) {
-                if (ResultStatusUtil.resultStatus(mView, loginInfoBaseResult.status, loginInfoBaseResult.msg)) {
+                if (ResultStatusUtil.resultStatus(mView, loginInfoBaseResult.code, loginInfoBaseResult.msg, loginInfoBaseResult.success)) {
                     Toast.makeText((Activity) mView, loginInfoBaseResult.msg, Toast.LENGTH_SHORT).show();
                     mView.onLoginResult(loginInfoBaseResult.data);
                 }

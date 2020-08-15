@@ -12,7 +12,6 @@ import com.wya.env.base.BaseMvpActivity;
 import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
-import com.wya.env.bean.doodle.UserInfo;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.module.forgetpassword.ForgetPasswordActivity;
@@ -48,12 +47,20 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     TextView register;
     private LoginPresent loginPresent = new LoginPresent();
 
-    private UserInfo userInfo;
+    private LoginInfo loginInfo;
+    /**
+     * 灯光模板
+     */
+    private List<LampModel> lampModels;
 
     @Override
     protected void initView() {
         showToolBar(false);
         loginPresent.mView = this;
+        lampModels = getModels();
+
+        email.setText("550612711@qq.com");
+        password.setText("123456");
     }
 
     /**
@@ -63,17 +70,17 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
      */
     @Override
     public void onLoginResult(LoginInfo loginInfo) {
-        //保存数据
+        // 保存数据
         saveInfo(loginInfo);
-        //跳转到主界面
-        startActivity(new Intent(this, MainActivity.class));
+        // 跳转到主界面
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
-
     }
 
     private void saveInfo(LoginInfo loginInfo) {
+        loginInfo.setLampModels(lampModels);
         SaveSharedPreferences.save(LoginActivity.this, CommonValue.IS_LOGIN, true);
-
+        SaveSharedPreferences.save(this, CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
     }
 
     @Override
@@ -92,17 +99,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                 String pwd = password.getText().toString().trim();
                 boolean isRight = loginPresent.checkInfo(userEmail, pwd, this);
                 if (isRight) {
-//                      loginPresent.login(userEmail, pwd);
-                    userInfo = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.USER_INFO), UserInfo.class);
-                    if (userInfo == null) {
-                        userInfo = new UserInfo();
-                        addModel();
-                        userInfo.setEmail("dsad");
-                        userInfo.setUserName("abc");
-                        SaveSharedPreferences.save(this, CommonValue.USER_INFO, new Gson().toJson(userInfo));
-                    }
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
+                    loginPresent.login(userEmail, pwd);
                 }
                 break;
             case R.id.register:
@@ -113,8 +110,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         }
     }
 
-    private void addModel() {
-        List<LampModel> lampModels = new ArrayList<>();
+    private List<LampModel> getModels() {
+        List<LampModel> mLampModels = new ArrayList<>();
         LampModel lampModel = new LampModel();
         lampModel.setName("第一个模板");
         List<DoodlePattern> modeArr = new ArrayList<>();
@@ -171,8 +168,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
-        lampModels.add(lampModel);
-        userInfo.setLampModels(lampModels);
+        mLampModels.add(lampModel);
+        return mLampModels;
     }
 
 }

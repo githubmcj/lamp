@@ -6,7 +6,10 @@ import android.support.v7.app.AppCompatDelegate;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.squareup.leakcanary.LeakCanary;
+import com.wya.env.common.CommonValue;
+import com.wya.env.manager.ActivityManager;
 import com.wya.env.util.DynamicTimeFormatUtil;
+import com.wya.env.util.SaveSharedPreferences;
 
 /**
  * @date: 2019/1/3 16:19
@@ -18,6 +21,8 @@ import com.wya.env.util.DynamicTimeFormatUtil;
 public class App extends Application {
     
     private static App INSTANCE;
+
+    public static String TOKEN;
     
     public static App getInstance() {
         return INSTANCE;
@@ -36,6 +41,11 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        TOKEN = SaveSharedPreferences.getString(getApplicationContext(), CommonValue.TOKEN);
+
+        // activity manager
+        ActivityManager.init(this);
 
         // 内存检测
         if (LeakCanary.isInAnalyzerProcess(this)) {

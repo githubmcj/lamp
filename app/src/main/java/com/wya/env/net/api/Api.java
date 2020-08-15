@@ -7,6 +7,7 @@ import io.reactivex.Observable;
 import com.wya.env.bean.BaseResult;
 import com.wya.env.bean.login.LoginInfo;
 
+import retrofit2.http.Body;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
@@ -25,7 +26,33 @@ public interface Api {
      * @param hashMap
      * @return
      */
-    @FormUrlEncoded
     @POST("loanFlow/user/login")
-    Observable<BaseResult<LoginInfo>> login(@FieldMap HashMap<String, String> hashMap);
+    Observable<BaseResult<LoginInfo>> login(@Body HashMap<String, String> hashMap);
+
+    /**
+     * 注册
+     *
+     * @param hashMap
+     * @return
+     */
+    @POST("loanFlow/user/regist")
+    Observable<BaseResult<Object>> register(@Body HashMap<String, String> hashMap);
+
+    /**
+     * 修改密码
+     *
+     * @param hashMap
+     * @return
+     */
+    @POST("loanFlow/user/changePassword")
+    Observable<BaseResult<Object>> changePassword(@Body HashMap<String, String> hashMap);
+
+    /**
+     * 获取验证码
+     *
+     * @param hashMap
+     * @return
+     */
+    @POST("loanFlow/user/sendEmail")
+    Observable<BaseResult<Object>> getCode(@Body HashMap<String, String> hashMap);
 }

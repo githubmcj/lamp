@@ -1,7 +1,5 @@
 package com.wya.env.util;
 
-import android.app.Activity;
-
 import com.wya.env.base.BaseView;
 
 /**
@@ -12,16 +10,16 @@ import com.wya.env.base.BaseView;
  */
 
 public class ResultStatusUtil {
-    public static boolean resultStatus(BaseView mView, int status, String msg) {
-        if (status == 1) {
+    public static boolean resultStatus(BaseView mView, String code, String msg, boolean success) {
+        if (success) {
             return true;
         }
-        if (status == 0) {
-            mView.failedResult(msg);
-            return false;
-        }
-        if (status == -1) {
-            mView.tokenFaile((Activity) mView);
+        if (!success) {
+            if ("超时或者未登录!".equals(msg)) {
+                mView.tokenFail(msg);
+            } else {
+                mView.failedResult(msg);
+            }
             return false;
         }
         return false;

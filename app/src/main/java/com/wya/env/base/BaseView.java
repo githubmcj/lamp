@@ -30,7 +30,7 @@ public interface BaseView {
     /**
      * token失效
      *
-     * @param activity
+     * @param msg
      */
-    void tokenFaile(Activity activity);
+    void tokenFail(String msg);
 }

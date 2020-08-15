@@ -3,6 +3,7 @@ package com.wya.env.module.register;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -39,11 +40,14 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
     WYAButton butLogin;
 
     private boolean isRead;
+    private RegisterPresent registerPresent;
 
     @Override
     protected void initView() {
         setTitle(getResources().getString(R.string.register));
         isRead = false;
+        registerPresent = new RegisterPresent();
+        registerPresent.mView = this;
     }
 
     @Override
@@ -68,15 +72,39 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                 startActivity(new Intent(RegisterActivity.this, RegisterProtocolActivity.class));
                 break;
             case R.id.but_login:
+                if (TextUtils.isEmpty(userName.getText().toString())) {
+                    showShort("请输入用户名");
+                    return;
+                }
+                if (TextUtils.isEmpty(email.getText().toString())) {
+                    showShort("请输入邮箱");
+                    return;
+                }
+                if (TextUtils.isEmpty(password.getText().toString())) {
+                    showShort("请输入密码");
+                    return;
+                }
+                if (TextUtils.isEmpty(surePassword.getText().toString())) {
+                    showShort("请再次输入密码");
+                    return;
+                }
+                if (!password.getText().toString().equals(surePassword.getText().toString())) {
+                    showShort("两次密码不一致");
+                    return;
+                }
                 if (!isRead) {
                     showShort("请确认已查看注册协议");
                     return;
                 }
-                showShort("请确认已查看注册协议");
-                this.finish();
+                registerPresent.register(email.getText().toString(), password.getText().toString(), userName.getText().toString());
                 break;
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onRegisterResult() {
+        this.finish();
     }
 }

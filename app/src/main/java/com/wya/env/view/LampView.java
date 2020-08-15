@@ -194,9 +194,19 @@ public class LampView extends View {
     private int modelFrameTime;
 
     /**
+     * 模板每一帧时间
+     */
+    private int sendDataTime;
+
+    /**
      * 是否开启线程
      */
     private boolean isStart;
+
+    /**
+     * 实时画板
+     */
+    private boolean isOnline;
 
     public void setTwinkle(boolean twinkle) {
         isTwinkle = twinkle;
@@ -238,14 +248,6 @@ public class LampView extends View {
             }, 0, frameTime, TimeUnit.MILLISECONDS);
         }
     }
-
-
-//    String has = "#";
-//    String PR_transparency = "50";// this text background color 50% transparent;
-//    String og_color = "FF001A";
-//
-//tv.setBackgroundColor(Color.parseColor(has+PR_transparency+og_color));
-
 
     public void setPaintBold(boolean paintBold) {
         isPaintBold = paintBold;
@@ -324,7 +326,8 @@ public class LampView extends View {
 
     private void initAttr(AttributeSet attrs) {
         TypedArray typedArray = mContext.obtainStyledAttributes(attrs, R.styleable.LampView);
-        type = typedArray.getColor(R.styleable.LampView_type, 1);
+        type = typedArray.getInt(R.styleable.LampView_type, 1);
+        isOnline = typedArray.getBoolean(R.styleable.LampView_online, false);
 
         if (type == 1) {
             mWidth = (int) typedArray.getDimension(R.styleable.LampView_width, ScreenUtil.getScreenWidth(mContext) - (int) typedArray.getDimension(R.styleable.LampView_margin_left, 0) - (int) typedArray.getDimension(R.styleable.LampView_margin_right, 0));
@@ -368,6 +371,7 @@ public class LampView extends View {
         period = 2000;
         frameTime = 20;
         modelFrameTime = 200;
+        sendDataTime = 200;
 
 
         data.clear();
@@ -428,7 +432,7 @@ public class LampView extends View {
                                     }
                                     data.get(String.valueOf(position)).setCreateTime(createTime);
                                     postInvalidate();
-                                    sendMessage();
+                                    sendUdpDataAdd = 0;
                                 }
                             }
                         } else {
@@ -458,7 +462,7 @@ public class LampView extends View {
                                         }
                                         data.get(String.valueOf(position)).setCreateTime(createTime);
                                         postInvalidate();
-                                        sendMessage();
+                                        sendUdpDataAdd = 0;
                                     }
                                 }
                             }
@@ -785,7 +789,7 @@ public class LampView extends View {
         }
         if (toPostInvalidate) {
             postInvalidate();
-            sendMessage();
+            sendUdpDataAdd = 0;
         }
     }
 
@@ -796,7 +800,6 @@ public class LampView extends View {
             data.get(String.valueOf(i)).setFlash(0);
         }
         postInvalidate();
-        sendMessage();
     }
 
 
@@ -877,18 +880,70 @@ public class LampView extends View {
     }
 
 
-    private void sendMessage() {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    send("255.255.255.255", 6000, getUdpByteData());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+    public void startSendUpdData() {
+        if (isOnline) {
+            LogUtil.e("启动发送UDP数据");
+            sendUdpMessage();
+        }
     }
+
+    private int sendUdpDataAdd;
+    private ScheduledExecutorService udpExecutorService;
+    private Runnable udpTask;
+
+    private void sendUdpMessage() {
+//        TaskCenter.sharedCenter().setDisconnectedCallback(new TaskCenter.OnServerDisconnectedCallbackBlock() {
+//            @Override
+//            public void callback(IOException e) {
+//                Toast.makeText(mContext, "断开连接", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//        TaskCenter.sharedCenter().setConnectedCallback(new TaskCenter.OnServerConnectedCallbackBlock() {
+//            @Override
+//            public void callback() {
+//                Toast.makeText(mContext, "连接成功", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//        TaskCenter.sharedCenter().setReceivedCallback(new TaskCenter.OnReceiveCallbackBlock() {
+//            @Override
+//            public void callback(String receicedMessage) {
+//                textView_receive.setText(textView_receive.getText().toString() + receicedMessage + "\n");
+//            }
+//        });
+//        //连接
+//        TaskCenter.sharedCenter().connect("xxx.xxx.xx.xxxx", xxxx);
+//        //发送
+//        TaskCenter.sharedCenter().send(msg.getBytes());
+//        // 断开连接
+//        TaskCenter.sharedCenter().disconnect();
+
+
+        sendUdpDataAdd = -1;
+        if (udpExecutorService == null) {
+            udpExecutorService = new ScheduledThreadPoolExecutor(1,
+                    new BasicThreadFactory.Builder().namingPattern("udpExecutorService").daemon(true).build());
+            udpTask = new Runnable() {
+                @Override
+                public void run() {
+                    if (sendUdpDataAdd != -1) {
+                        addMode++;
+                        try {
+                            send("255.255.255.255", 6000, getUdpByteData());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            LogUtil.e("发送UDP数据失败");
+                        }
+                    } else {
+                        LogUtil.e("暂停UDP发送数据");
+                    }
+                }
+            };
+            udpExecutorService.scheduleAtFixedRate(udpTask, 0, sendDataTime, TimeUnit.MILLISECONDS);
+        } else {
+            udpExecutorService.scheduleAtFixedRate(udpTask, 0, sendDataTime, TimeUnit.MILLISECONDS);
+        }
+    }
+
 
     private void send(String destip, int port, byte[] udpByteData) throws IOException {
         InetAddress address = InetAddress.getByName(destip);
@@ -905,6 +960,7 @@ public class LampView extends View {
         socket.send(packet);
         // 5.关闭资源
         socket.close();
+        LogUtil.e("发送UDP数据成功");
     }
 
     private byte[] getHeadByteData(byte[] udpByteData) {
@@ -972,6 +1028,13 @@ public class LampView extends View {
         return byte_3;
     }
 
+    public void stopSendUdpData() {
+        LogUtil.e("停止发送数据");
+        if (udpExecutorService != null && udpTask != null) {
+            List<Runnable> list = udpExecutorService.shutdownNow();
+            LogUtil.e("停止发送数据list.size():--------" + list.size());
+        }
+    }
 
 }
 

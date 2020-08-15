@@ -9,7 +9,7 @@ import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
-import com.wya.env.bean.doodle.UserInfo;
+import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
@@ -37,7 +37,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     TextView name;
     private LampModelAdapter adapter;
 
-    private UserInfo userInfo;
+    private LoginInfo loginInfo;
     private List<DoodlePattern> doodlePatterns = new ArrayList<>();
     private List<LampModel> lampModels = new ArrayList<>();
 
@@ -58,8 +58,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     }
 
     private void getData() {
-        userInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.USER_INFO), UserInfo.class);
-        lampModels = userInfo.getLampModels();
+        loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
+        lampModels = loginInfo.getLampModels();
     }
 
 
