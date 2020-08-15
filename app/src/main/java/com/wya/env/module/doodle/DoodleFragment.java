@@ -400,6 +400,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         super.onHiddenChanged(hidden);
         if (!hidden) {
             lampView.startSendUpdData();
+        } else {
+            lampView.stopSendUdpData();
         }
     }
 

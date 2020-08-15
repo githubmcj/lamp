@@ -3,7 +3,6 @@ package com.wya.env.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -16,7 +15,6 @@ import android.view.ViewParent;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
-import com.wya.env.util.ColorUtil;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
@@ -318,7 +316,7 @@ public class LampView extends View {
         if (modelExecutorService == null) {
             modelExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("toShowModel").daemon(true).build());
-            modelScheduledFuture  =  modelExecutorService.scheduleAtFixedRate(new Runnable() {
+            modelScheduledFuture = modelExecutorService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     if (addMode != -1) {
@@ -499,6 +497,7 @@ public class LampView extends View {
         }
 
     }
+
     boolean toPostInvalidate;
 
     private void setBoldAllChoseColor(int position) {
@@ -928,11 +927,13 @@ public class LampView extends View {
 //        // 断开连接
 //        TaskCenter.sharedCenter().disconnect();
 
-
+        stopSendUdpData();
         sendUdpDataAdd = -1;
         if (udpExecutorService == null) {
             udpExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("udpExecutorService").daemon(true).build());
+        }
+        if (udpTask == null) {
             udpTask = new Runnable() {
                 @Override
                 public void run() {
@@ -944,11 +945,11 @@ public class LampView extends View {
                             e.printStackTrace();
                             LogUtil.e("发送UDP数据失败");
                         }
-                    } else {
-                        LogUtil.e("暂停UDP发送数据");
                     }
                 }
             };
+        }
+        if (udpExecutorService != null) {
             udpScheduledFuture = udpExecutorService.scheduleAtFixedRate(udpTask, 0, sendDataTime, TimeUnit.MILLISECONDS);
         }
     }
@@ -1038,11 +1039,12 @@ public class LampView extends View {
     }
 
     public void stopSendUdpData() {
-        LogUtil.e("停止发送数据");
-        if (udpScheduledFuture != null) {
-            udpScheduledFuture.cancel(false);
-            LogUtil.e("停止发送数据:--------");
+        if (udpExecutorService != null) {
+            LogUtil.e("停止发送数据");
+            udpExecutorService.shutdownNow();
         }
+        // 非单例模式，置空防止重复的任务
+        udpExecutorService = null;
     }
 
 }
