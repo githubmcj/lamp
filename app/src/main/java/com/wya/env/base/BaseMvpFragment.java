@@ -6,6 +6,7 @@ import android.content.Intent;
 import com.wya.env.MainActivity;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
+import com.wya.env.module.login.LoginActivity;
 import com.wya.env.util.SaveSharedPreferences;
 
 /**
@@ -51,7 +52,9 @@ public abstract class BaseMvpFragment<T extends BasePresent> extends BaseLazyFra
         SaveSharedPreferences.save(getActivity(), CommonValue.IS_LOGIN, false);
         SaveSharedPreferences.save(getActivity(), CommonValue.TOKEN, "");
         SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, "");
-        ActivityManager.getInstance().leaveFirstActivity();
+        if (!ActivityManager.getInstance().leaveFirstActivity()){
+            startActivity(new Intent(getActivity(), LoginActivity.class));
+        }
         
     }
     

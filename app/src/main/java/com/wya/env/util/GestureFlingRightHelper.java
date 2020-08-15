@@ -28,7 +28,6 @@ public class GestureFlingRightHelper implements GestureDetector.OnGestureListene
                 mGfHelper = new GestureFlingRightHelper();
             }
         }
-        
         return mGfHelper;
     }
     

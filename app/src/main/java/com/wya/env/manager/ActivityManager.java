@@ -2,9 +2,12 @@ package com.wya.env.manager;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.wya.env.bean.ActivityData;
+import com.wya.env.module.login.LoginActivity;
+import com.wya.env.module.login.StartUpActivity;
 import com.wya.utils.utils.LogUtil;
 
 import java.lang.ref.WeakReference;
@@ -232,17 +235,21 @@ public class ActivityManager {
     /**
      * 关闭所有activity
      */
-    public void leaveFirstActivity() {
+    public boolean leaveFirstActivity() {
+        boolean hasLogin = false;
         try {
             for (Activity activity : mActivityStack) {
                 LogUtil.e(activity.getClass().getName());
-                if (!activity.getClass().getName().equals("com.weiyian.material.module.login.LoginActivity")) {
+                if (!activity.getClass().getName().equals("com.wya.env.module.login.LoginActivity")) {
                     finishActivity(activity);
+                } else {
+                    hasLogin = true;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return hasLogin;
     }
 
     /**

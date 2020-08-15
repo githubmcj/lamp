@@ -10,7 +10,17 @@ import java.util.HashMap;
  */
 public class DoodlePattern {
 
+    private int size = 300;
+
     private HashMap<String, Doodle> light_status;
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
 
     public HashMap<String, Doodle> getLight_status() {
         return light_status;

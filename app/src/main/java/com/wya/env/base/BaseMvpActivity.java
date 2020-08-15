@@ -1,12 +1,10 @@
 package com.wya.env.base;
 
-import android.app.Activity;
 import android.content.Intent;
 
-import com.google.gson.Gson;
-import com.wya.env.MainActivity;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
+import com.wya.env.module.login.LoginActivity;
 import com.wya.env.util.SaveSharedPreferences;
 
 /**
@@ -17,7 +15,7 @@ import com.wya.env.util.SaveSharedPreferences;
  */
 
 public abstract class BaseMvpActivity<T extends BasePresent> extends BaseActivity implements BaseView {
-    
+
     /**
      * 显示加载对话框
      */
@@ -25,7 +23,7 @@ public abstract class BaseMvpActivity<T extends BasePresent> extends BaseActivit
     public void showLoading() {
         loadingDialog.show();
     }
-    
+
     /**
      * 隐藏加载对话框
      */
@@ -33,7 +31,7 @@ public abstract class BaseMvpActivity<T extends BasePresent> extends BaseActivit
     public void hideLoading() {
         loadingDialog.dismiss();
     }
-    
+
     /**
      * 失败回调
      *
@@ -43,7 +41,7 @@ public abstract class BaseMvpActivity<T extends BasePresent> extends BaseActivit
     public void failedResult(String s) {
         showShort(s);
     }
-    
+
     /**
      * token失效
      */
@@ -53,6 +51,8 @@ public abstract class BaseMvpActivity<T extends BasePresent> extends BaseActivit
         SaveSharedPreferences.save(this, CommonValue.IS_LOGIN, false);
         SaveSharedPreferences.save(this, CommonValue.TOKEN, "");
         SaveSharedPreferences.save(this, CommonValue.LOGIN_INFO, "");
-        ActivityManager.getInstance().leaveFirstActivity();
+        if (!ActivityManager.getInstance().leaveFirstActivity()){
+            startActivity(new Intent(this, LoginActivity.class));
+        }
     }
 }

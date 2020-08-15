@@ -6,6 +6,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.wya.env.App;
 import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpActivity;
@@ -80,6 +81,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     private void saveInfo(LoginInfo loginInfo) {
         loginInfo.setLampModels(lampModels);
         SaveSharedPreferences.save(LoginActivity.this, CommonValue.IS_LOGIN, true);
+        App.TOKEN = loginInfo.getToken();
+        SaveSharedPreferences.save(LoginActivity.this, CommonValue.TOKEN, loginInfo.getToken());
         SaveSharedPreferences.save(this, CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
     }
 
@@ -121,43 +124,33 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             for (int j = 0; j < 300; j++) {
                 Doodle doodle = new Doodle();
                 if (j % 15 == i) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255);
                 } else if (j % 15 == i + 1) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255 - 30);
                 } else if (j % 15 == i + 2) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255 - 60);
                 } else if (j % 15 == i + 3) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255 - 90);
                 } else if (j % 15 == i + 4) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255 - 120);
                 } else if (j % 15 == i + 5) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255 - 150);
                 } else if (j % 15 == i + 6) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255 - 180);
                 } else if (j % 15 == i + 7) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255 - 210);
                 } else if (j % 15 == i + 8) {
-                    doodle.setmColor(this.getResources().getColor(R.color.white));
                     doodle.setColor("#ffffff");
                     doodle.setLight(255 - 240);
                 } else {
-                    doodle.setmColor(this.getResources().getColor(R.color.black));
                     doodle.setColor("#000000");
                     doodle.setLight(255);
                 }
@@ -165,6 +158,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                 light_status.put(String.valueOf(j), doodle);
             }
             doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(300);
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);

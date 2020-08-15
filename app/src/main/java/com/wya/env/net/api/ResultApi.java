@@ -1,10 +1,14 @@
 package com.wya.env.net.api;
 
+import com.wya.env.App;
 import com.wya.env.bean.BaseResult;
+import com.wya.env.bean.doodle.SaveModel;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.net.RetrofitFactory;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
 
@@ -16,6 +20,13 @@ import io.reactivex.Observable;
  */
 
 public class ResultApi {
+
+    private Map<String, String> getHeaderMap() {
+        HashMap<String, String> headerMap = new HashMap<>();
+        headerMap.put("x-client-token", App.TOKEN);
+        return headerMap;
+    }
+
     /**
      * 登录
      *
@@ -38,7 +49,7 @@ public class ResultApi {
      * @param userName
      * @return
      */
-    public Observable<BaseResult<Object>> registerApi(String userEmail, String pwd,String userName) {
+    public Observable<BaseResult<Object>> registerApi(String userEmail, String pwd, String userName) {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("userEmail", userEmail);
         hashMap.put("password", pwd);
@@ -54,7 +65,7 @@ public class ResultApi {
      * @param code
      * @return
      */
-    public Observable<BaseResult<Object>> changePasswordApi(String userEmail, String pwd,String code) {
+    public Observable<BaseResult<Object>> changePasswordApi(String userEmail, String pwd, String code) {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("userEmail", userEmail);
         hashMap.put("password", pwd);
@@ -72,5 +83,27 @@ public class ResultApi {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("userEmail", userEmail);
         return RetrofitFactory.getInstance().create(Api.class).getCode(hashMap);
+    }
+
+    /**
+     * 保存模板
+     *
+     * @param content 模板json
+     * @return
+     */
+    public Observable<BaseResult<Object>> saveModelApi(String content) {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("content", content);
+        return RetrofitFactory.getInstance().create(Api.class).saveModel(getHeaderMap(), hashMap);
+    }
+
+    /**
+     * 獲取模板
+     *
+     * @return
+     */
+    public Observable<BaseResult<List<SaveModel>>> getSaveModelsApi() {
+        HashMap<String, String> hashMap = new HashMap<>();
+        return RetrofitFactory.getInstance().create(Api.class).getSaveModels(getHeaderMap(), hashMap);
     }
 }

@@ -23,6 +23,7 @@ public interface CommonValue {
      * 登录信息
      */
     String LOGIN_INFO = "LoginInfo";
+    String TO_REFRESH = "ToRefresh";
 
     String TOKEN = "token";
 }

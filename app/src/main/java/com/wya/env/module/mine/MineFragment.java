@@ -9,9 +9,15 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.login.LoginInfo;
+import com.wya.env.common.CommonValue;
+import com.wya.env.manager.ActivityManager;
+import com.wya.env.module.login.LoginActivity;
+import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.AvatarImageView;
 import com.wya.utils.utils.ScreenUtil;
 
@@ -20,7 +26,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * @date: 2018/7/3 13:55
@@ -44,11 +49,13 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     TableRow tabRefresh;
     @BindView(R.id.tab_about_us)
     TableRow tabAboutUs;
-    Unbinder unbinder;
+    @BindView(R.id.tab_exit)
+    TableRow tabExit;
 
     private List<LampSetting> lampSettings = new ArrayList<>();
     private int listSize = 10;
     private MyLampAdapter myLampAdapter;
+    private LoginInfo loginInfo;
 
     @Override
     protected int getLayoutResource() {
@@ -57,7 +64,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     private void initData() {
         initListData();
+        initUserInfo();
         initRecyclerView();
+    }
+
+    private void initUserInfo() {
+        loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
+        userName.setText(loginInfo.getUserName());
+        email.setText(loginInfo.getUserEmail());
     }
 
     private void initListData() {
@@ -85,17 +99,29 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     }
 
 
-    @OnClick({R.id.tab_refresh, R.id.tab_about_us})
+    @OnClick({R.id.tab_refresh, R.id.tab_about_us, R.id.tab_exit})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab_refresh:
                 showShort("刷新");
+                break;
+            case R.id.tab_exit:
+                toExit();
                 break;
             case R.id.tab_about_us:
                 startActivity(new Intent(getActivity(), AboutUsActivity.class));
                 break;
             default:
                 break;
+        }
+    }
+
+    private void toExit() {
+        SaveSharedPreferences.save(getActivity(), CommonValue.IS_LOGIN, false);
+        SaveSharedPreferences.save(getActivity(), CommonValue.TOKEN, "");
+        SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, "");
+        if (!ActivityManager.getInstance().leaveFirstActivity()){
+            startActivity(new Intent(getActivity(), LoginActivity.class));
         }
     }
 }

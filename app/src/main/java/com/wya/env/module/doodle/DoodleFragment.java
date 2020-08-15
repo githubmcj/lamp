@@ -17,8 +17,6 @@ import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.listener.PickerViewListener;
-import com.wya.env.module.home.fragment.HomeFragmentPresenter;
-import com.wya.env.module.home.fragment.HomeFragmentView;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.Circle;
 import com.wya.env.view.ColorPickerView;
@@ -40,7 +38,7 @@ import butterknife.OnClick;
  * @describe: Example Fragment
  */
 
-public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> implements HomeFragmentView {
+public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> implements DoodleFragmentView {
     @BindView(R.id.circle1)
     Circle circle1;
     @BindView(R.id.tab1)
@@ -97,10 +95,10 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
     ImageView imgTwinkle;
     @BindView(R.id.img_mirror)
     ImageView imgMirror;
-    private HomeFragmentPresenter fp = new HomeFragmentPresenter();
+    private DoodleFragmentPresenter doodleFragmentPresenter = new DoodleFragmentPresenter();
 
     private int color_index;
-    private int chose_color;
+    private String chose_color;
     private int chose_light;
     /**
      * 0 不选中， 1 粗笔， 2 细笔
@@ -133,22 +131,22 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
 
     private void initData() {
         //        if (!isFirst) {
-        initListData();
-        getData();
+//        initListData();
+//        getData();
 
     }
 
 
-    private void getData() {
-        loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
-        if (loginInfo.getLampModels() == null) {
-            loginInfo.setLampModels(new ArrayList<>());
-        }
-        lampModels = loginInfo.getLampModels();
-    }
-
-    private void initListData() {
-    }
+//    private void getData() {
+//        loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
+//        if (loginInfo.getLampModels() == null) {
+//            loginInfo.setLampModels(new ArrayList<>());
+//        }
+//        lampModels = loginInfo.getLampModels();
+//    }
+//
+//    private void initListData() {
+//    }
 
 
     @Override
@@ -158,7 +156,7 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
 
     @Override
     protected void initView() {
-        fp.mView = this;
+        doodleFragmentPresenter.mView = this;
         initData();//初始化数据
     }
 
@@ -243,7 +241,6 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
                     return;
                 }
                 toSave();
-                toCleanChose();
                 break;
             case R.id.tab_chose_color:
                 choseColorDialog = new WYACustomDialog.Builder(getActivity())
@@ -261,8 +258,9 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
                                 colorPickerView.setOnColorPickListener(new PickerViewListener() {
                                     @Override
                                     public void onPickerColor(int color) {
-                                        chose_color = color;
-                                        circle.setColor(chose_color);
+                                        chose_color = String.format("#%06X", (0xFFFFFF & color));
+                                        ;
+                                        circle.setColor(color);
                                     }
                                 });
                                 sure.setOnClickListener(new View.OnClickListener() {
@@ -320,17 +318,16 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
     }
 
     private void toSave() {
-        getData();
+//        getData();
         LampModel lampModel = new LampModel();
         lampModel.setName(etName.getText().toString());
         DoodlePattern doodlePattern = new DoodlePattern();
-        doodlePattern.setLight_status(lampView.getData());
+        doodlePattern.setLight_status(lampView.getSaveData());
+        doodlePattern.setSize(lampView.getSize());
         List<DoodlePattern> doodlePatterns = new ArrayList<>();
         doodlePatterns.add(doodlePattern);
         lampModel.setModeArr(doodlePatterns);
-        lampModels.add(lampModel);
-        SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
-        showShort("保存成功");
+        doodleFragmentPresenter.saveModel(new Gson().toJson(lampModel));
     }
 
     private void setPainter(int painter_type) {
@@ -355,36 +352,36 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
         circle8.setCircle_chose(false);
         switch (color_index) {
             case 1:
-                chose_color = getActivity().getResources().getColor(R.color.cEA1318);
+                chose_color = "#EA1318";
                 circle1.setCircle_chose(true);
                 break;
             case 2:
                 circle2.setCircle_chose(true);
-                chose_color = getActivity().getResources().getColor(R.color.cF69218);
+                chose_color = "#F69218";
                 break;
             case 3:
                 circle3.setCircle_chose(true);
-                chose_color = getActivity().getResources().getColor(R.color.cF2E93F);
+                chose_color = "#F2E93F";
                 break;
             case 4:
                 circle4.setCircle_chose(true);
-                chose_color = getActivity().getResources().getColor(R.color.c6BBA2B);
+                chose_color = "#6BBA2B";
                 break;
             case 5:
                 circle5.setCircle_chose(true);
-                chose_color = getActivity().getResources().getColor(R.color.c68C7DD);
+                chose_color = "#68C7DD";
                 break;
             case 6:
                 circle6.setCircle_chose(true);
-                chose_color = getActivity().getResources().getColor(R.color.c1A489E);
+                chose_color = "#1A489E";
                 break;
             case 7:
                 circle7.setCircle_chose(true);
-                chose_color = getActivity().getResources().getColor(R.color.cB04F9C);
+                chose_color = "#B04F9C";
                 break;
             case 8:
                 circle8.setCircle_chose(true);
-                chose_color = getActivity().getResources().getColor(R.color.white);
+                chose_color = "#ffffff";
                 break;
             default:
                 break;
@@ -404,5 +401,12 @@ public class DoodleFragment extends BaseMvpFragment<HomeFragmentPresenter> imple
         if (!hidden) {
             lampView.startSendUpdData();
         }
+    }
+
+    @Override
+    public void onSaveResult() {
+        toCleanChose();
+        showShort(getActivity().getResources().getString(R.string.save_success));
+        SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, true);
     }
 }

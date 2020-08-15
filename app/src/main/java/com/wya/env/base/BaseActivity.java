@@ -1,7 +1,6 @@
 package com.wya.env.base;
 
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -38,7 +37,7 @@ public abstract class BaseActivity extends BaseToolBarActivity {
         unbinder = ButterKnife.bind(this);
         loadingDialog = new WYALoadingDialog(this, false, false);
         initView();
-        initGesture();
+//        initGesture();
     }
     
     private void initGesture() {

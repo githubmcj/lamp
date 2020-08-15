@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -141,6 +142,7 @@ public class LampView extends View {
      * 灯的个数
      */
     private int size;
+
     /**
      * 灯的直径
      */
@@ -157,7 +159,7 @@ public class LampView extends View {
     /**
      * 选择的颜色
      */
-    private int choseColor;
+    private String choseColor;
 
     /**
      * 亮度
@@ -208,6 +210,14 @@ public class LampView extends View {
      */
     private boolean isOnline;
 
+
+    /**
+     * @return 等的数量
+     */
+    public int getSize() {
+        return size;
+    }
+
     public void setTwinkle(boolean twinkle) {
         isTwinkle = twinkle;
         if (isTwinkle && !isStart) {
@@ -253,11 +263,11 @@ public class LampView extends View {
         isPaintBold = paintBold;
     }
 
-    public int getChoseColor() {
+    public String getChoseColor() {
         return choseColor;
     }
 
-    public void setChoseColor(int choseColor) {
+    public void setChoseColor(String choseColor) {
         this.choseColor = choseColor;
     }
 
@@ -301,13 +311,14 @@ public class LampView extends View {
 
     private int addMode;
     ScheduledExecutorService modelExecutorService;
+    private ScheduledFuture<?> modelScheduledFuture;
 
     private void toShowModel(List<DoodlePattern> modeArr) {
         addMode = 0;
         if (modelExecutorService == null) {
             modelExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("toShowModel").daemon(true).build());
-            modelExecutorService.scheduleAtFixedRate(new Runnable() {
+            modelScheduledFuture  =  modelExecutorService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     if (addMode != -1) {
@@ -320,9 +331,19 @@ public class LampView extends View {
         }
     }
 
-    public HashMap<String, Doodle> getData() {
-        return data;
+
+    private HashMap<String, Doodle> save_data = new HashMap<>();
+
+    public HashMap<String, Doodle> getSaveData() {
+        save_data.clear();
+        for (int i = 0; i < data.size(); i++) {
+            if (!data.get(String.valueOf(i)).getColor().equals("#000000")) {
+                save_data.put(String.valueOf(i), data.get(String.valueOf(i)));
+            }
+        }
+        return save_data;
     }
+
 
     private void initAttr(AttributeSet attrs) {
         TypedArray typedArray = mContext.obtainStyledAttributes(attrs, R.styleable.LampView);
@@ -365,7 +386,7 @@ public class LampView extends View {
 
     public void init() {
         choseLight = 255;
-        choseColor = mContext.getResources().getColor(R.color.black);
+        choseColor = "#000000";
 
         hasTwinkle = false;
         period = 2000;
@@ -377,7 +398,6 @@ public class LampView extends View {
         data.clear();
         for (int i = 0; i < size; i++) {
             Doodle doodle = new Doodle();
-            doodle.setmColor(mLampColor);
             doodle.setColor("#000000");
             doodle.setFlash(0);
             doodle.setLight(255);
@@ -412,8 +432,7 @@ public class LampView extends View {
                         createTime = System.currentTimeMillis();
                         x = (int) event.getX();
                         y = (int) event.getY();
-                        if (x > 0 && x < mWidth && y > 0 && y < mHeight) {
-                            LogUtil.e("x:" + x + "---y:" + y);
+                        if (x > 0 && x < column * (lamp_size + 2 * lamp_margin) && y > 0 && y < (size / column) * (lamp_size + 2 * lamp_margin)) {
                             old_x = event.getX();
                             old_y = event.getY();
                             int position = ((int) ((event.getX()) / (lamp_size + 2 * lamp_margin)) * (size / column) + ((int) (event.getY() / (lamp_size + 2 * lamp_margin))));
@@ -422,8 +441,8 @@ public class LampView extends View {
                             if (isPaintBold) {
                                 setBoldAllChoseColor(position);
                             } else {
-                                if (data.get(String.valueOf(String.valueOf(position))).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                                    data.get(String.valueOf(position)).setmColor(choseColor);
+                                if (!data.get(String.valueOf(String.valueOf(position))).getColor().equalsIgnoreCase(choseColor)) {
+                                    data.get(String.valueOf(position)).setColor(choseColor);
                                     data.get(String.valueOf(position)).setLight(choseLight);
                                     if (isTwinkle) {
                                         data.get(String.valueOf(position)).setFlash(1);
@@ -441,8 +460,7 @@ public class LampView extends View {
                     case MotionEvent.ACTION_MOVE:
                         x = (int) event.getX();
                         y = (int) event.getY();
-                        if (x > 0 && x < mWidth && y > 0 && y < mHeight) {
-                            LogUtil.e("x:" + x + "---y:" + y);
+                        if (x > 0 && x < column * (lamp_size + 2 * lamp_margin) && y > 0 && y < (size / column) * (lamp_size + 2 * lamp_margin)) {
                             if (old_x == 0 || old_y == 0 || Math.abs(old_x - event.getX()) > lamp_size + 2 * lamp_margin || Math.abs(old_y - event.getY()) > lamp_size + 2 * lamp_margin) {
                                 old_x = event.getX();
                                 old_y = event.getY();
@@ -452,8 +470,8 @@ public class LampView extends View {
                                 if (isPaintBold) {
                                     setBoldAllChoseColor(position);
                                 } else {
-                                    if (data.get(String.valueOf(position)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                                        data.get(String.valueOf(position)).setmColor(choseColor);
+                                    if (!data.get(String.valueOf(position)).getColor().equalsIgnoreCase(choseColor)) {
+                                        data.get(String.valueOf(position)).setColor(choseColor);
                                         data.get(String.valueOf(position)).setLight(choseLight);
                                         if (isTwinkle) {
                                             data.get(String.valueOf(position)).setFlash(1);
@@ -481,20 +499,12 @@ public class LampView extends View {
         }
 
     }
-
-    int[] choseRgb;
-
-    private int getChoseArgb(int choseColor, int choseLight) {
-        choseRgb = ColorUtil.int2Rgb(choseColor);
-        return Color.argb(choseLight, choseRgb[0], choseRgb[1], choseRgb[2]);
-    }
-
     boolean toPostInvalidate;
 
     private void setBoldAllChoseColor(int position) {
         toPostInvalidate = false;
-        if (data.get(String.valueOf(position)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-            data.get(String.valueOf(position)).setmColor(choseColor);
+        if (!data.get(String.valueOf(position)).getColor().equalsIgnoreCase(choseColor)) {
+            data.get(String.valueOf(position)).setColor(choseColor);
             data.get(String.valueOf(position)).setLight(choseLight);
             if (isTwinkle) {
                 data.get(String.valueOf(position)).setFlash(1);
@@ -506,8 +516,8 @@ public class LampView extends View {
         }
         if (position == 0) {
             LogUtil.e("左上角落点");
-            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -517,8 +527,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -530,8 +540,8 @@ public class LampView extends View {
             }
         } else if (position > 0 && position < size / column - 1) {
             LogUtil.e("左边缘点");
-            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -541,8 +551,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -552,8 +562,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -565,8 +575,8 @@ public class LampView extends View {
             }
         } else if (position == size / column - 1) {
             LogUtil.e("左下角落点");
-            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -576,8 +586,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -589,8 +599,8 @@ public class LampView extends View {
             }
         } else if (position == data.size() - 1) {
             LogUtil.e("右下角落点");
-            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -600,8 +610,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -613,8 +623,8 @@ public class LampView extends View {
             }
         } else if (position == data.size() - size / column) {
             LogUtil.e("右上角落点");
-            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -624,8 +634,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -637,8 +647,8 @@ public class LampView extends View {
             }
         } else if (position % (size / column) == 0) {
             LogUtil.e("上边缘点");
-            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -648,8 +658,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -659,8 +669,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -672,8 +682,8 @@ public class LampView extends View {
             }
         } else if ((position + 1) % (size / column) == 0) {
             LogUtil.e("下边缘点");
-            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -683,8 +693,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -694,8 +704,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -707,8 +717,8 @@ public class LampView extends View {
             }
         } else if (position < data.size() - 1 && position > data.size() - size / column) {
             LogUtil.e("右边缘点");
-            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -718,8 +728,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -729,8 +739,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -742,8 +752,8 @@ public class LampView extends View {
             }
         } else {
             LogUtil.e("中间点");
-            if (data.get(String.valueOf(position + 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -753,8 +763,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position - 1)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - 1)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -764,8 +774,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position - size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position - size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -775,8 +785,8 @@ public class LampView extends View {
                 data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
-            if (data.get(String.valueOf(position + size / column)).getLampColor() != getChoseArgb(choseColor, choseLight)) {
-                data.get(String.valueOf(position + size / column)).setmColor(choseColor);
+            if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
+                data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -795,7 +805,7 @@ public class LampView extends View {
 
     public void clean() {
         for (int i = 0; i < data.size(); i++) {
-            data.get(String.valueOf(i)).setmColor(mContext.getResources().getColor(R.color.black));
+            data.get(String.valueOf(i)).setColor("#000000");
             data.get(String.valueOf(i)).setLight(255);
             data.get(String.valueOf(i)).setFlash(0);
         }
@@ -889,6 +899,7 @@ public class LampView extends View {
 
     private int sendUdpDataAdd;
     private ScheduledExecutorService udpExecutorService;
+    private ScheduledFuture<?> udpScheduledFuture;
     private Runnable udpTask;
 
     private void sendUdpMessage() {
@@ -938,9 +949,7 @@ public class LampView extends View {
                     }
                 }
             };
-            udpExecutorService.scheduleAtFixedRate(udpTask, 0, sendDataTime, TimeUnit.MILLISECONDS);
-        } else {
-            udpExecutorService.scheduleAtFixedRate(udpTask, 0, sendDataTime, TimeUnit.MILLISECONDS);
+            udpScheduledFuture = udpExecutorService.scheduleAtFixedRate(udpTask, 0, sendDataTime, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -948,10 +957,10 @@ public class LampView extends View {
     private void send(String destip, int port, byte[] udpByteData) throws IOException {
         InetAddress address = InetAddress.getByName(destip);
         byte[] send_head_data = getHeadByteData(udpByteData);
-        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
-        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
+//        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
+//        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
         byte[] send_data = byteMerger(send_head_data, udpByteData);
-        LogUtil.e("send_data:" + byte2hex(send_data));
+//        LogUtil.e("send_data:" + byte2hex(send_data));
         // 2.创建数据报，包含发送的数据信息
         DatagramPacket packet = new DatagramPacket(send_data, send_data.length, address, port);
         // 3.创建DatagramSocket对象
@@ -1030,9 +1039,9 @@ public class LampView extends View {
 
     public void stopSendUdpData() {
         LogUtil.e("停止发送数据");
-        if (udpExecutorService != null && udpTask != null) {
-            List<Runnable> list = udpExecutorService.shutdownNow();
-            LogUtil.e("停止发送数据list.size():--------" + list.size());
+        if (udpScheduledFuture != null) {
+            udpScheduledFuture.cancel(false);
+            LogUtil.e("停止发送数据:--------");
         }
     }
 
