@@ -1,6 +1,7 @@
 package com.wya.env.base;
 
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -59,7 +60,15 @@ public abstract class BaseLazyFragment extends Fragment {
     protected abstract void initView();
 
     public void showShort(String msg) {
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        try {
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            //解决在子线程中调用Toast的异常情况处理
+            Looper.prepare();
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+            Looper.loop();
+        }
+
     }
 
     public void toastShowLong(String msg) {

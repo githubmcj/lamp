@@ -38,12 +38,12 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
         helper.setText(R.id.tv_mode_name, item.getName());
         ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr());
         ((LampView) helper.getView(R.id.lamp_view)).setModelName(item.getName());
-        if (item.isChose()) {
+        if (item.isChose() == 1) {
             helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
         } else {
             helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
         }
-        if (item.isMusic()) {
+        if (item.isMusic() == 1) {
             helper.getView(R.id.img_music).setBackground(context.getResources().getDrawable(R.drawable.yinyueshibie));
         } else {
             helper.getView(R.id.img_music).setBackground(context.getResources().getDrawable(R.drawable.yinyuemoren));
@@ -51,8 +51,8 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
         helper.getView(R.id.img_music).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (item.isChose()) {
-                    item.setMusic(!item.isMusic());
+                if (item.isChose() == 1) {
+                    item.setMusic(1 - item.isMusic());
                     LampModelAdapter.this.notifyDataSetChanged();
                 } else {
                     Toast.makeText(context, "请先选中该模式", Toast.LENGTH_SHORT).show();

@@ -939,31 +939,6 @@ public class LampView extends View {
     private Runnable udpTask;
 
     private void sendUdpMessage() {
-//        TaskCenter.sharedCenter().setDisconnectedCallback(new TaskCenter.OnServerDisconnectedCallbackBlock() {
-//            @Override
-//            public void callback(IOException e) {
-//                Toast.makeText(mContext, "断开连接", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//        TaskCenter.sharedCenter().setConnectedCallback(new TaskCenter.OnServerConnectedCallbackBlock() {
-//            @Override
-//            public void callback() {
-//                Toast.makeText(mContext, "连接成功", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//        TaskCenter.sharedCenter().setReceivedCallback(new TaskCenter.OnReceiveCallbackBlock() {
-//            @Override
-//            public void callback(String receicedMessage) {
-//                textView_receive.setText(textView_receive.getText().toString() + receicedMessage + "\n");
-//            }
-//        });
-//        //连接
-//        TaskCenter.sharedCenter().connect("xxx.xxx.xx.xxxx", xxxx);
-//        //发送
-//        TaskCenter.sharedCenter().send(msg.getBytes());
-//        // 断开连接
-//        TaskCenter.sharedCenter().disconnect();
-
         stopSendUdpData();
         sendUdpDataAdd = -1;
         if (udpExecutorService == null) {
@@ -1068,7 +1043,7 @@ public class LampView extends View {
         return sb.toString();
     }
 
-    public static byte[] byteMerger(byte[] byte_1, byte[] byte_2) {
+    private byte[] byteMerger(byte[] byte_1, byte[] byte_2) {
         byte[] byte_3 = new byte[byte_1.length + byte_2.length];
         System.arraycopy(byte_1, 0, byte_3, 0, byte_1.length);
         System.arraycopy(byte_2, 0, byte_3, byte_1.length, byte_2.length);

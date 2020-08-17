@@ -159,12 +159,13 @@ public class TaskCenter {
                 int length = inputStream.read(bt);
                 // 获取正确的字节
                 byte[] bs = new byte[length];
+
                 System.arraycopy(bt, 0, bs, 0, length);
 
-                String str = new String(bs, "UTF-8");
-                if (str != null) {
+//                String str = new String(bs, "UTF-8");
+                if (bs != null) {
                     if (receivedCallback != null) {
-                        receivedCallback.callback(str);
+                        receivedCallback.callback(bs);
                     }
                 }
                 Log.i(TAG,"接收成功");
@@ -173,6 +174,7 @@ public class TaskCenter {
             }
         }
     }
+
     /**
      * 发送数据
      *
@@ -208,7 +210,7 @@ public class TaskCenter {
         void callback(IOException e);
     }
     public interface OnReceiveCallbackBlock {
-        void callback(String receicedMessage);
+        void callback(byte[] receiceByte);
     }
 
     public void setConnectedCallback(OnServerConnectedCallbackBlock connectedCallback) {

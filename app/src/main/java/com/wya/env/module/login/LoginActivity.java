@@ -60,8 +60,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         loginPresent.mView = this;
         lampModels = getModels();
 
-        email.setText("550612711@qq.com");
-        password.setText("123456");
+        email.setText("222222@qq.com");
+        password.setText("222222");
     }
 
     /**

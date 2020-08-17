@@ -11,8 +11,8 @@ import java.util.List;
 public class LampModel {
     private List<DoodlePattern> modeArr;
     String name;
-    boolean music;
-    boolean isChose;
+    int music;
+    int isChose;
 
     public List<DoodlePattern> getModeArr() {
         return modeArr;
@@ -23,11 +23,11 @@ public class LampModel {
     }
 
 
-    public boolean isMusic() {
+    public int isMusic() {
         return music;
     }
 
-    public void setMusic(boolean music) {
+    public void setMusic(int music) {
         this.music = music;
     }
 
@@ -39,11 +39,11 @@ public class LampModel {
         this.name = name;
     }
 
-    public boolean isChose() {
+    public int isChose() {
         return isChose;
     }
 
-    public void setChose(boolean chose) {
+    public void setChose(int chose) {
         isChose = chose;
     }
 }
