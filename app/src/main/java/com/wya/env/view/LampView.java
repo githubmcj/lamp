@@ -218,30 +218,47 @@ public class LampView extends View {
 
     public void setTwinkle(boolean twinkle) {
         isTwinkle = twinkle;
-        if (isTwinkle && !isStart) {
-            isStart = true;
+        if (hasTwinkle() && twinkleExecutorService == null) {
             toTwinkle();
         }
     }
 
+    private boolean hasTwinkle() {
+        hasTwinkle = false;
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(String.valueOf(i)).isFlash() == 1) {
+                hasTwinkle = true;
+                break;
+            }
+        }
+        return hasTwinkle;
+    }
+
+
+    /**
+     * 闪烁线程开启
+     */
     private int add;
     private ScheduledExecutorService twinkleExecutorService;
+    private Runnable twinkleTask;
 
     private void toTwinkle() {
+        stopTwinkle();
         add = 0;
-        LogUtil.e("开始闪烁");
         if (twinkleExecutorService == null) {
             twinkleExecutorService = new ScheduledThreadPoolExecutor(1,
-                    new BasicThreadFactory.Builder().namingPattern("twinkle").daemon(true).build());
-            twinkleExecutorService.scheduleAtFixedRate(new Runnable() {
+                    new BasicThreadFactory.Builder().namingPattern("twinkleExecutorService").daemon(true).build());
+        }
+        if (twinkleTask == null) {
+            twinkleTask = new Runnable() {
                 @Override
                 public void run() {
-                    LogUtil.e("闪烁:" + System.currentTimeMillis() + "----次数:" + add);
+//                    LogUtil.e("闪烁:" + System.currentTimeMillis() + "----次数:" + add);
                     if (add != -1) {
                         for (int i = 0; i < data.size(); i++) {
                             if (data.get(String.valueOf(i)).isFlash() == 1) {
                                 int phase = (int) ((data.get(String.valueOf(i)).getCreateTime() + 5 * add) % 511);
-                                LogUtil.e(phase + "-----phase-------灯序号" + i);
+//                                LogUtil.e(phase + "-----phase-------灯序号" + i);
                                 if (255 > phase) {
                                     data.get(String.valueOf(i)).setShowLight(phase);
                                 } else {
@@ -253,8 +270,36 @@ public class LampView extends View {
                         postInvalidate();
                     }
                 }
-            }, 0, frameTime, TimeUnit.MILLISECONDS);
+            };
         }
+        if (twinkleExecutorService != null) {
+            twinkleExecutorService.scheduleAtFixedRate(twinkleTask, 0, frameTime, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    /**
+     * 开始闪烁
+     */
+    public void startTwinkle() {
+        if (isOnline) {
+            if (hasTwinkle() && twinkleExecutorService == null) {
+                LogUtil.e("启动闪烁");
+                toTwinkle();
+            }
+        }
+    }
+
+    /**
+     * 停止闪烁
+     */
+    public void stopTwinkle() {
+        LogUtil.e("停止闪烁");
+        if (twinkleExecutorService != null) {
+            LogUtil.e("停止闪烁 twinkleExecutorService != null");
+            twinkleExecutorService.shutdownNow();
+        }
+        // 非单例模式，置空防止重复的任务
+        twinkleExecutorService = null;
     }
 
     public void setPaintBold(boolean paintBold) {
@@ -418,7 +463,7 @@ public class LampView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (type == 2) {
+        if (!isOnline) {
             return super.onTouchEvent(event);
         } else {
             ViewParent parent = getParent();
@@ -451,6 +496,9 @@ public class LampView extends View {
                                     postInvalidate();
                                     sendUdpDataAdd = 0;
                                 }
+                            }
+                            if (!hasTwinkle) {
+                                startTwinkle();
                             }
                         } else {
                             LogUtil.e("在外面");
@@ -867,6 +915,8 @@ public class LampView extends View {
      *
      * @return
      */
+    boolean isBlack = false;
+
     public byte[] getUdpByteData() {
         byte[] upd_data = new byte[1 + 2 + 2 + 3 * size];
         upd_data[0] = 0x01;
@@ -879,11 +929,25 @@ public class LampView extends View {
             upd_data[3] = 0x58;
             upd_data[4] = 0x02;
         }
+        isBlack = !isBlack;
         for (int i = 0; i < size; i++) {
             String color = data.get(String.valueOf(i)).getColor();
-            upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-            upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-            upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+            boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+            if (isTwinkle) {
+                if (isBlack) {
+                    upd_data[i * 3 + 5] = 0x00;
+                    upd_data[i * 3 + 6] = 0x00;
+                    upd_data[i * 3 + 7] = 0x00;
+                } else {
+                    upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                    upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                    upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                }
+            } else {
+                upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+            }
         }
         return upd_data;
     }
@@ -958,7 +1022,7 @@ public class LampView extends View {
     private void send(String destip, int port, byte[] udpByteData) throws IOException {
         InetAddress address = InetAddress.getByName(destip);
         byte[] send_head_data = getHeadByteData(udpByteData);
-//        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
+        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
 //        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
         byte[] send_data = byteMerger(send_head_data, udpByteData);
 //        LogUtil.e("send_data:" + byte2hex(send_data));
@@ -1046,6 +1110,7 @@ public class LampView extends View {
         // 非单例模式，置空防止重复的任务
         udpExecutorService = null;
     }
+
 
 }
 
