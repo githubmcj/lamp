@@ -1,15 +1,12 @@
 package com.wya.env.module.doodle;
 
-import android.app.Activity;
-import android.widget.Toast;
-
 import com.wya.env.base.BasePresent;
 import com.wya.env.bean.BaseResult;
-import com.wya.env.module.mine.MineFragmentView;
 import com.wya.env.net.BaseExt;
 import com.wya.env.net.BaseSubscriber;
 import com.wya.env.net.api.ResultApi;
 import com.wya.env.util.ResultStatusUtil;
+import com.wya.utils.utils.LogUtil;
 
 /**
  * @date: 2018/7/3 13:56
@@ -28,6 +25,7 @@ public class DoodleFragmentPresenter extends BasePresent<DoodleFragmentView> {
      */
     public void saveModel(String content) {
         mView.showLoading();
+        LogUtil.e(content);
         BaseExt.ext(resultApi.saveModelApi(content), new BaseSubscriber<BaseResult<Object>>(mView) {
             @Override
             public void onNext(BaseResult<Object> loginInfoBaseResult) {

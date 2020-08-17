@@ -100,15 +100,18 @@ public class LampView extends View {
 
         for (int i = 0; i < column; i++) {
             for (int j = 0; j < size / column; j++) {
-                if (isTwinkle || hasTwinkle) {
-                    if (data.get(String.valueOf(j + (size / column) * i)).isFlash() == 1) {
-                        lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getShowLampColor());
-                    } else {
-                        lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
-                    }
+                if (data.get(String.valueOf(j + size / column * i)).isFlash() == 1) {
+                    data.get(String.valueOf(j + size / column * i)).setLight(light);
+                    lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
                 } else {
                     lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
                 }
+
+//                if (isTwinkle || hasTwinkle) {
+//
+//                } else {
+//                    lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
+//                }
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, lampPaint);
             }
         }
@@ -164,6 +167,9 @@ public class LampView extends View {
      */
     private int choseLight;
 
+
+    private int light;
+
     private boolean isPaintBold;
 
     private int type;
@@ -199,15 +205,18 @@ public class LampView extends View {
     private int sendDataTime;
 
     /**
-     * 是否开启线程
+     * 模板名字
      */
-    private boolean isStart;
+    private String modelName;
 
     /**
      * 实时画板
      */
     private boolean isOnline;
 
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
 
     /**
      * @return 等的数量
@@ -218,7 +227,7 @@ public class LampView extends View {
 
     public void setTwinkle(boolean twinkle) {
         isTwinkle = twinkle;
-        if (hasTwinkle() && twinkleExecutorService == null) {
+        if (hasTwinkle()) {
             toTwinkle();
         }
     }
@@ -241,11 +250,13 @@ public class LampView extends View {
     private int add;
     private ScheduledExecutorService twinkleExecutorService;
     private Runnable twinkleTask;
+    private boolean isAdd = false;
 
     private void toTwinkle() {
         stopTwinkle();
         add = 0;
         if (twinkleExecutorService == null) {
+            LogUtil.e("启动闪烁");
             twinkleExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("twinkleExecutorService").daemon(true).build());
         }
@@ -253,27 +264,33 @@ public class LampView extends View {
             twinkleTask = new Runnable() {
                 @Override
                 public void run() {
-//                    LogUtil.e("闪烁:" + System.currentTimeMillis() + "----次数:" + add);
                     if (add != -1) {
-                        for (int i = 0; i < data.size(); i++) {
-                            if (data.get(String.valueOf(i)).isFlash() == 1) {
-                                int phase = (int) ((data.get(String.valueOf(i)).getCreateTime() + 5 * add) % 511);
-//                                LogUtil.e(phase + "-----phase-------灯序号" + i);
-                                if (255 > phase) {
-                                    data.get(String.valueOf(i)).setShowLight(phase);
-                                } else {
-                                    data.get(String.valueOf(i)).setShowLight(510 - phase);
-                                }
+                        if (light >= 255) {
+                            isAdd = false;
+                        } else if (light <= 0) {
+                            isAdd = true;
+                        }
+                        if (isAdd) {
+                            if (light > 250) {
+                                light = 255;
+                            } else {
+                                light = light + 5;
+                            }
+                        } else {
+                            if (light < 5) {
+                                light = 0;
+                            } else {
+                                light = light - 5;
                             }
                         }
-                        add++;
+                        add = 0;
                         postInvalidate();
                     }
                 }
             };
         }
         if (twinkleExecutorService != null) {
-            twinkleExecutorService.scheduleAtFixedRate(twinkleTask, 0, frameTime, TimeUnit.MILLISECONDS);
+            twinkleExecutorService.scheduleAtFixedRate(twinkleTask, 0, frameTime / 10, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -282,7 +299,7 @@ public class LampView extends View {
      */
     public void startTwinkle() {
         if (isOnline) {
-            if (hasTwinkle() && twinkleExecutorService == null) {
+            if (hasTwinkle()) {
                 LogUtil.e("启动闪烁");
                 toTwinkle();
             }
@@ -316,38 +333,20 @@ public class LampView extends View {
 
     private HashMap<String, Doodle> data = new HashMap<>();
 
-    public void setData(HashMap<String, Doodle> data) {
-        this.data = data;
-        hasTwinkle = false;
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(String.valueOf(i)).isFlash() == 1) {
-                hasTwinkle = true;
-                if (hasTwinkle && !isStart) {
-                    isStart = true;
-                    toTwinkle();
-                }
-            }
-        }
-        postInvalidate();
-    }
 
     public void setModel(List<DoodlePattern> modeArr) {
         if (modeArr.size() == 1) {
             addMode = -1;
             this.data = modeArr.get(0).getLight_status();
-            hasTwinkle = false;
-            for (int i = 0; i < data.size(); i++) {
-                if (data.get(String.valueOf(i)).isFlash() == 1) {
-                    hasTwinkle = true;
-                    if (hasTwinkle && !isStart) {
-                        isStart = true;
-                        toTwinkle();
-                    }
-                }
+            if (hasTwinkle()) {
+                toTwinkle();
+            } else {
+                stopTwinkle();
+                postInvalidate();
             }
-            postInvalidate();
         } else {
             add = -1;
+//            stopTwinkle();
             toShowModel(modeArr);
         }
     }
@@ -430,10 +429,11 @@ public class LampView extends View {
     public void init() {
         choseLight = 255;
         choseColor = "#000000";
+        light = 255;
 
         hasTwinkle = false;
         period = 2000;
-        frameTime = 20;
+        frameTime = 200;
         modelFrameTime = 200;
         sendDataTime = 200;
 
@@ -443,7 +443,7 @@ public class LampView extends View {
             Doodle doodle = new Doodle();
             doodle.setColor("#000000");
             doodle.setFlash(0);
-            doodle.setLight(255);
+//            doodle.setLight(255);
             data.put(String.valueOf(i), doodle);
         }
     }
@@ -484,7 +484,7 @@ public class LampView extends View {
                             if (isPaintBold) {
                                 setBoldAllChoseColor(position);
                             } else {
-                                if (!data.get(String.valueOf(String.valueOf(position))).getColor().equalsIgnoreCase(choseColor)) {
+                                if (!data.get(String.valueOf(position)).getColor().equalsIgnoreCase(choseColor)) {
                                     data.get(String.valueOf(position)).setColor(choseColor);
                                     data.get(String.valueOf(position)).setLight(choseLight);
                                     if (isTwinkle) {
@@ -492,7 +492,6 @@ public class LampView extends View {
                                     } else {
                                         data.get(String.valueOf(position)).setFlash(0);
                                     }
-                                    data.get(String.valueOf(position)).setCreateTime(createTime);
                                     postInvalidate();
                                     sendUdpDataAdd = 0;
                                 }
@@ -524,7 +523,6 @@ public class LampView extends View {
                                         } else {
                                             data.get(String.valueOf(position)).setFlash(0);
                                         }
-                                        data.get(String.valueOf(position)).setCreateTime(createTime);
                                         postInvalidate();
                                         sendUdpDataAdd = 0;
                                     }
@@ -558,7 +556,6 @@ public class LampView extends View {
             } else {
                 data.get(String.valueOf(position)).setFlash(0);
             }
-            data.get(String.valueOf(position)).setCreateTime(createTime);
             toPostInvalidate = true;
         }
         if (position == 0) {
@@ -571,7 +568,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -582,7 +578,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position > 0 && position < size / column - 1) {
@@ -595,7 +590,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor)) {
@@ -606,7 +600,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -617,7 +610,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == size / column - 1) {
@@ -630,7 +622,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -641,7 +632,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == data.size() - 1) {
@@ -654,7 +644,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -665,7 +654,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position == data.size() - size / column) {
@@ -678,7 +666,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -689,7 +676,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position % (size / column) == 0) {
@@ -702,7 +688,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -713,7 +698,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -724,7 +708,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if ((position + 1) % (size / column) == 0) {
@@ -737,7 +720,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -748,7 +730,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -759,7 +740,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else if (position < data.size() - 1 && position > data.size() - size / column) {
@@ -772,7 +752,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor)) {
@@ -783,7 +762,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -794,7 +772,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         } else {
@@ -807,7 +784,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position + 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor)) {
@@ -818,7 +794,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - 1)).setFlash(0);
                 }
-                data.get(String.valueOf(position - 1)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -829,7 +804,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position - size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position - size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
@@ -840,7 +814,6 @@ public class LampView extends View {
                 } else {
                     data.get(String.valueOf(position + size / column)).setFlash(0);
                 }
-                data.get(String.valueOf(position + size / column)).setCreateTime(createTime);
                 toPostInvalidate = true;
             }
         }
