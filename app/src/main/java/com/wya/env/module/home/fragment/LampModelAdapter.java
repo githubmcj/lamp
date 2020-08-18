@@ -36,7 +36,7 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
     @Override
     protected void convert(BaseViewHolder helper, LampModel item) {
         helper.setText(R.id.tv_mode_name, item.getName());
-        ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr());
+        ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr(), false);
         ((LampView) helper.getView(R.id.lamp_view)).setModelName(item.getName());
         if (item.isChose() == 1) {
             helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));

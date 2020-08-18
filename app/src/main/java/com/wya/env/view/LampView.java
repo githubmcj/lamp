@@ -334,7 +334,10 @@ public class LampView extends View {
     private HashMap<String, Doodle> data = new HashMap<>();
 
 
-    public void setModel(List<DoodlePattern> modeArr) {
+    public void setModel(List<DoodlePattern> modeArr, boolean toShow) {
+        this.size = modeArr.get(0).getSize();
+        mHeight = (size / column) * (lamp_size + 2 * lamp_margin);
+        setMeasuredDimension(mWidth, mHeight);
         if (modeArr.size() == 1) {
             addMode = -1;
             this.data = modeArr.get(0).getLight_status();
@@ -346,27 +349,35 @@ public class LampView extends View {
             }
         } else {
             add = -1;
-//            stopTwinkle();
-            toShowModel(modeArr);
+            this.modeArr = modeArr;
+            toShowModel(toShow);
         }
     }
 
     private int addMode;
     ScheduledExecutorService modelExecutorService;
-    private ScheduledFuture<?> modelScheduledFuture;
+    private List<DoodlePattern> modeArr;
 
-    private void toShowModel(List<DoodlePattern> modeArr) {
+    private void toShowModel(boolean toShow) {
         addMode = 0;
         if (modelExecutorService == null) {
             modelExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("toShowModel").daemon(true).build());
-            modelScheduledFuture = modelExecutorService.scheduleAtFixedRate(new Runnable() {
+            modelExecutorService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     if (addMode != -1) {
                         data = modeArr.get(addMode % modeArr.size()).getLight_status();
                         addMode++;
                         postInvalidate();
+                        if(toShow){
+                            try {
+                                send("255.255.255.255", 6000, getUdpByteData(modeArr.get(addMode % modeArr.size()).getLight_status()));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                LogUtil.e("发送UDP数据失败");
+                            }
+                        }
                     }
                 }
             }, 0, modelFrameTime, TimeUnit.MILLISECONDS);
@@ -398,7 +409,7 @@ public class LampView extends View {
             mWidth = (int) typedArray.getDimension(R.styleable.LampView_width, ScreenUtil.getScreenWidth(mContext) / 2 - (int) typedArray.getDimension(R.styleable.LampView_margin_left, 0) - (int) typedArray.getDimension(R.styleable.LampView_margin_right, 0) - ScreenUtil.dip2px(mContext, 20));
         }
 
-        column = typedArray.getColor(R.styleable.LampView_column, 20);
+        column = typedArray.getColor(R.styleable.LampView_column, 15);
         if (type == 1) {
             lamp_margin = typedArray.getColor(R.styleable.LampView_lamp_margin, 2);
         } else if (type == 2) {
@@ -890,7 +901,7 @@ public class LampView extends View {
      */
     boolean isBlack = false;
 
-    public byte[] getUdpByteData() {
+    public byte[] getUdpByteData(HashMap<String, Doodle> data) {
         byte[] upd_data = new byte[1 + 2 + 2 + 3 * size];
         upd_data[0] = 0x01;
         upd_data[1] = 0x00;
@@ -952,7 +963,7 @@ public class LampView extends View {
                     if (sendUdpDataAdd != -1) {
                         addMode++;
                         try {
-                            send("255.255.255.255", 6000, getUdpByteData());
+                            send("255.255.255.255", 6000, getUdpByteData(data));
                         } catch (IOException e) {
                             e.printStackTrace();
                             LogUtil.e("发送UDP数据失败");

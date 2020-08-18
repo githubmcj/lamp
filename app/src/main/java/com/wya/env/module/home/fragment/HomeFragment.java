@@ -75,17 +75,19 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private void initRecyclerView() {
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         adapter = new LampModelAdapter(getActivity(), R.layout.lamp_pattern_item, lampModels);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setAdapter(adapter);
         //RecyclerView条目点击事件
         adapter.setOnItemClickListener((adapter, view, position) -> {
             name.setText(lampModels.get(position).getName());
-            lampView.setModel(lampModels.get(position).getModeArr());
+            lampView.setModel(lampModels.get(position).getModeArr(), true);
             for (int i = 0; i < lampModels.size(); i++) {
                 lampModels.get(i).setChose(0);
             }
             lampModels.get(position).setChose(1);
             adapter.notifyDataSetChanged();
-            setTcpData(lampModels.get(position).getModeArr());
+//            setTcpData(lampModels.get(position).getModeArr());
         });
     }
 
