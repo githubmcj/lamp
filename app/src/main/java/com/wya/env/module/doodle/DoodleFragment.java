@@ -113,7 +113,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     /**
      * 是否镜像
      */
-    private boolean isMirror;
+    private int isMirror;
 
     private WYACustomDialog choseColorDialog;
 
@@ -226,14 +226,13 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 }
                 break;
             case R.id.ll_mirror:
-//                isMirror = !isMirror;
-//                if (isMirror) {
-//                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
-//                } else {
-//                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
-//                }
-//                lampView.setMirror();
-                lampView.stopSendUdpData();
+                isMirror = 1 - isMirror;
+                if (isMirror == 1) {
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
+                } else {
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
+                }
+                lampView.setMirror(isMirror);
                 break;
             case R.id.ll_save:
                 if (TextUtils.isEmpty(etName.getText().toString())) {

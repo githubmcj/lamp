@@ -52,6 +52,8 @@ public class LampView extends View {
 
     private Context mContext;
 
+    private int isMirror;
+
 
     public LampView(Context context) {
         super(context);
@@ -106,19 +108,12 @@ public class LampView extends View {
                 } else {
                     lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
                 }
-
-//                if (isTwinkle || hasTwinkle) {
-//
-//                } else {
-//                    lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
-//                }
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, lampPaint);
             }
         }
     }
 
 
-    //拖动圆的属性
     /**
      * 背景宽度
      */
@@ -370,9 +365,9 @@ public class LampView extends View {
                         data = modeArr.get(addMode % modeArr.size()).getLight_status();
                         addMode++;
                         postInvalidate();
-                        if(toShow){
+                        if (toShow) {
                             try {
-                                send("255.255.255.255", 6000, getUdpByteData(modeArr.get(addMode % modeArr.size()).getLight_status()));
+                                send("255.255.255.255", 6000, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()));
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 LogUtil.e("发送UDP数据失败");
@@ -855,9 +850,8 @@ public class LampView extends View {
 
     HashMap<String, Doodle> mirror_doodles;
 
-    public void setMirror() {
-        data = toMirror(data);
-        postInvalidate();
+    public void setMirror(int isMirror) {
+        this.isMirror = isMirror;
     }
 
     private HashMap<String, Doodle> toMirror(HashMap<String, Doodle> doodles) {
@@ -963,7 +957,7 @@ public class LampView extends View {
                     if (sendUdpDataAdd != -1) {
                         addMode++;
                         try {
-                            send("255.255.255.255", 6000, getUdpByteData(data));
+                            send("255.255.255.255", 6000, getUdpByteData(isMirror == 1 ? toMirror(data) : data));
                         } catch (IOException e) {
                             e.printStackTrace();
                             LogUtil.e("发送UDP数据失败");
