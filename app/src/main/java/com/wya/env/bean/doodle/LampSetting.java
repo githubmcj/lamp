@@ -6,6 +6,15 @@ public class LampSetting {
     private boolean hasTimer;
     private long startTime;
     private long stopTime;
+    private String ip;
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
     public String getName() {
         return name;

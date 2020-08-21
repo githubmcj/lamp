@@ -26,4 +26,7 @@ public interface CommonValue {
     String TO_REFRESH = "ToRefresh";
 
     String TOKEN = "token";
+
+     int UDP_PORT = 6000;
+     int TCP_PORT = 6600;
 }

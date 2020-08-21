@@ -2,6 +2,7 @@ package com.wya.env.base;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
@@ -75,7 +76,14 @@ public abstract class BaseActivity extends BaseToolBarActivity {
     protected abstract int getLayoutId();
     
     public void showShort(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        try {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            //解决在子线程中调用Toast的异常情况处理
+            Looper.prepare();
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            Looper.loop();
+        }
     }
 
     public void toastShowLong(String msg) {

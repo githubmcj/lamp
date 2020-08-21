@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.wya.uikit.dialog.WYALoadingDialog;
+
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
@@ -32,6 +34,8 @@ public abstract class BaseLazyFragment extends Fragment {
     public Unbinder mUnbinder;
     public String token;
 
+    public WYALoadingDialog loadingDialog;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,6 +43,7 @@ public abstract class BaseLazyFragment extends Fragment {
             rootView = inflater.inflate(getLayoutResource(), container, false);
             mUnbinder = ButterKnife.bind(this, rootView);
         }
+        loadingDialog = new WYALoadingDialog(getActivity(), false, false);
         initView();
         //可见，但是并没有加载过
         if (isFragmentVisible && !isFirst) {

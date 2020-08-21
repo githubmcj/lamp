@@ -15,6 +15,8 @@ import android.view.ViewParent;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.common.CommonValue;
+import com.wya.env.util.ByteUtil;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
@@ -367,7 +369,7 @@ public class LampView extends View {
                         postInvalidate();
                         if (toShow) {
                             try {
-                                send("255.255.255.255", 6000, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()));
+                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()));
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 LogUtil.e("发送UDP数据失败");
@@ -957,7 +959,7 @@ public class LampView extends View {
                     if (sendUdpDataAdd != -1) {
                         addMode++;
                         try {
-                            send("255.255.255.255", 6000, getUdpByteData(isMirror == 1 ? toMirror(data) : data));
+                            send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data));
                         } catch (IOException e) {
                             e.printStackTrace();
                             LogUtil.e("发送UDP数据失败");
@@ -974,10 +976,10 @@ public class LampView extends View {
 
     private void send(String destip, int port, byte[] udpByteData) throws IOException {
         InetAddress address = InetAddress.getByName(destip);
-        byte[] send_head_data = getHeadByteData(udpByteData);
-        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
+        byte[] send_head_data = ByteUtil.getHeadByteData(udpByteData);
+//        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
 //        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
-        byte[] send_data = byteMerger(send_head_data, udpByteData);
+        byte[] send_data = ByteUtil.byteMerger(send_head_data, udpByteData);
 //        LogUtil.e("send_data:" + byte2hex(send_data));
         // 2.创建数据报，包含发送的数据信息
         DatagramPacket packet = new DatagramPacket(send_data, send_data.length, address, port);
@@ -989,50 +991,6 @@ public class LampView extends View {
         socket.close();
         LogUtil.e("发送UDP数据成功");
     }
-
-    private byte[] getHeadByteData(byte[] udpByteData) {
-        byte[] head_data = new byte[8];
-        head_data[0] = 0x53;
-        head_data[1] = 0x48;
-        head_data[2] = 0x59;
-        head_data[3] = 0x55;
-        if (udpByteData.length == 905) {
-            head_data[4] = (byte) 0x89;
-            head_data[5] = 0x03;
-        } else {
-            head_data[4] = (byte) 0x0d;
-            head_data[5] = 0x07;
-        }
-        head_data[6] = (byte) (0xff & Integer.parseInt(CheckDigit(udpByteData), 16));
-        head_data[7] = (byte) (0xff & (Integer.parseInt("ff", 16) - Integer.parseInt(CheckDigit(udpByteData), 16)));
-        return head_data;
-    }
-
-    /**
-     * @param udpByteData
-     * @return 校验位计算，取低8位为校验位
-     */
-    private String CheckDigit(byte[] udpByteData) {
-        int sum = 0;
-        for (int i = 0; i < udpByteData.length; i++) {
-            sum += udpByteData[i];
-        }
-        String CheckSumBinary = Integer.toBinaryString(sum);
-        String CheckSum = "";
-        String CheckSum_hex = "";
-        if (CheckSumBinary.length() > 8) {
-            CheckSum =
-                    CheckSumBinary.substring(CheckSumBinary.length() - 8, CheckSumBinary.length());
-            sum = Integer.parseInt(CheckSum, 2);
-            CheckSum_hex = Integer.toHexString(sum);
-        } else {
-            sum = Integer.parseInt(CheckSumBinary, 2);
-            CheckSum_hex = Integer.toHexString(sum);
-        }
-
-        return CheckSum_hex;
-    }
-
 
     public String byte2hex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
@@ -1046,13 +1004,6 @@ public class LampView extends View {
             sb.append(tmp + " ");
         }
         return sb.toString();
-    }
-
-    private byte[] byteMerger(byte[] byte_1, byte[] byte_2) {
-        byte[] byte_3 = new byte[byte_1.length + byte_2.length];
-        System.arraycopy(byte_1, 0, byte_3, 0, byte_1.length);
-        System.arraycopy(byte_2, 0, byte_3, byte_1.length, byte_2.length);
-        return byte_3;
     }
 
     public void stopSendUdpData() {

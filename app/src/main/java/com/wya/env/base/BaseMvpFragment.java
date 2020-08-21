@@ -22,17 +22,18 @@ public abstract class BaseMvpFragment<T extends BasePresent> extends BaseLazyFra
      */
     @Override
     public void showLoading() {
-    
+        loadingDialog.show();
     }
-    
+
     /**
      * 隐藏加载对话框
      */
     @Override
     public void hideLoading() {
-    
+        loadingDialog.dismiss();
     }
-    
+
+
     /**
      * 失败回调
      *

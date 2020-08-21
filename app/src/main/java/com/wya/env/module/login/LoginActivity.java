@@ -19,6 +19,7 @@ import com.wya.env.module.forgetpassword.ForgetPasswordActivity;
 import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
+import com.wya.utils.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,7 +66,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
 
         email.setText("222222@qq.com");
         password.setText("222222");
-        loginPresent.login("222222@qq.com", "222222");
+//        loginPresent.login("222222@qq.com", "222222");
     }
 
     /**
@@ -137,10 +138,10 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
 
     private List<LampModel> getModels() {
         List<LampModel> mLampModels = new ArrayList<>();
-        mLampModels.add(getMaoLoveJiao());
+//        mLampModels.add(getMaoLoveJiao());
 
 //        mLampModels.add(getFirstModel());
-//        mLampModels.add(getSecondModel());
+        mLampModels.add(getSecondModel());
 //        mLampModels.add(getThirdModel());
 //        mLampModels.add(getFourthModel());
         return mLampModels;

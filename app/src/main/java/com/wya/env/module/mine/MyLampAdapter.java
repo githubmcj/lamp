@@ -2,20 +2,27 @@ package com.wya.env.module.mine;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.view.View;
+import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.net.tpc.TaskCenter;
+import com.wya.env.util.ByteUtil;
 import com.wya.uikit.pickerview.CustomTimePicker;
 import com.wya.utils.utils.LogUtil;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import static com.wya.env.common.CommonValue.TCP_PORT;
 
 /**
  * @date: 2018/6/29 13:55
@@ -60,6 +67,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             @Override
             public void onClick(View v) {
                 item.setOpen(!item.isOpen());
+                sendData(item.getIp(), getOpenLamp(item.isOpen()));
                 MyLampAdapter.this.notifyDataSetChanged();
             }
         });
@@ -85,6 +93,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         });
     }
 
+
     private void openChoseTime() {
         mCustomTimePicker = new CustomTimePicker(context, new CustomTimePicker.OnTimePickerSelectedListener() {
             @Override
@@ -98,4 +107,60 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         mCustomTimePicker.setType(new boolean[]{false, false, false, true, true, false})
                 .show();
     }
+
+    private void sendData(String ip, byte[] bodyData) {
+        TaskCenter.sharedCenter().setDisconnectedCallback(new TaskCenter.OnServerDisconnectedCallbackBlock() {
+            @Override
+            public void callback(IOException e) {
+                showShort("连接失败：" + e.getMessage());
+            }
+        });
+        TaskCenter.sharedCenter().setConnectedCallback(new TaskCenter.OnServerConnectedCallbackBlock() {
+            @Override
+            public void callback() {
+                LogUtil.e("连接成功， 打开开关");
+                TaskCenter.sharedCenter().send(bodyData);
+            }
+        });
+        TaskCenter.sharedCenter().setReceivedCallback(new TaskCenter.OnReceiveCallbackBlock() {
+            @Override
+            public void callback(byte[] receiceData) {
+                showShort("返回数据：" + ByteUtil.byte2hex(receiceData));
+                TaskCenter.sharedCenter().disconnect();
+            }
+        });
+        //连接
+        TaskCenter.sharedCenter().connect(ip, TCP_PORT);
+    }
+
+    int step = 0;
+
+    private byte[] getOpenLamp(boolean open) {
+        byte[] bodyData = new byte[4];
+        bodyData[0] = 0x01;
+        bodyData[1] = (byte) (0xff & step);
+        bodyData[2] = (byte) 0x81;
+        if (open) {
+            bodyData[3] = 0x01;
+        } else {
+            bodyData[3] = 0x00;
+        }
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
+        LogUtil.e("openFileData:" + ByteUtil.byte2hex(openFileData));
+        return openFileData;
+    }
+
+    public void showShort(String msg) {
+        try {
+            Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            //解决在子线程中调用Toast的异常情况处理
+            Looper.prepare();
+            Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+            Looper.loop();
+        }
+
+    }
+
 }

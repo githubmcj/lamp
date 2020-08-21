@@ -1,7 +1,5 @@
 package com.wya.env.base;
 
-import android.app.Activity;
-
 /**
  * @date: 2018/7/3 13:49
  * @author: Chunjiang Mao

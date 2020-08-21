@@ -1,8 +1,11 @@
 package com.wya.env.module.mine;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -17,10 +20,18 @@ import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.login.LoginActivity;
+import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.AvatarImageView;
 import com.wya.utils.utils.ScreenUtil;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +74,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     }
 
     private void initData() {
-        initListData();
         initUserInfo();
         initRecyclerView();
     }
@@ -72,16 +82,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
         userName.setText(loginInfo.getUserName());
         email.setText(loginInfo.getUserEmail());
-    }
-
-    private void initListData() {
-        lampSettings.clear();
-        for (int i = 0; i < listSize; i++) {
-            LampSetting lampSetting = new LampSetting();
-            lampSetting.setName("设备" + i);
-            lampSettings.add(lampSetting);
-        }
-
     }
 
     private void initRecyclerView() {
@@ -103,7 +103,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab_refresh:
-                showShort("刷新");
+                sendData();
                 break;
             case R.id.tab_exit:
                 toExit();
@@ -116,12 +116,113 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         }
     }
 
+    private int i;
+    private void sendData() {
+        showLoading();
+        i = 1;
+        lampSettings.clear();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    byte[] bytes = new byte[1];
+                    bytes[0] = 0x00;
+                    byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
+                    byte[] send_data = ByteUtil.byteMerger(send_head_data, bytes);
+                    InetAddress inet = InetAddress.getByName("255.255.255.255");
+                    DatagramPacket packet = new DatagramPacket(send_data, send_data.length, inet, CommonValue.UDP_PORT);
+                    if (datagramSocket == null) {
+                        datagramSocket = new DatagramSocket(null);
+                        datagramSocket.setReuseAddress(true);
+                        datagramSocket.bind(new InetSocketAddress(CommonValue.UDP_PORT));
+                    }
+                    datagramSocket.setSoTimeout(10000);
+                    datagramSocket.send(packet);
+                    udpReceiver();
+                } catch (UnknownHostException e) {
+                    hideLoading();
+                    showShort(e.toString());
+                    e.printStackTrace();
+                } catch (SocketException e) {
+                    hideLoading();
+                    showShort(e.toString());
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    hideLoading();
+                    showShort(e.toString());
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+    private DatagramSocket datagramSocket;
+
+    private void udpReceiver() {
+        try {
+            if (datagramSocket == null) {
+                datagramSocket = new DatagramSocket(null);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.bind(new InetSocketAddress(CommonValue.UDP_PORT));
+            }
+            byte[] buff = new byte[20];
+            DatagramPacket packet = new DatagramPacket(buff, buff.length);
+            datagramSocket.setSoTimeout(10000);
+            datagramSocket.receive(packet);
+            InetAddress ip = packet.getAddress();
+            String ipStr = ip.toString().replace("/", "");
+            if (!TextUtils.isEmpty(ipStr)) {
+                Message msg = Message.obtain();
+                msg.obj = ipStr;
+                msg.what = 1;
+                handler.sendMessage(msg);
+            }
+            datagramSocket.close();
+            datagramSocket = null;
+        } catch (SocketException e) {
+            hideLoading();
+            showShort(e.toString());
+            e.printStackTrace();
+        } catch (IOException e) {
+            hideLoading();
+            showShort(e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {      //判断标志位
+                case 1:
+                    hideLoading();
+                    LampSetting lampSetting = new LampSetting();
+                    lampSetting.setName("设备" + i++);
+                    lampSetting.setIp(msg.obj.toString());
+                    lampSettings.add(lampSetting);
+                    myLampAdapter.setNewData(lampSettings);
+                    break;
+            }
+        }
+    };
+
+
     private void toExit() {
         SaveSharedPreferences.save(getActivity(), CommonValue.IS_LOGIN, false);
         SaveSharedPreferences.save(getActivity(), CommonValue.TOKEN, "");
         SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, "");
-        if (!ActivityManager.getInstance().leaveFirstActivity()){
+        if (!ActivityManager.getInstance().leaveFirstActivity()) {
             startActivity(new Intent(getActivity(), LoginActivity.class));
+        }
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            sendData();
         }
     }
 }
