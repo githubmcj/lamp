@@ -13,14 +13,14 @@ public class LampModel {
     String name;
     int music;
     int isChose;
-    int isMirror;
+    int mirror = 1;
 
-    public int getIsMirror() {
-        return isMirror;
+    public int getMirror() {
+        return mirror;
     }
 
-    public void setIsMirror(int isMirror) {
-        this.isMirror = isMirror;
+    public void setMirror(int mirror) {
+        this.mirror = mirror;
     }
 
     public List<DoodlePattern> getModeArr() {

@@ -81,7 +81,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         //RecyclerView条目点击事件
         adapter.setOnItemClickListener((adapter, view, position) -> {
             name.setText(lampModels.get(position).getName());
-            lampView.setMirror(lampModels.get(position).getIsMirror());
+            lampView.setMirror(lampModels.get(position).getMirror());
             lampView.setModel(lampModels.get(position).getModeArr(), true);
             for (int i = 0; i < lampModels.size(); i++) {
                 lampModels.get(i).setChose(0);
