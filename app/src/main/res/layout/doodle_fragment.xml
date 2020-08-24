@@ -364,6 +364,7 @@
                             android:orientation="vertical">
 
                             <ImageView
+                                android:id="@+id/img_clean"
                                 android:layout_width="@dimen/dp_40"
                                 android:layout_height="@dimen/dp_40"
                                 android:background="@drawable/white_bg"

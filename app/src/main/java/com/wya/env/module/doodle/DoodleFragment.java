@@ -93,6 +93,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     ImageView imgThinPainter;
     @BindView(R.id.img_twinkle)
     ImageView imgTwinkle;
+    @BindView(R.id.img_clean)
+    ImageView imgClean;
     @BindView(R.id.img_mirror)
     ImageView imgMirror;
     private DoodleFragmentPresenter doodleFragmentPresenter = new DoodleFragmentPresenter();
@@ -109,6 +111,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
      * 是否闪烁
      */
     private boolean isTwinkle;
+
+    /**
+     * 是否擦除
+     */
+    private boolean isClean;
 
     /**
      * 是否镜像
@@ -214,7 +221,14 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 setPainter(painter_type);
                 break;
             case R.id.ll_clean:
-                lampView.clean();
+                isClean = !isClean;
+                if(isClean){
+                    imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachudianji));
+                    lampView.setChoseColor("#000000");
+                } else {
+                    imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachumoren));
+                    lampView.setChoseColor(chose_color);
+                }
                 break;
             case R.id.ll_twinkle:
                 isTwinkle = !isTwinkle;
