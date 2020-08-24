@@ -1,10 +1,18 @@
 package com.wya.env.module.login;
 
+import android.content.Context;
 import android.content.Intent;
+import android.support.multidex.MultiDex;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.wya.env.App;
 import com.wya.env.MainActivity;
@@ -20,6 +28,8 @@ import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
 import com.wya.utils.utils.LogUtil;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +60,13 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     private LoginPresent loginPresent = new LoginPresent();
 
     private LoginInfo loginInfo;
+
+    private GoogleSignInClient mGoogleSignInClient;
+
+    private int RC_SIGN_IN = 9001;
+
+    private FaceBookLogin faceBookLogin = null;
+
     /**
      * 灯光模板
      */
@@ -63,10 +80,51 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         showToolBar(false);
         loginPresent.mView = this;
         lampModels = getModels();
+        initGoogle();
+        initFacebook();
 
-        email.setText("222222@qq.com");
-        password.setText("222222");
+//        email.setText("222222@qq.com");
+//        password.setText("222222");
 //        loginPresent.login("222222@qq.com", "222222");
+    }
+
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(context);
+        MultiDex.install(this);
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+    }
+
+
+    private void initFacebook() {
+        faceBookLogin = new FaceBookLogin(this);
+
+        faceBookLogin.setFacebookListener(new FaceBookLogin.FacebookListener() {
+            @Override
+            public void facebookLoginSuccess(JSONObject object) {
+                showShort("facebook_account_oauth_Success !");
+            }
+
+            @Override
+            public void facebookLoginFail(String message) {
+                showShort("facebook_account_oauth_Fail !" + message);
+            }
+
+            @Override
+            public void facebookLoginCancel() {
+                showShort("facebook_account_oauth_Cancel !");
+            }
+        });
+    }
+
+    private void initGoogle() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     /**
@@ -96,7 +154,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         return R.layout.login_activity;
     }
 
-    @OnClick({R.id.tv_forget_password, R.id.register, R.id.but_login})
+    @OnClick({R.id.tv_forget_password, R.id.register, R.id.but_login, R.id.img_google, R.id.img_facebook})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tv_forget_password:
@@ -113,8 +171,56 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             case R.id.register:
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
                 break;
+            case R.id.img_google:
+                signGoogleIn();
+                break;
+            case R.id.img_facebook:
+                signFaceBookIn();
+                break;
             default:
                 break;
+        }
+    }
+
+    /**
+     * facebook 登陆
+     */
+    private void signFaceBookIn() {
+        faceBookLogin.login();
+    }
+
+    /**
+     * google 登陆
+     */
+    private void signGoogleIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        } else {
+            faceBookLogin.getCallbackManager().onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            LogUtil.e(new Gson().toJson(account));
+            // Signed in successfully, show authenticated UI.
+//            updateUI(account);
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            showShort("Google sign in fail");
         }
     }
 

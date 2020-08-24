@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
+import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
@@ -20,9 +21,11 @@ import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.login.LoginActivity;
+import com.wya.env.module.login.StartUpActivity;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.AvatarImageView;
+import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
 import java.io.IOException;
@@ -30,13 +33,17 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
  * @date: 2018/7/3 13:55
@@ -106,7 +113,11 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 sendData();
                 break;
             case R.id.tab_exit:
-                toExit();
+                showLoading();
+                Observable.just(1).delay(1000, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(integer -> {
+                            toExit();
+                        });
                 break;
             case R.id.tab_about_us:
                 startActivity(new Intent(getActivity(), AboutUsActivity.class));
@@ -137,6 +148,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         datagramSocket.bind(new InetSocketAddress(CommonValue.UDP_PORT));
                     }
                     datagramSocket.setSoTimeout(10000);
+                    SocketAddress dd = packet.getSocketAddress();
+                    LogUtil.d(dd+"---------------------------");
                     datagramSocket.send(packet);
                     udpReceiver();
                 } catch (UnknownHostException e) {
@@ -171,6 +184,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
             datagramSocket.setSoTimeout(10000);
             datagramSocket.receive(packet);
             InetAddress ip = packet.getAddress();
+            SocketAddress dd = packet.getSocketAddress();
+            LogUtil.d(dd+"---------------------------");
             String ipStr = ip.toString().replace("/", "");
             if (!TextUtils.isEmpty(ipStr)) {
                 Message msg = Message.obtain();
@@ -216,6 +231,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         if (!ActivityManager.getInstance().leaveFirstActivity()) {
             startActivity(new Intent(getActivity(), LoginActivity.class));
         }
+        hideLoading();
     }
 
     @Override

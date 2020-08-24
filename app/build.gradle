@@ -28,6 +28,7 @@ android {
         versionCode 1
         versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -66,11 +67,14 @@ dependencies {
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-7'
 
     implementation 'com.wya.uikit:uikit:0.1.11'
-//    implementation 'com.wya.hardware:hardware:0.1.5'
     implementation 'com.wya.helper:helper:0.1.5'
     implementation 'com.wya.utils:utils:0.1.5'
 
     implementation 'org.apache.commons:commons-lang3:3.7'
+
+    implementation 'com.google.android.gms:play-services-auth:16.0.1'
+    implementation 'com.facebook.android:facebook-login:[4,5)'
+    implementation 'com.android.support:multidex:1.0.3'
 
     // leakcanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
