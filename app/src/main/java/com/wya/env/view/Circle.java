@@ -3,6 +3,7 @@ package com.wya.env.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.wya.env.R;
+import com.wya.env.util.ColorUtil;
 
 /**
  * @date: 2020/7/18 17:21
@@ -106,8 +108,8 @@ public class Circle extends View {
 
     }
 
-    public void setColor(int chose_color) {
-        mColor = chose_color;
+    public void setColor(String chose_color, int chose_light) {
+        mColor = Color.argb(255 * chose_light / 100, ColorUtil.int2Rgb(Color.parseColor(chose_color))[0], ColorUtil.int2Rgb(Color.parseColor(chose_color))[1], ColorUtil.int2Rgb(Color.parseColor(chose_color))[2]);
         postInvalidate();
     }
 }

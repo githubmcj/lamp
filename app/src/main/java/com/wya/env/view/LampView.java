@@ -56,6 +56,9 @@ public class LampView extends View {
 
     private int isMirror;
 
+    private boolean isStopSendUdpData;
+    private boolean isStopSendUdpModeData;
+
 
     public LampView(Context context) {
         super(context);
@@ -325,6 +328,9 @@ public class LampView extends View {
     }
 
     public void setChoseColor(String choseColor) {
+        if(choseColor == null){
+            choseColor = "#000000";
+        }
         this.choseColor = choseColor;
     }
 
@@ -357,6 +363,7 @@ public class LampView extends View {
 
     private void toShowModel(boolean toShow) {
         addMode = 0;
+        isStopSendUdpModeData = false;
         if (modelExecutorService == null) {
             modelExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("toShowModel").daemon(true).build());
@@ -369,7 +376,13 @@ public class LampView extends View {
                         postInvalidate();
                         if (toShow) {
                             try {
-                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()));
+                                if(isStopSendUdpModeData){
+                                    clean();
+                                    send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(data));
+                                    stopSendUdpModeData();
+                                } else {
+                                    send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()));
+                                }
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 LogUtil.e("发送UDP数据失败");
@@ -936,6 +949,7 @@ public class LampView extends View {
     public void startSendUpdData() {
         if (isOnline) {
             LogUtil.e("启动发送UDP数据");
+            isStopSendUdpData = false;
             sendUdpMessage();
         }
     }
@@ -959,7 +973,13 @@ public class LampView extends View {
                     if (sendUdpDataAdd != -1) {
                         addMode++;
                         try {
-                            send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data));
+                            if(isStopSendUdpData){
+                                clean();
+                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(data));
+                                stopSendUdpData();
+                            } else {
+                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data));
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                             LogUtil.e("发送UDP数据失败");
@@ -977,7 +997,7 @@ public class LampView extends View {
     private void send(String destip, int port, byte[] udpByteData) throws IOException {
         InetAddress address = InetAddress.getByName(destip);
         byte[] send_head_data = ByteUtil.getHeadByteData(udpByteData);
-//        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
+        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
 //        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
         byte[] send_data = ByteUtil.byteMerger(send_head_data, udpByteData);
 //        LogUtil.e("send_data:" + byte2hex(send_data));
@@ -1006,6 +1026,10 @@ public class LampView extends View {
         return sb.toString();
     }
 
+    public void toStopSendUdpData(boolean isStopSendUdpData) {
+        this.isStopSendUdpData = isStopSendUdpData;
+    }
+
     public void stopSendUdpData() {
         if (udpExecutorService != null) {
             LogUtil.e("停止发送数据");
@@ -1013,6 +1037,19 @@ public class LampView extends View {
         }
         // 非单例模式，置空防止重复的任务
         udpExecutorService = null;
+    }
+
+   public void toStopSendUdpModeData(boolean isStopSendUdpModeData) {
+        this.isStopSendUdpModeData = isStopSendUdpModeData;
+    }
+
+    public void stopSendUdpModeData() {
+        if (modelExecutorService != null) {
+            LogUtil.e("停止发送数据");
+            modelExecutorService.shutdownNow();
+        }
+        // 非单例模式，置空防止重复的任务
+        modelExecutorService = null;
     }
 
 

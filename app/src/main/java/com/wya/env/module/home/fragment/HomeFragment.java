@@ -159,12 +159,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, false);
             getLocalData();
             getNetData();
-
-//            lampView.startSendUpdData();
-//            lampView.startTwinkle();
         } else {
-//            lampView.stopSendUdpData();
-//            lampView.stopTwinkle();
+            lampView.toStopSendUdpModeData(true);
         }
     }
 

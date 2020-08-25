@@ -103,7 +103,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     private String chose_color;
     private int chose_light;
     /**
-     * 0 不选中， 1 粗笔， 2 细笔
+     * 0 不选中， 1 粗笔， 2 细笔  3 擦除
      */
     private int painter_type;
 
@@ -111,11 +111,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
      * 是否闪烁
      */
     private boolean isTwinkle;
-
-    /**
-     * 是否擦除
-     */
-    private boolean isClean;
 
     /**
      * 是否镜像
@@ -137,6 +132,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     }
 
     private void initData() {
+        chose_light = 100;
+        lampView.setChoseColor(chose_color);
         //        if (!isFirst) {
 //        initListData();
 //        getData();
@@ -221,14 +218,13 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 setPainter(painter_type);
                 break;
             case R.id.ll_clean:
-                isClean = !isClean;
-                if(isClean){
-                    imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachudianji));
-                    lampView.setChoseColor("#000000");
+                if (painter_type == 3) {
+                    painter_type = 0;
                 } else {
-                    imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachumoren));
-                    lampView.setChoseColor(chose_color);
+                    painter_type = 3;
                 }
+                lampView.setPaintBold(false);
+                setPainter(painter_type);
                 break;
             case R.id.ll_twinkle:
                 isTwinkle = !isTwinkle;
@@ -268,12 +264,15 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 ColorPickerView colorPickerView = v.findViewById(R.id.picker_view);
                                 TextView tvLight = v.findViewById(R.id.tv_light);
                                 Circle circle = v.findViewById(R.id.circle);
+                                if (chose_color == null) {
+                                    chose_color = "#ffffff";
+                                }
+                                circle.setColor(chose_color, chose_light);
                                 colorPickerView.setOnColorPickListener(new PickerViewListener() {
                                     @Override
                                     public void onPickerColor(int color) {
                                         chose_color = String.format("#%06X", (0xFFFFFF & color));
-                                        ;
-                                        circle.setColor(color);
+                                        circle.setColor(chose_color, chose_light);
                                     }
                                 });
                                 sure.setOnClickListener(new View.OnClickListener() {
@@ -287,12 +286,13 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 });
 
                                 SeekBar mSeekBar = (SeekBar) v.findViewById(R.id.seekbar);
-
+                                mSeekBar.setProgress(chose_light);
                                 mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                                     @Override
                                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                                         chose_light = progress;
                                         tvLight.setText(chose_light + "");
+                                        circle.setColor(chose_color, chose_light);
                                     }
 
                                     @Override
@@ -317,6 +317,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     private void toCleanChose() {
         lampView.clean();
         color_index = 0;
+        chose_color = null;
+        lampView.setChoseColor(chose_color);
         getColorIndex(color_index);
         isTwinkle = false;
         lampView.setTwinkle(isTwinkle);
@@ -324,6 +326,13 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
         } else {
             imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
+        }
+        isMirror = 0;
+        lampView.setMirror(isMirror);
+        if (isMirror == 1) {
+            imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
+        } else {
+            imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
         }
         painter_type = 0;
         setPainter(painter_type);
@@ -346,10 +355,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     private void setPainter(int painter_type) {
         imgBoldPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.cubimoren));
         imgThinPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.xibimoren));
+        imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachumoren));
         if (painter_type == 1) {
             imgBoldPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.cubidianji));
+            lampView.setChoseColor(chose_color);
         } else if (painter_type == 2) {
             imgThinPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.xibidianji));
+            lampView.setChoseColor(chose_color);
+        } else if (painter_type == 3) {
+            imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachudianji));
+            lampView.setChoseColor("#000000");
+        } else {
+            lampView.setPaintBold(false);
         }
     }
 
@@ -415,8 +432,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             lampView.startSendUpdData();
             lampView.startTwinkle();
         } else {
-            lampView.stopSendUdpData();
+            lampView.toStopSendUdpData(true);
             lampView.stopTwinkle();
+            toCleanChose();
         }
     }
 

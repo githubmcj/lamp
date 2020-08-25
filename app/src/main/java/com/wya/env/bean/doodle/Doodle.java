@@ -3,6 +3,7 @@ package com.wya.env.bean.doodle;
 import android.graphics.Color;
 
 import com.wya.env.util.ColorUtil;
+import com.wya.utils.utils.LogUtil;
 
 public class Doodle implements Cloneable {
 
@@ -36,9 +37,9 @@ public class Doodle implements Cloneable {
     }
 
     public void setLight(int light) {
-        if(light < 0 ){
+        if (light < 0) {
             this.light = 0;
-        } else if(light > 255){
+        } else if (light > 255) {
             this.light = 255;
         } else {
             this.light = light;
