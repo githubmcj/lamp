@@ -244,7 +244,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
 
     private List<LampModel> getModels() {
         List<LampModel> mLampModels = new ArrayList<>();
-//        mLampModels.add(getMaoLoveJiao());
+        mLampModels.add(getMaoLoveJiao());
 
 //        mLampModels.add(getFirstModel());
         mLampModels.add(getSecondModel());

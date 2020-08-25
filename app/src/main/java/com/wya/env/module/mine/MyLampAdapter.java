@@ -67,6 +67,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             @Override
             public void onClick(View v) {
                 item.setOpen(!item.isOpen());
+                Toast.makeText(context, item.getIp(), Toast.LENGTH_SHORT).show();
                 sendData(item.getIp(), getOpenLamp(item.isOpen()));
                 MyLampAdapter.this.notifyDataSetChanged();
             }
@@ -130,7 +131,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             }
         });
         //连接
-        TaskCenter.sharedCenter().connect(ip, TCP_PORT);
+        TaskCenter.sharedCenter().connect("192.168.4.1", TCP_PORT);
     }
 
     int step = 0;
