@@ -13,7 +13,7 @@ public class LampModel {
     String name;
     int music;
     int isChose;
-    int mirror = 1;
+    int mirror;
 
     public int getMirror() {
         return mirror;
@@ -30,7 +30,6 @@ public class LampModel {
     public void setModeArr(List<DoodlePattern> modeArr) {
         this.modeArr = modeArr;
     }
-
 
     public int isMusic() {
         return music;

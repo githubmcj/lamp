@@ -3,6 +3,7 @@ package com.wya.env.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -51,6 +52,12 @@ public class LampView extends View {
      * 灯
      */
     private Paint lampPaint;
+
+    /**
+     * 边框
+     */
+    private Paint framePaint;
+    private Paint whitePaint;
 
     private Context mContext;
 
@@ -104,6 +111,21 @@ public class LampView extends View {
         // 防抖动
         lampPaint.setDither(true);
 
+         // 画边框
+        framePaint = new Paint();
+        // 消除锯齿
+        framePaint.setAntiAlias(true);
+        // 防抖动
+        framePaint.setDither(true);
+        framePaint.setColor(Color.parseColor("#999999"));
+
+        // 画边框
+        whitePaint = new Paint();
+        // 消除锯齿
+        whitePaint.setAntiAlias(true);
+        // 防抖动
+        whitePaint.setDither(true);
+        whitePaint.setColor(Color.parseColor("#ffffff"));
 
         for (int i = 0; i < column; i++) {
             for (int j = 0; j < size / column; j++) {
@@ -113,6 +135,8 @@ public class LampView extends View {
                 } else {
                     lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
                 }
+                canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2 + 1, framePaint);
+                canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2 , whitePaint);
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, lampPaint);
             }
         }
@@ -335,6 +359,7 @@ public class LampView extends View {
     }
 
     private HashMap<String, Doodle> data = new HashMap<>();
+    private HashMap<String, Doodle> clean_data = new HashMap<>();
 
 
     public void setModel(List<DoodlePattern> modeArr, boolean toShow) {
@@ -377,8 +402,7 @@ public class LampView extends View {
                         if (toShow) {
                             try {
                                 if(isStopSendUdpModeData){
-                                    clean();
-                                    send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(data));
+                                    send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)));
                                     stopSendUdpModeData();
                                 } else {
                                     send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()));
@@ -392,6 +416,17 @@ public class LampView extends View {
                 }
             }, 0, modelFrameTime, TimeUnit.MILLISECONDS);
         }
+    }
+
+    private HashMap<String, Doodle> cleanData(HashMap<String, Doodle> data) {
+        clean_data.clear();
+        for (int i = 0; i < data.size(); i++) {
+            Doodle doodle = new Doodle();
+            doodle.setColor("#000000");
+            doodle.setFlash(0);
+            clean_data.put(String.valueOf(i), doodle);
+        }
+        return clean_data;
     }
 
 
@@ -974,8 +1009,7 @@ public class LampView extends View {
                         addMode++;
                         try {
                             if(isStopSendUdpData){
-                                clean();
-                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(data));
+                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)));
                                 stopSendUdpData();
                             } else {
                                 send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data));
@@ -997,7 +1031,7 @@ public class LampView extends View {
     private void send(String destip, int port, byte[] udpByteData) throws IOException {
         InetAddress address = InetAddress.getByName(destip);
         byte[] send_head_data = ByteUtil.getHeadByteData(udpByteData);
-        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
+//        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
 //        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
         byte[] send_data = ByteUtil.byteMerger(send_head_data, udpByteData);
 //        LogUtil.e("send_data:" + byte2hex(send_data));

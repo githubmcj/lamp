@@ -38,6 +38,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 
+import static java.lang.Math.tan;
+
 /**
  * @date: 2019/1/3 13:57
  * @author: Chunjiang Mao
@@ -67,6 +69,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
 
     private FaceBookLogin faceBookLogin = null;
 
+    private String[] snow_colors = {"#ffffff", "#B04F9C", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"};
+    private String[] fifth_colors = {"#FA0000", "#FAA500", "#00FF00"};
+
     /**
      * 灯光模板
      */
@@ -83,15 +88,15 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         initGoogle();
         initFacebook();
 
-//        email.setText("222222@qq.com");
-//        password.setText("222222");
-//        loginPresent.login("222222@qq.com", "222222");
+//        loginPresent.login("2@qq.com", "2");
     }
 
+    @Override
     protected void attachBaseContext(Context context) {
         super.attachBaseContext(context);
         MultiDex.install(this);
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -224,2631 +229,145 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         }
     }
 
-
-    private String color_num = "#ff0000";
-    private String color_jian = "#ff0000";
-    private String color_gong = "#ffffff";
-    private String color_fly = "#ff0000";
-    private String color_us = "#ffffff";
-    private String color_flash = "#ffffff";
-    private String color_love_small = "#6BBA2B";
-    private String color_love_milld = "#F2E93F";
-    private String color_love_big = "#EA1318";
-    private String color_qi = "#F2E93F";
-    private String color_xi = "#F2E93F";
-    private String color_kuai = "#F2E93F";
-    private String color_le = "#F2E93F";
     private String color_wu = "#ffffff";
-    private String color_hui = "#ffffff";
-    private String color_jiao = "#ffffff";
 
     private List<LampModel> getModels() {
         List<LampModel> mLampModels = new ArrayList<>();
-        mLampModels.add(getMaoLoveJiao());
-
-//        mLampModels.add(getFirstModel());
+        mLampModels.add(getFirstModel());
         mLampModels.add(getSecondModel());
 //        mLampModels.add(getThirdModel());
 //        mLampModels.add(getFourthModel());
+//        mLampModels.add(getFifthModel());
+
         return mLampModels;
     }
 
-    private LampModel getMaoLoveJiao() {
+    int alpha = 14;
+    int beta = 7;
+    int gama = 0;
+
+    private LampModel getFifthModel() {
         LampModel lampModel = new LampModel();
-        lampModel.setName("毛爱姣");
+        lampModel.setName("第5个模板");
         List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int i = 0; i < 21; i++) {
+            double a = tan((alpha + i) % 21 * Math.PI / 42);
+            double b = tan((beta + i) % 21 * Math.PI / 42);
+            double c = tan((gama + i) % 21 * Math.PI / 42);
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int j = 0; j < size; j++) {
+                Doodle doodle = new Doodle();
+                if (a > b && b > c){
+                    if((double)(19-j%20)/(double)(j/20+1)>=a){
+                        doodle.setColor(fifth_colors[0]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)<a&&(double)(19-j%20)/(double)(j/20+1)>=b){
+                        doodle.setColor(fifth_colors[1]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)<b&&(double)(19-j%20)/(double)(j/20+1)>=c){
+                        doodle.setColor(fifth_colors[2]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)<c){
+                        doodle.setColor(fifth_colors[0]);
+                    }
+                }
 
-        // 321
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getThree());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getTwo());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getOne());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
+                if (a < c && b > c){
+                    if((double)(19-j%20)/(double)(j/20+1)>=b){
+                        doodle.setColor(fifth_colors[1]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)<b&&(double)(19-j%20)/(double)(j/20+1)>=c){
+                        doodle.setColor(fifth_colors[2]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)>=a&&(double)(19-j%20)/(double)(j/20+1)<c){
+                        doodle.setColor(fifth_colors[0]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)<a){
+                        doodle.setColor(fifth_colors[1]);
+                    }
+                }
 
-        // 搭箭
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getDaJian());
+                if (a > b && b < c){
+                    if((double)(19-j%20)/(double)(j/20+1)>=c){
+                        doodle.setColor(fifth_colors[2]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)<c&&(double)(19-j%20)/(double)(j/20+1)>=a){
+                        doodle.setColor(fifth_colors[0]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)>=b&&(double)(19-j%20)/(double)(j/20+1)<a){
+                        doodle.setColor(fifth_colors[1]);
+                    }
+                    if((double)(19-j%20)/(double)(j/20+1)<b){
+                        doodle.setColor(fifth_colors[2]);
+                    }
+                }
+                doodle.setLight(255);
+                doodle.setFlash(0);
+                light_status.put(String.valueOf( j), doodle);
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
         }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getLagong());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getLagong2());
-        }
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLagong3());
-        }
-        modeArr.add(getLagong2());
-        modeArr.add(getLagong());
-        modeArr.add(getShut());
-        modeArr.add(getShut2());
-        modeArr.add(getShut3());
-        modeArr.add(getShut4());
-        modeArr.add(getShut5());
-        modeArr.add(getShut6());
-        modeArr.add(getShut7());
-        modeArr.add(getShut8());
-        modeArr.add(getShut9());
-
-        for (int i = 0; i < 3; i++) {
-            modeArr.add(getBlack());
-        }
-
-        // 箭飞动画
-        for (int i = 0; i < 7; i++) {
-            modeArr.add(getFly(i));
-        }
-        // 爱心闪烁动画
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getFlash());
-        }
-        for (int i = 0; i < 10; i++) {
-            modeArr.add(getFlashNo());
-        }
-        modeArr.add(getFlash2());
-        modeArr.add(getFlash());
-        modeArr.add(getFlash3());
-        modeArr.add(getFlash());
-        modeArr.add(getFlash2());
-        modeArr.add(getFlash());
-        modeArr.add(getFlash3());
-        modeArr.add(getFlash());
-        modeArr.add(getFlash2());
-        modeArr.add(getFlash());
-        modeArr.add(getFlash3());
-        modeArr.add(getFlash());
-        modeArr.add(getFlash2());
-        modeArr.add(getFlash());
-        modeArr.add(getFlash3());
-        modeArr.add(getFlash());
-        modeArr.add(getFlash2());
-
-        // 爱心小
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLoveSmall());
-        }
-
-        // 爱心中
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLoveMilld());
-        }
-
-        // 爱心大
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLoveBig());
-        }
-
-        // 爱心中靠拢
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLoveMilldRed());
-        }
-        // 爱心大靠拢
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLoveBigRed());
-        }
-
-        // 爱心大靠拢
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLoveMilldRed2());
-        }
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLoveBigRed());
-        }
-
-        for (int i = 0; i < 4; i++) {
-            modeArr.add(getLoveMilldRed2());
-        }
-        for (int i = 0; i < 4; i++) {
-            modeArr.add(getLoveBigRed());
-        }
-        for (int i = 0; i < 3; i++) {
-            modeArr.add(getLoveMilldRed2());
-        }
-        for (int i = 0; i < 3; i++) {
-            modeArr.add(getLoveBigRed());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getLoveMilldRed2());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getLoveBigRed());
-        }
-        modeArr.add(getLoveMilldRed2());
-        modeArr.add(getLoveBigRed());
-        modeArr.add(getLoveMilldRed2());
-        modeArr.add(getLoveBigRed());
-        modeArr.add(getLoveMilldRed2());
-        modeArr.add(getLoveBigRed());
-        modeArr.add(getLoveMilldRed2());
-        modeArr.add(getLoveBigRed());
-        modeArr.add(getLoveMilldRed2());
-        modeArr.add(getLoveBigRed());
-        modeArr.add(getLoveMilldRed2());
-        modeArr.add(getLoveBigRed());
-
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-
-
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getWu());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-
-
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getHui());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getJiao());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-
-
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getQi());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getXi());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getKuai());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-
-
-        for (int i = 0; i < 5; i++) {
-            modeArr.add(getLe());
-        }
-        for (int i = 0; i < 2; i++) {
-            modeArr.add(getBlack());
-        }
-
         lampModel.setModeArr(modeArr);
         return lampModel;
     }
 
-    private DoodlePattern getJiao() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3) {
-                    if (i == 9) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
+    private LampModel getFourthModel() {
+        LampModel lampModel = new LampModel();
+        lampModel.setName("第4个模板");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int k = 0; k < column; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    if (i == k % column || i == (k + 1) % column || i == (k + 2) % column) {
+                        doodle.setColor("#F2E93F");
+                    } else if (i == (k + 3) % column || i == (k + 4) % column || i == (k + 5) % column) {
+                        doodle.setColor("#EA1318");
+                    } else if (i == (k + 6) % column || i == (k + 7) % column || i == (k + 8) % column) {
+                        doodle.setColor("#F69218");
+                    } else if (i == (k + 9) % column || i == (k + 10) % column || i == (k + 11) % column) {
+                        doodle.setColor("#6BBA2B");
+                    } else if (i == (k + 12) % column || i == (k + 13) % column || i == (k + 14) % column) {
+                        doodle.setColor("#1A489E");
                     }
-                } else if (j == 4) {
-                    if (i == 10) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5) {
-                    if ((i == 2)) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6) {
-                    if (i == 2 || i > 5) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i == 2 || i == 4) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i < 5 || i == 8 || i == 12) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i == 2 || i == 7 || i == 13) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 2 || i == 6 || i == 8 || i == 12 || i == 14) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 6 || i == 9 || i == 11) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 3 || i == 10) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 2 || i == 4 || i == 9 || i == 11) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 0 || i == 1 || i == 5 || i == 8 || i == 12) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i == 7 || i == 13) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 16) {
-                    if (i == 6 || i == 14) {
-                        doodle.setColor(color_jiao);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
+                    doodle.setLight(255);
+                    doodle.setFlash(0);
+                    light_status.put(String.valueOf(i * size / column + j), doodle);
                 }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
             }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
         }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
+        lampModel.setModeArr(modeArr);
+        return lampModel;
     }
 
-    private DoodlePattern getHui() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
+    private LampModel getThirdModel() {
+        LampModel lampModel = new LampModel();
+        lampModel.setName("第3个模板");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int j = 0; j < size; j++) {
                 Doodle doodle = new Doodle();
-                if (j == 1 || j == 5) {
-                    if (i == 4 || i == 10) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 2 || j == 3 || j == 4) {
-                    if ((i > 1 && i < 7) || (i > 7 && i < 13)) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7 || j == 9 || j == 11) {
-                    if ((i > 1 && i < 13)) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8 || j == 10) {
-                    if (i == 12) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 2 || i == 7 || i == 11 || i == 12) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 1 || i == 8 || i == 13) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i == 0 || i == 3 || i == 8) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 16) {
-                    if (i == 4 || i == 12) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17) {
-                    if (i > 4 && i < 14) {
-                        doodle.setColor(color_hui);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
+                doodle.setColor(snow_colors[(int) (Math.random() * (snow_colors.length - 1))]);
+                light_status.put(String.valueOf(j), doodle);
             }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+            modeArr.add(doodlePattern);
+            modeArr.add(doodlePattern);
         }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getLe() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 2) {
-                    if (i > 4 && i < 12) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 3) {
-                    if (i > 3 && i < 11) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 2 || i == 3) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5) {
-                    if (i == 2 || i == 3 || i == 7) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7 || j == 8 || j == 6) {
-                    if (i == 2 || i == 3 || i == 7 || i == 8) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10 || j == 9) {
-                    if (i > 1 && i < 13) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11 || j == 12) {
-                    if (i == 7 || i == 8) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 3 || i == 4 || i == 7 || i == 8 || i == 11 || i == 10 || i == 12) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 2 || i == 3 || i == 4 || i == 7 || i == 8 || i == 13 || i == 10 || i == 12) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i == 2 || i == 3 || i == 7 || i == 8 || i == 13 || i == 12) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 16) {
-                    if (i == 5 || i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18) {
-                    if (i == 7 || i == 8) {
-                        doodle.setColor(color_le);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    /**
-     * @return
-     */
-    private DoodlePattern getKuai() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j >= 3 && j <= 5) {
-                    if (i == 2 || i == 8) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6) {
-                    if (i == 2 || i == 3 || (i > 5 && i < 12)) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i == 1 || i == 2 || i == 4 || i == 8 || i == 11) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i == 0 || i == 2 || i == 8 || i == 10) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i == 2 || (i > 3 && i < 13)) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 8 || i == 2) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 9 || i == 7) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 2 || i == 6 || i == 10) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 2 || i == 5 || i == 11) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 2 || i == 4 || i == 12) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i == 2 || i == 14 || i == 13) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 16) {
-                    if (i == 2) {
-                        doodle.setColor(color_kuai);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getXi() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3) {
-                    if (i == 7 || i == 8) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 7 || i == 6) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5) {
-                    if (i > 4 && i < 13) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6) {
-                    if (i > 3 && i < 12) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i == 3 || i == 4 || i == 10 || i == 9) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i == 8 || i == 9) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9 || j == 11) {
-                    if (i == 8 || i == 7 || i == 5 || i == 6) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 7 || i == 5 || i == 6) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 4 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 4 || i == 3 || i == 8 || i == 9) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 2 || i == 3) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i == 2 || i == 1) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 16) {
-                    if (i == 1) {
-                        doodle.setColor(color_xi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getQi() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 4) {
-                    if (i == 5) {
-                        doodle.setColor(color_qi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5 || j == 6 || j == 7 || j == 8 || j == 11 || j == 12) {
-                    if (i == 5 || i == 6) {
-                        doodle.setColor(color_qi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i > 1 && i < 12) {
-                        doodle.setColor(color_qi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 0 && i < 11) {
-                        doodle.setColor(color_qi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 5 || i == 6 || i == 12) {
-                        doodle.setColor(color_qi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i > 5 && i < 14) {
-                        doodle.setColor(color_qi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i > 6 && i < 13) {
-                        doodle.setColor(color_qi);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getLoveMilldRed2() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3) {
-                    if (i == 6 || i == 5 || i == 4 || i == 8 || i == 9 || i == 10) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 6 || i == 5 || i == 8 || i == 9) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 4 || i == 3 || i == 10 || i == 11 || i == 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5 || j == 6) {
-                    if (i > 3 && i < 11) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 3 || i == 11) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i > 4 && i < 10) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 4 || i == 10) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i > 5 && i < 9) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 5 || i == 9) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i > 6 && i < 8) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 6 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 4 || i == 5 || i == 9 || i == 10) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17) {
-                    if (i == 4 || i == 5 || i == 9 || i == 10) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 5 || i == 6 || i == 3 || i == 4 || i == 9 || i == 10 || i == 11 || i == 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i > 1 && i < 13) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getLoveBigRed() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 2) {
-                    if ((i > 1 && i < 6) || (i > 8 && i < 13)) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 3) {
-                    if (i == 6 || i == 5 || i == 4 || i == 8 || i == 9 || i == 10) {
-                        doodle.setColor(color_love_big);
-                    } else if (i > 0 && i < 14 && i != 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 6 || i == 5 || i == 8 || i == 9) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 4 || i == 3 || i == 10 || i == 11 || i == 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor(color_love_big);
-                    }
-                } else if (j == 5 || j == 6) {
-                    if (i > 3 && i < 11) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 3 || i == 11) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor(color_love_big);
-                    }
-                } else if (j == 7) {
-                    if (i > 4 && i < 10) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 4 || i == 10) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor(color_love_big);
-                    }
-                } else if (j == 8) {
-                    if (i > 5 && i < 9) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 5 || i == 9) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 1 || i == 2 || i == 3 || i == 4 || i == 10 || i == 13 || i == 12 || i == 11) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i > 6 && i < 8) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 6 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 4 || i == 5 || i == 2 || i == 3 || i == 9 || i == 10 || i == 12 || i == 11) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 7 || i == 6 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 4 || i == 5 || i == 3 || i == 10 || i == 9 || i == 11) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 4 || i == 5 || i == 7 || i == 6 || i == 10 || i == 9 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 7 || i == 5 || i == 6 || i == 9 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 7 || i == 6 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 4 || i == 5 || i == 9 || i == 10) {
-                        doodle.setColor(color_us);
-                    } else if (i == 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17) {
-                    if (i == 4 || i == 5 || i == 9 || i == 10) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 5 || i == 6 || i == 3 || i == 4 || i == 9 || i == 10 || i == 11 || i == 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i > 1 && i < 13) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getLoveMilldRed() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3) {
-                    if (i == 6 || i == 5 || i == 4 || i == 8 || i == 9 || i == 10) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 6 || i == 5 || i == 8 || i == 9) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 4 || i == 3 || i == 10 || i == 11 || i == 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5 || j == 6) {
-                    if (i > 3 && i < 11) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 3 || i == 11) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i > 4 && i < 10) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 4 || i == 10) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i > 5 && i < 9) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 5 || i == 9) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i > 6 && i < 8) {
-                        doodle.setColor(color_love_big);
-                    } else if (i == 6 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17 || j == 14) {
-                    if (i == 4 || i == 3 || i == 11 || i == 10) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 5 || i == 2 || i == 3 || i == 4 || i == 9 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i > 0 && i < 14) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getLoveBig() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 2) {
-                    if ((i > 1 && i < 6) || (i > 8 && i < 13)) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 3) {
-                    if (i == 6 || i == 5 || i == 4 || i == 8 || i == 9 || i == 10) {
-                        doodle.setColor(color_love_milld);
-                    } else if (i > 0 && i < 14 && i != 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 6 || i == 5 || i == 8 || i == 9) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 4 || i == 3 || i == 10 || i == 11 || i == 7) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor(color_love_big);
-                    }
-                } else if (j == 5 || j == 6) {
-                    if (i > 3 && i < 11) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 3 || i == 11) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor(color_love_big);
-                    }
-                } else if (j == 7) {
-                    if (i > 4 && i < 10) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 4 || i == 10) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor(color_love_big);
-                    }
-                } else if (j == 8) {
-                    if (i > 5 && i < 9) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 5 || i == 9) {
-                        doodle.setColor(color_love_milld);
-                    } else if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 12 || i == 11 || i == 10) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i > 6 && i < 8) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 6 || i == 8) {
-                        doodle.setColor(color_love_milld);
-                    } else if (i == 4 || i == 5 || i == 2 || i == 3 || i == 10 || i == 9 || i == 12 || i == 11) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 7) {
-                        doodle.setColor(color_love_milld);
-                    } else if (i == 4 || i == 5 || i == 6 || i == 3 || i == 10 || i == 8 || i == 9 || i == 11) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 4 || i == 5 || i == 6 || i == 7 || i == 10 || i == 9 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 7 || i == 5 || i == 6 || i == 9 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 7 || i == 6 || i == 8) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else if (i == 7) {
-                        doodle.setColor(color_love_big);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i < 6 || i > 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    /**
-     * 中爱心
-     *
-     * @return
-     */
-    private DoodlePattern getLoveMilld() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3) {
-                    if (i == 6 || i == 5 || i == 4 || i == 8 || i == 9 || i == 10) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 6 || i == 5 || i == 8 || i == 9) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 4 || i == 3 || i == 10 || i == 11 || i == 7) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5 || j == 6) {
-                    if (i > 3 && i < 11) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 3 || i == 11) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i > 4 && i < 10) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 4 || i == 10) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i > 5 && i < 9) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 5 || i == 9) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i > 6 && i < 8) {
-                        doodle.setColor(color_love_small);
-                    } else if (i == 6 || i == 8) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 7) {
-                        doodle.setColor(color_love_milld);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17 || j == 14) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i < 6 || i > 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    /**
-     * 小爱心
-     *
-     * @return
-     */
-    private DoodlePattern getLoveSmall() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 4) {
-                    if (i == 6 || i == 5 || i == 8 || i == 9) {
-                        doodle.setColor(color_love_small);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5 || j == 6) {
-                    if (i > 3 && i < 11) {
-                        doodle.setColor(color_love_small);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i > 4 && i < 10) {
-                        doodle.setColor(color_love_small);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i > 5 && i < 9) {
-                        doodle.setColor(color_love_small);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i > 6 && i < 8) {
-                        doodle.setColor(color_love_small);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17 || j == 14) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i < 6 || i > 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getFlash3() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 7) {
-                    if (i == 7) {
-                        doodle.setColor(color_flash);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6 || j == 8) {
-                    if (i == 8 || i == 6) {
-                        doodle.setColor(color_flash);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17 || j == 14) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i < 6 || i > 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-
-    private DoodlePattern getFlashNo() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 17 || j == 14) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i < 6 || i > 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getFlash2() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 7) {
-                    if (i == 7 || i == 8 || i == 6) {
-                        doodle.setColor(color_flash);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6 || j == 8) {
-                    if (i == 7) {
-                        doodle.setColor(color_flash);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17 || j == 14) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i < 6 || i > 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getFlash() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 7) {
-                    if (i == 7) {
-                        doodle.setColor(color_flash);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17 || j == 14) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i < 6 || i > 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getFly(int index) {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 14 - index) {
-                    if (i == index) {
-                        doodle.setColor(color_fly);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13 - index) {
-                    if (i == index + 1) {
-                        doodle.setColor(color_fly);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17 || j == 14) {
-                    if (i == 2 || i == 3 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18 || j == 16 || j == 15) {
-                    if (i == 1 || i == 2 || i == 3 || i == 4 || i == 13 || i == 10 || i == 11 || i == 12) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i < 6 || i > 8) {
-                        doodle.setColor(color_us);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getShut9() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-
-    private DoodlePattern getShut8() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 0 || j == 1) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getShut7() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 0 || j == 1 || j == 2 || j == 3 || j == 4) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getShut6() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 0 || j == 1 || j == 2 || j == 3 || j == 4 || j == 5 || j == 6) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getShut5() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 0) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 1 || j == 2 || j == 3 || j == 4 || j == 5 || j == 6 || j == 7) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getShut4() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 0) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 1) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 2 || j == 3 || j == 4 || j == 5 || j == 6 || j == 7 || j == 8) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getShut3() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 0) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 1) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 2) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 3 || j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getShut2() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 1) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 2) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 3) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4 || j == 5 || j == 6 || j == 7 || j == 8 || j == 9) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getShut() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 2) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 3) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5 || j == 6 || j == 7 || j == 8 || j == 9) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getLagong3() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 7) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i == 0 || i == 14 || i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i == 3 || i == 11) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 16) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i == 4 || i == 10) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 17) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i == 5 || i == 9) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 18) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i == 6 || i == 8) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 19) {
-                    if (i == 7) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getLagong2() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 5) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8 || j == 9) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i < 2 || i > 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i == 2 || i == 3 || i == 12 || i == 11) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i == 4 || i == 5 || i == 6 || i == 8 || i == 9 || i == 10) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 16) {
-                    if (i == 7) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getLagong() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 4) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7 || j == 8 || j == 9) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i < 4 || i > 10) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else if (i >= 4 && i <= 10) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getDaJian() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5) {
-                    if (i == 6 || i == 5 || i == 7 || i == 8 || i == 9) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6 || j == 7 || j == 8 || j == 9) {
-                    if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_gong);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 2 || i == 12) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 1 || i == 13) {
-                        doodle.setColor(color_gong);
-                    } else if (i == 7) {
-                        doodle.setColor(color_jian);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    doodle.setColor(color_gong);
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getTwo() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3) {
-                    if (i == 5 || i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4) {
-                    if (i == 4 || i == 5 || i == 9 || i == 8) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5) {
-                    if (i == 3 || i == 4 || i == 10 || i == 9) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6) {
-                    if (i == 3 || i == 4 || i == 10 || i == 9) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7) {
-                    if (i == 10 || i == 9) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8) {
-                    if (i == 9 || i == 10) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9) {
-                    if (i == 9 || i == 8) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 10) {
-                    if (i == 7 || i == 8) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i == 7 || i == 6) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 5 || i == 6) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 4 || i == 5) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 3 || i == 4) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15 || j == 16) {
-                    if (i > 2 && i < 12) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getThree() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3 || j == 16) {
-                    if (i == 5 || i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9 || j == 10) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4 || j == 15) {
-                    if (i == 4 || i == 5 || i == 8 || i == 9) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 5 || j == 14) {
-                    if (i == 3 || i == 4 || i == 9 || i == 10) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 6 || j == 13) {
-                    if (i == 3 || i == 4 || i == 9 || i == 10) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 7 || j == 12) {
-                    if (i == 9 || i == 10) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 8 || j == 11) {
-                    if (i == 9 || i == 8) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getOne() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j >= 3 && j <= 16) {
-                    if (i == 6 || i == 7 || i == 8) {
-                        doodle.setColor(color_num);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
-    private DoodlePattern getBlack() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                doodle.setColor("#000000");
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
+        lampModel.setModeArr(modeArr);
+        return lampModel;
     }
 
     private DoodlePattern getWu() {
@@ -2925,9 +444,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     }
 
 
-    private LampModel getSecondModel() {
+    private LampModel getFirstModel() {
         LampModel lampModel = new LampModel();
-        lampModel.setName("第二个模板");
+        lampModel.setName("第1个模板");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < size / column; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -2940,7 +459,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     } else if (j % (size / column) == (i + k + 8) % (size / column) || j % (size / column) == (i + k + 9) % (size / column) || j % (size / column) == (i + k + 10) % (size / column) || j % (size / column) == (i + k + 11) % (size / column)) {
                         doodle.setColor("#ffffff");
                     } else {
-                        doodle.setColor("#000000");
+                        doodle.setColor("#F2E93F");
                     }
                     doodle.setLight(255);
                     doodle.setFlash(0);
@@ -2955,23 +474,25 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         return lampModel;
     }
 
-    private LampModel getThirdModel() {
+    private LampModel getSecondModel() {
         LampModel lampModel = new LampModel();
-        lampModel.setName("第三个模板");
+        lampModel.setName("第2个模板");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int i = 0; i < size / column; i++) {
             DoodlePattern doodlePattern = new DoodlePattern();
             HashMap<String, Doodle> light_status = new HashMap<>();
             for (int j = 0; j < size; j++) {
                 Doodle doodle = new Doodle();
-                if (j % (size / column) == i % (size / column) || j % (size / column) == (i + 1) % (size / column) || j % (size / column) == (i + 2) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                } else if (j % (size / column) == (i + 10) % (size / column) || j % (size / column) == (i + 11) % (size / column) || j % (size / column) == (i + 12) % (size / column)) {
-                    doodle.setColor("#00ffff");
-                } else if (j % (size / column) == (i + 5) % (size / column) || j % (size / column) == (i + 6) % (size / column) || j % (size / column) == (i + 7) % (size / column)) {
-                    doodle.setColor("#0000ff");
+                if (j % (size / column) == (i + 3) % (size / column) || j % (size / column) == i % (size / column) || j % (size / column) == (i + 1) % (size / column) || j % (size / column) == (i + 2) % (size / column)) {
+                    doodle.setColor("#F2E93F");
+                } else if (j % (size / column) == (i + 4) % (size / column) || j % (size / column) == (i + 5) % (size / column) || j % (size / column) == (i + 6) % (size / column) || j % (size / column) == (i + 7) % (size / column)) {
+                    doodle.setColor("#EA1318");
+                } else if (j % (size / column) == (i + 8) % (size / column) || j % (size / column) == (i + 9) % (size / column) || j % (size / column) == (i + 10) % (size / column) || j % (size / column) == (i + 11) % (size / column)) {
+                    doodle.setColor("#F69218");
+                } else if (j % (size / column) == (i + 13) % (size / column) || j % (size / column) == (i + 14) % (size / column) || j % (size / column) == (i + 12) % (size / column) || j % (size / column) == (i + 15) % (size / column)) {
+                    doodle.setColor("#6BBA2B");
                 } else {
-                    doodle.setColor("#000000");
+                    doodle.setColor("#1A489E");
                 }
                 doodle.setLight(255);
                 doodle.setFlash(0);
@@ -2986,111 +507,111 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     }
 
 
-    private LampModel getFirstModel() {
-        LampModel lampModel = new LampModel();
-        lampModel.setName("第一个模板");
-        List<DoodlePattern> modeArr = new ArrayList<>();
-        for (int k = 0; k < size / column; k++) {
-            DoodlePattern doodlePattern = new DoodlePattern();
-            HashMap<String, Doodle> light_status = new HashMap<>();
-            for (int i = 0; i < column; i++) {
-                for (int j = 0; j < size / column; j++) {
-                    Doodle doodle = new Doodle();
-                    if (j % (size / column) == (i + k) % (size / column)) {
-                        doodle.setColor("#ff0000");
-                        doodle.setLight(255);
-                    } else if (j % (size / column) == (i + k + 1) % (size / column)) {
-                        doodle.setColor("#ff0000");
-                        doodle.setLight(255 - 50);
-                    } else if (j % (size / column) == (i + k + 2) % (size / column)) {
-                        doodle.setColor("#ff0000");
-                        doodle.setLight(255 - 2 * 50);
-                    } else if (j % (size / column) == (i + k + 3) % (size / column)) {
-                        doodle.setColor("#ff0000");
-                        doodle.setLight(255 - 3 * 50);
-                    } else if (j % (size / column) == (i + k + 4) % (size / column)) {
-                        doodle.setColor("#ff0000");
-                        doodle.setLight(255 - 4 * 50);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                    doodle.setLight(255);
-                    doodle.setFlash(0);
-                    light_status.put(String.valueOf(i * size / column + j), doodle);
-                }
-            }
-            doodlePattern.setLight_status(light_status);
-            doodlePattern.setSize(size);
-            modeArr.add(doodlePattern);
-        }
-        lampModel.setModeArr(modeArr);
-        return lampModel;
-    }
+//    private LampModel getFirstModel() {
+//        LampModel lampModel = new LampModel();
+//        lampModel.setName("第一个模板");
+//        List<DoodlePattern> modeArr = new ArrayList<>();
+//        for (int k = 0; k < size / column; k++) {
+//            DoodlePattern doodlePattern = new DoodlePattern();
+//            HashMap<String, Doodle> light_status = new HashMap<>();
+//            for (int i = 0; i < column; i++) {
+//                for (int j = 0; j < size / column; j++) {
+//                    Doodle doodle = new Doodle();
+//                    if (j % (size / column) == (i + k) % (size / column)) {
+//                        doodle.setColor("#ff0000");
+//                        doodle.setLight(255);
+//                    } else if (j % (size / column) == (i + k + 1) % (size / column)) {
+//                        doodle.setColor("#ff0000");
+//                        doodle.setLight(255 - 50);
+//                    } else if (j % (size / column) == (i + k + 2) % (size / column)) {
+//                        doodle.setColor("#ff0000");
+//                        doodle.setLight(255 - 2 * 50);
+//                    } else if (j % (size / column) == (i + k + 3) % (size / column)) {
+//                        doodle.setColor("#ff0000");
+//                        doodle.setLight(255 - 3 * 50);
+//                    } else if (j % (size / column) == (i + k + 4) % (size / column)) {
+//                        doodle.setColor("#ff0000");
+//                        doodle.setLight(255 - 4 * 50);
+//                    } else {
+//                        doodle.setColor("#000000");
+//                    }
+//                    doodle.setLight(255);
+//                    doodle.setFlash(0);
+//                    light_status.put(String.valueOf(i * size / column + j), doodle);
+//                }
+//            }
+//            doodlePattern.setLight_status(light_status);
+//            doodlePattern.setSize(size);
+//            modeArr.add(doodlePattern);
+//        }
+//        lampModel.setModeArr(modeArr);
+//        return lampModel;
+//    }
 
 
-    private LampModel getFourthModel() {
-        LampModel lampModel = new LampModel();
-        lampModel.setName("第四个模板");
-        List<DoodlePattern> modeArr = new ArrayList<>();
-        for (int i = 0; i < size / column; i++) {
-            DoodlePattern doodlePattern = new DoodlePattern();
-            HashMap<String, Doodle> light_status = new HashMap<>();
-            for (int j = 0; j < size; j++) {
-                Doodle doodle = new Doodle();
-                if (j % (size / column) == (i) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255);
-                } else if (j % (size / column) == (i + 1) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 20);
-                } else if (j % (size / column) == (i + 2) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 2 * 20);
-                } else if (j % (size / column) == (i + 3) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 3 * 20);
-                } else if (j % (size / column) == (i + 4) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 4 * 20);
-                } else if (j % (size / column) == (i + 5) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 5 * 20);
-                } else if (j % (size / column) == (i + 6) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 6 * 20);
-                } else if (j % (size / column) == (i + 7) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 7 * 20);
-                } else if (j % (size / column) == (i + 8) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 8 * 20);
-                } else if (j % (size / column) == (i + 9) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 9 * 20);
-                } else if (j % (size / column) == (i + 10) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 10 * 20);
-                } else if (j % (size / column) == (i + 11) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 11 * 20);
-                } else if (j % (size / column) == (i + 12) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 12 * 20);
-                } else if (j % (size / column) == (i + 13) % (size / column)) {
-                    doodle.setColor("#ff0000");
-                    doodle.setLight(255 - 13 * 20);
-                } else {
-                    doodle.setColor("#000000");
-                    doodle.setLight(255);
-                }
-                light_status.put(String.valueOf(j), doodle);
-            }
-            doodlePattern.setLight_status(light_status);
-            doodlePattern.setSize(size);
-            modeArr.add(doodlePattern);
-        }
-        lampModel.setModeArr(modeArr);
-        return lampModel;
-    }
+//    private LampModel getFourthModel() {
+//        LampModel lampModel = new LampModel();
+//        lampModel.setName("第四个模板");
+//        List<DoodlePattern> modeArr = new ArrayList<>();
+//        for (int i = 0; i < size / column; i++) {
+//            DoodlePattern doodlePattern = new DoodlePattern();
+//            HashMap<String, Doodle> light_status = new HashMap<>();
+//            for (int j = 0; j < size; j++) {
+//                Doodle doodle = new Doodle();
+//                if (j % (size / column) == (i) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255);
+//                } else if (j % (size / column) == (i + 1) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 20);
+//                } else if (j % (size / column) == (i + 2) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 2 * 20);
+//                } else if (j % (size / column) == (i + 3) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 3 * 20);
+//                } else if (j % (size / column) == (i + 4) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 4 * 20);
+//                } else if (j % (size / column) == (i + 5) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 5 * 20);
+//                } else if (j % (size / column) == (i + 6) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 6 * 20);
+//                } else if (j % (size / column) == (i + 7) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 7 * 20);
+//                } else if (j % (size / column) == (i + 8) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 8 * 20);
+//                } else if (j % (size / column) == (i + 9) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 9 * 20);
+//                } else if (j % (size / column) == (i + 10) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 10 * 20);
+//                } else if (j % (size / column) == (i + 11) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 11 * 20);
+//                } else if (j % (size / column) == (i + 12) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 12 * 20);
+//                } else if (j % (size / column) == (i + 13) % (size / column)) {
+//                    doodle.setColor("#ff0000");
+//                    doodle.setLight(255 - 13 * 20);
+//                } else {
+//                    doodle.setColor("#000000");
+//                    doodle.setLight(255);
+//                }
+//                light_status.put(String.valueOf(j), doodle);
+//            }
+//            doodlePattern.setLight_status(light_status);
+//            doodlePattern.setSize(size);
+//            modeArr.add(doodlePattern);
+//        }
+//        lampModel.setModeArr(modeArr);
+//        return lampModel;
+//    }
 
 }
