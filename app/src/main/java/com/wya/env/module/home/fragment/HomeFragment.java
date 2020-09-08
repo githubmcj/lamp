@@ -13,7 +13,6 @@ import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.SaveModel;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
-import com.wya.env.net.tpc.TaskCenter;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
@@ -59,7 +58,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private void initData() {
         getLocalData();
-        getNetData();
+//        getNetData();
         initRecyclerView();
     }
 
@@ -93,35 +92,35 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         });
     }
 
-    private void setTcpData(List<DoodlePattern> modeArr) {
-        TaskCenter.sharedCenter().setDisconnectedCallback(new TaskCenter.OnServerDisconnectedCallbackBlock() {
-            @Override
-            public void callback(IOException e) {
-                showShort("连接失败：" + e.getMessage());
-            }
-        });
-        TaskCenter.sharedCenter().setConnectedCallback(new TaskCenter.OnServerConnectedCallbackBlock() {
-            @Override
-            public void callback() {
-                LogUtil.e("连接成功， 打开文件");
-                TaskCenter.sharedCenter().send(getOpenFileData());
-//                LogUtil.e("连接成功");
-
-            }
-        });
-        TaskCenter.sharedCenter().setReceivedCallback(new TaskCenter.OnReceiveCallbackBlock() {
-            @Override
-            public void callback(byte[] receiceData) {
-                showShort("返回数据：" + ByteUtil.byte2hex(receiceData));
-            }
-        });
-        //连接
-        TaskCenter.sharedCenter().connect("192.168.4.1", 6600);
-//        //发送
+//    private void setTcpData(List<DoodlePattern> modeArr) {
+//        TaskCenter.sharedCenter().setDisconnectedCallback(new TaskCenter.OnServerDisconnectedCallbackBlock() {
+//            @Override
+//            public void callback(IOException e) {
+//                showShort("连接失败：" + e.getMessage());
+//            }
+//        });
+//        TaskCenter.sharedCenter().setConnectedCallback(new TaskCenter.OnServerConnectedCallbackBlock() {
+//            @Override
+//            public void callback() {
+//                LogUtil.e("连接成功， 打开文件");
+//                TaskCenter.sharedCenter().send(getOpenFileData());
+////                LogUtil.e("连接成功");
 //
-//        // 断开连接
-//        TaskCenter.sharedCenter().disconnect();
-    }
+//            }
+//        });
+//        TaskCenter.sharedCenter().setReceivedCallback(new TaskCenter.OnReceiveCallbackBlock() {
+//            @Override
+//            public void callback(byte[] receiceData) {
+//                showShort("返回数据：" + ByteUtil.byte2hex(receiceData));
+//            }
+//        });
+//        //连接
+//        TaskCenter.sharedCenter().connect("192.168.4.1", 6600);
+////        //发送
+////
+////        // 断开连接
+////        TaskCenter.sharedCenter().disconnect();
+//    }
 
     int step = 0;
     int fileIndex = 3;
@@ -158,7 +157,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         if (!hidden && toRefresh) {
             SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, false);
             getLocalData();
-            getNetData();
+//            getNetData();
         } else {
             lampView.toStopSendUdpModeData(true);
         }

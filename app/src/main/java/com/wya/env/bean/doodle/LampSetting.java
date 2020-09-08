@@ -7,6 +7,15 @@ public class LampSetting {
     private long startTime;
     private long stopTime;
     private String ip;
+    private int size;
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
 
     public String getIp() {
         return ip;

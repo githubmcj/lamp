@@ -1,11 +1,11 @@
 package com.wya.env.module.mine;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
-import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
@@ -21,22 +20,20 @@ import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.login.LoginActivity;
-import com.wya.env.module.login.StartUpActivity;
+import com.wya.env.net.udp.ICallUdp;
+import com.wya.env.net.udp.UdpUtil;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.AvatarImageView;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -74,6 +71,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     private int listSize = 10;
     private MyLampAdapter myLampAdapter;
     private LoginInfo loginInfo;
+    private String loc_ip;
 
     @Override
     protected int getLayoutResource() {
@@ -103,6 +101,27 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     protected void initView() {
         Glide.with(getActivity()).load("").apply(new RequestOptions().placeholder(R.drawable.avatar).error(R.drawable.avatar)).into(avatar);
         initData();
+        loc_ip = getIpAddressString();
+    }
+
+
+    public static String getIpAddressString() {
+        try {
+            for (Enumeration<NetworkInterface> enNetI = NetworkInterface
+                    .getNetworkInterfaces(); enNetI.hasMoreElements(); ) {
+                NetworkInterface netI = enNetI.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = netI
+                        .getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return "0.0.0.0";
     }
 
 
@@ -110,6 +129,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab_refresh:
+                showLoading();
                 sendData();
                 break;
             case R.id.tab_exit:
@@ -127,85 +147,48 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         }
     }
 
-    private int i;
+
     private void sendData() {
-        showLoading();
-        i = 1;
         lampSettings.clear();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    byte[] bytes = new byte[1];
-                    bytes[0] = 0x00;
-                    byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
-                    byte[] send_data = ByteUtil.byteMerger(send_head_data, bytes);
-                    InetAddress inet = InetAddress.getByName("255.255.255.255");
-                    DatagramPacket packet = new DatagramPacket(send_data, send_data.length, inet, CommonValue.UDP_PORT);
-                    if (datagramSocket == null) {
-                        datagramSocket = new DatagramSocket(null);
-                        datagramSocket.setReuseAddress(true);
-                        datagramSocket.bind(new InetSocketAddress(CommonValue.UDP_PORT));
-                    }
-                    datagramSocket.setSoTimeout(10000);
-                    SocketAddress dd = packet.getSocketAddress();
-                    LogUtil.d(dd+"---------------------------");
-                    datagramSocket.send(packet);
-                    udpReceiver();
-                } catch (UnknownHostException e) {
-                    hideLoading();
-                    showShort(e.toString());
-                    e.printStackTrace();
-                } catch (SocketException e) {
-                    hideLoading();
-                    showShort(e.toString());
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    hideLoading();
-                    showShort(e.toString());
-                    e.printStackTrace();
+        new Thread(() -> {
+            byte[] bytes = new byte[1];
+            bytes[0] = 0x00;
+            byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
+            byte[] send_data = ByteUtil.byteMerger(send_head_data, bytes);
+            UdpUtil.send(send_data, loc_ip, new ICallUdp() {
+                @Override
+                public void start() {
+                    LogUtil.e("start-----------");
                 }
-            }
+
+                @Override
+                public void success(String data, String ip) {
+                    Message msg = Message.obtain();
+                    msg.what = 1;
+                    msg.obj = ip;
+                    msg.arg1 = Integer.parseInt(data.substring(22, 24) + data.substring(20, 22), 16);
+                    handler.sendMessage(msg);
+                }
+
+
+                @Override
+                public void failure(String message) {
+                    Message msg = Message.obtain();
+                    msg.what = 0;
+                    handler.sendMessage(msg);
+                    LogUtil.e("failure-----------" + message);
+                }
+
+                @Override
+                public void close() {
+                    LogUtil.e("close-----------");
+                }
+            });
         }).start();
-
     }
 
-    private DatagramSocket datagramSocket;
 
-    private void udpReceiver() {
-        try {
-            if (datagramSocket == null) {
-                datagramSocket = new DatagramSocket(null);
-                datagramSocket.setReuseAddress(true);
-                datagramSocket.bind(new InetSocketAddress(CommonValue.UDP_PORT));
-            }
-            byte[] buff = new byte[20];
-            DatagramPacket packet = new DatagramPacket(buff, buff.length);
-            datagramSocket.setSoTimeout(10000);
-            datagramSocket.receive(packet);
-            InetAddress ip = packet.getAddress();
-            SocketAddress dd = packet.getSocketAddress();
-            LogUtil.d(dd+"---------------------------");
-            String ipStr = ip.toString().replace("/", "");
-            if (!TextUtils.isEmpty(ipStr)) {
-                Message msg = Message.obtain();
-                msg.obj = ipStr;
-                msg.what = 1;
-                handler.sendMessage(msg);
-            }
-            datagramSocket.close();
-            datagramSocket = null;
-        } catch (SocketException e) {
-            hideLoading();
-            showShort(e.toString());
-            e.printStackTrace();
-        } catch (IOException e) {
-            hideLoading();
-            showShort(e.toString());
-            e.printStackTrace();
-        }
-    }
-
+    @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -214,10 +197,20 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 case 1:
                     hideLoading();
                     LampSetting lampSetting = new LampSetting();
-                    lampSetting.setName("设备" + i++);
+                    lampSetting.setName("设备");
                     lampSetting.setIp(msg.obj.toString());
+                    lampSetting.setSize(msg.arg1);
                     lampSettings.add(lampSetting);
                     myLampAdapter.setNewData(lampSettings);
+                    break;
+                case 0:
+                    if(lampSettings != null && lampSettings.size() > 0){
+                        return;
+                    }
+                    showShort("未搜索到设备");
+                    hideLoading();
+                    break;
+                default:
                     break;
             }
         }
@@ -238,6 +231,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
+            showLoading();
             sendData();
         }
     }
