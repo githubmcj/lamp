@@ -1,5 +1,8 @@
 package com.wya.env.module.home.fragment;
 
+import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
@@ -11,18 +14,31 @@ import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.SaveModel;
+import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
+import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
+import com.wya.env.net.tpc.EasySocket;
+import com.wya.env.net.tpc.config.EasySocketOptions;
+import com.wya.env.net.tpc.connection.heartbeat.HeartManager;
+import com.wya.env.net.tpc.entity.OriginReadData;
+import com.wya.env.net.tpc.entity.SocketAddress;
+import com.wya.env.net.tpc.interfaces.conn.ISocketActionListener;
+import com.wya.env.net.tpc.interfaces.conn.SocketActionListener;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
+import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.utils.utils.LogUtil;
+import com.wya.utils.utils.ScreenUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
+
+import static com.wya.env.common.CommonValue.TCP_PORT;
 
 /**
  * @date: 2018/7/3 13:55
@@ -45,6 +61,9 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private List<DoodlePattern> doodlePatterns = new ArrayList<>();
     private List<LampModel> lampModels = new ArrayList<>();
     private List<LampModel> netLampModels = new ArrayList<>();
+    private List<DoodlePattern> choseModel;
+    private int size;
+
 
     private HomeFragmentPresenter homeFragmentPresenter = new HomeFragmentPresenter();
 
@@ -78,11 +97,12 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         recyclerView.setHasFixedSize(true);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setAdapter(adapter);
-        //RecyclerView条目点击事件
+        // RecyclerView条目点击事件
         adapter.setOnItemClickListener((adapter, view, position) -> {
             name.setText(lampModels.get(position).getName());
             lampView.setMirror(lampModels.get(position).getMirror());
             lampView.setModel(lampModels.get(position).getModeArr(), true);
+            choseModel = lampModels.get(position).getModeArr();
             for (int i = 0; i < lampModels.size(); i++) {
                 lampModels.get(i).setChose(0);
             }
@@ -122,21 +142,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 ////        TaskCenter.sharedCenter().disconnect();
 //    }
 
-    int step = 0;
-    int fileIndex = 3;
-
-    private byte[] getOpenFileData() {
-        byte[] bodyData = new byte[4];
-        bodyData[0] = 0x01;
-        bodyData[1] = (byte) (0xff & step);
-        bodyData[2] = (byte) (0xff & fileIndex);
-        bodyData[3] = 0x01;
-        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
-        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
-        LogUtil.e("openFileData:" + ByteUtil.byte2hex(openFileData));
-        return openFileData;
-    }
-
     @Override
     protected int getLayoutResource() {
         return R.layout.home_fragment;
@@ -145,7 +150,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     @Override
     protected void initView() {
         homeFragmentPresenter.mView = this;
-        lampView.setFocusable(false);
+//        lampView.setFocusable(false);
         initData();//初始化数据
     }
 
@@ -189,5 +194,273 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     }
 
 
+    /**
+     * 发送tcp动画数据
+     */
+    private Lamps lamps;
+    private WYACustomDialog dialog;
+
+    public void toSendTcpData() {
+        dialog = new WYACustomDialog.Builder(getActivity())
+                .title("提示")
+                .message("是否继续播放窗帘灯？")
+                .width(ScreenUtil.getScreenWidth(getActivity()) * 3 / 4)
+                .build();
+        dialog.setNoClickListener(new WYACustomDialog.NoClickListener() {
+            @Override
+            public void onNoClick() {
+                getActivity().finish();
+                dialog.dismiss();
+            }
+        });
+        dialog.setYesClickListener(new WYACustomDialog.YesClickListener() {
+            @Override
+            public void onYesClick() {
+                lampView.toStopSendUdpModeData(true);
+                lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
+                size = lamps.getSize();
+                initEasySocket(lamps.getChose_ip());
+            }
+        });
+        dialog.show();
+    }
+
+
+    private boolean isConnected;
+
+    /**
+     * 初始化EasySocket
+     */
+    private void initEasySocket(String ip) {
+        if (isConnected) {
+            EasySocket.getInstance().disconnect(false);
+        }
+        // socket配置
+        EasySocketOptions options = new EasySocketOptions.Builder()
+                .setSocketAddress(new SocketAddress(ip, TCP_PORT)) // 主机地址
+                .setCallbackIdKeyFactory(new CallbackIdKeyFactoryImpl())
+                .setReaderProtocol(null)
+                .build();
+
+        options.setMessageProtocol(null);
+        options.setHeartbeatFreq(2000);
+        // 初始化EasySocket
+        EasySocket.getInstance()
+                .options(options) // 项目配置
+                .createConnection();// 创建一个socket连接
+
+        // 监听socket行为
+        EasySocket.getInstance().subscribeSocketAction(socketActionListener);
+    }
+
+
+    private ISocketActionListener socketActionListener = new SocketActionListener() {
+        /**
+         * socket连接成功
+         * @param socketAddress
+         */
+        @Override
+        public void onSocketConnSuccess(SocketAddress socketAddress) {
+            super.onSocketConnSuccess(socketAddress);
+            LogUtil.d("连接成功, 并发送数据：");
+            if (step == 0) {
+                toStartHeart();
+//                EasySocket.getInstance().upBytes(getOpenFileData(true));
+            } else if (step == 1) {
+
+            }
+
+            isConnected = true;
+        }
+
+        /**
+         * socket连接失败
+         * @param socketAddress
+         * @param isNeedReconnect 是否需要重连
+         */
+        @Override
+        public void onSocketConnFail(SocketAddress socketAddress, Boolean isNeedReconnect) {
+            super.onSocketConnFail(socketAddress, isNeedReconnect);
+            LogUtil.d("socket连接被断开");
+            isConnected = false;
+        }
+
+        /**
+         * socket断开连接
+         * @param socketAddress
+         * @param isNeedReconnect 是否需要重连
+         */
+        @Override
+        public void onSocketDisconnect(SocketAddress socketAddress, Boolean isNeedReconnect) {
+            super.onSocketDisconnect(socketAddress, isNeedReconnect);
+            LogUtil.d("socket断开连接，是否需要重连：" + isNeedReconnect);
+            LogUtil.d("socket连接被断开");
+            isConnected = false;
+        }
+
+        /**
+         * socket接收的数据
+         * @param socketAddress
+         * @param originReadData
+         */
+        @Override
+        public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
+            super.onSocketResponse(socketAddress, originReadData);
+            LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                LogUtil.e("成功");
+                Message msg = Message.obtain();
+                msg.what = 1;
+                handler.sendMessage(msg);
+            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                LogUtil.e("失败");
+            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0x86){
+                LogUtil.e("心跳数据");
+            } else {
+                LogUtil.e("其他数据");
+            }
+        }
+    };
+
+    private void toStartHeart() {
+        EasySocket.getInstance().startHeartBeat(getBreathData(), new HeartManager.HeartbeatListener() {
+            @Override
+            public boolean isServerHeartbeat(OriginReadData originReadData) {
+                LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+                return false;
+            }
+        });
+    }
+
+    private byte[] getBreathData() {
+        byte[] bodyData = new byte[1];
+        bodyData[0] = 0x06;
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] breathData = ByteUtil.byteMerger(send_head_data, bodyData);
+        return breathData;
+    }
+
+
+
+    /**
+     * 打开文件
+     */
+
+    int step = 0;
+    int modelIndex = 0;
+    int fileIndex = 3;
+
+    private byte[] getOpenFileData(boolean isOpen) {
+        byte[] bodyData = new byte[4];
+        bodyData[0] = 0x01;
+        bodyData[1] = (byte) (0xff & step);
+        bodyData[2] = (byte) (0xff & fileIndex);
+        if (isOpen) {
+            bodyData[3] = 0x01;
+        } else {
+            bodyData[3] = 0x02;
+        }
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
+        LogUtil.e("openFileData:" + ByteUtil.byte2hex(openFileData));
+        return openFileData;
+    }
+
+
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {      //判断标志位
+                case 1:
+                    switch (step) {
+                        case 0:
+                            step = 1;// 送模板数据
+                            modelIndex = 0;
+                            byte[] body_data = getTcpByteData(choseModel.get(modelIndex).getLight_status());
+                            byte[] send_head_data = ByteUtil.getHeadByteData(body_data);
+                            byte[] send_data = ByteUtil.byteMerger(send_head_data, body_data);
+                            EasySocket.getInstance().upBytes(send_data);
+                            break;
+                        case 1:
+                            modelIndex++;
+                            if (modelIndex == choseModel.size()) {
+                                step = 2;
+                                EasySocket.getInstance().upBytes(getOpenFileData(false));
+                            } else {
+                                byte[] body_data2 = getTcpByteData(choseModel.get(modelIndex).getLight_status());
+                                byte[] send_head_data2 = ByteUtil.getHeadByteData(body_data2);
+                                byte[] send_data2 = ByteUtil.byteMerger(send_head_data2, body_data2);
+                                EasySocket.getInstance().upBytes(send_data2);
+                            }
+                            break;
+                        case 2:
+                            dialog.dismiss();
+                            LogUtil.e("传输完成");
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    public byte[] getTcpByteData(HashMap<String, Doodle> data) {
+        byte[] tcp_data = new byte[1 + 2 + 2 + 3 * size];
+        tcp_data[0] = 0x01;
+        tcp_data[1] = 0x00;
+        tcp_data[2] = 0x00;
+        tcp_data[3] = ByteUtil.intToByteArray(size)[0];
+        tcp_data[4] = ByteUtil.intToByteArray(size)[1];
+        for (int i = 0; i < size; i++) {
+            String color = data.get(String.valueOf(i)).getColor();
+            tcp_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+            tcp_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+            tcp_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+
+        }
+        return tcp_data;
+    }
+
+//
+//    private void toSendData() {
+//        Observable.create(new ObservableOnSubscribe<String>() {
+//            @Override
+//            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+//                emitter.onNext("连载1");
+//                emitter.onNext("连载2");
+//                emitter.onNext("连载3");
+//                emitter.onComplete();
+//            }
+//        })
+//                .observeOn(AndroidSchedulers.mainThread())//回调在主线程
+//                .subscribeOn(Schedulers.io())//执行在io线程
+//                .subscribe(new Observer<String>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        Log.e(TAG, "onSubscribe");
+//                    }
+//
+//                    @Override
+//                    public void onNext(String value) {
+//                        Log.e(TAG, "onNext:" + value);
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Log.e(TAG, "onError=" + e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        Log.e(TAG, "onComplete()");
+//                    }
+//                });
+//    }
 
 }

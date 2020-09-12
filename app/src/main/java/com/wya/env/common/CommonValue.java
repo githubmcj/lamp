@@ -27,6 +27,11 @@ public interface CommonValue {
 
     String TOKEN = "token";
 
+    /**
+     * 搜索到的灯
+     */
+    String LAMPS = "lamps";
+
      int UDP_PORT = 6000;
      int TCP_PORT = 6600;
 }

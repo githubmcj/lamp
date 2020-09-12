@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_20"
+        android:background="@drawable/white_r10_bg"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="@dimen/dp_10"
+            android:text="@string/time_open_close"
+            android:textColor="@color/app_blue"
+            android:textSize="@dimen/sp_14"></TextView>
+
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left|center"
+                android:padding="@dimen/dp_10"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:text="@string/time_open"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_14"></TextView>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right|center"
+                android:padding="@dimen/dp_10"
+                android:text="@string/time_close"
+                android:layout_marginRight="@dimen/dp_10"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_14"></TextView>
+
+        </TableRow>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.wya.env.view.WheelView
+                android:id="@+id/start_hour"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_60"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:layout_weight="1"
+                app:itemNumber="5"
+                app:lineColor="#999"
+                app:maskHeight="@dimen/dp_15"
+                app:noEmpty="true"
+                app:normalTextColor="#999"
+                app:normalTextSize="15sp"
+                app:selectedTextColor="#000"
+                app:selectedTextSize="18sp"
+                app:unitHeight="30dp"></com.wya.env.view.WheelView>
+
+            <com.wya.env.view.WheelView
+                android:id="@+id/start_min"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_60"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_20"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:layout_weight="1"
+                app:itemNumber="5"
+                app:lineColor="#999"
+                app:maskHeight="@dimen/dp_15"
+                app:noEmpty="true"
+                app:normalTextColor="#999"
+                app:normalTextSize="15sp"
+                app:selectedTextColor="#000"
+                app:selectedTextSize="18sp"
+                app:unitHeight="30dp"></com.wya.env.view.WheelView>
+
+            <com.wya.env.view.WheelView
+                android:id="@+id/end_hour"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_60"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:layout_weight="1"
+                app:itemNumber="5"
+                app:lineColor="#999"
+                app:maskHeight="@dimen/dp_15"
+                app:noEmpty="true"
+                app:normalTextColor="#999"
+                app:normalTextSize="15sp"
+                app:selectedTextColor="#000"
+                app:selectedTextSize="18sp"
+                app:unitHeight="30dp"></com.wya.env.view.WheelView>
+
+            <com.wya.env.view.WheelView
+                android:id="@+id/end_min"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_60"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_20"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:layout_weight="1"
+                app:itemNumber="5"
+                app:lineColor="#999"
+                app:maskHeight="@dimen/dp_15"
+                app:noEmpty="true"
+                app:normalTextColor="#999"
+                app:normalTextSize="15sp"
+                app:selectedTextColor="#000"
+                app:selectedTextSize="18sp"
+                app:unitHeight="30dp"></com.wya.env.view.WheelView>
+
+        </LinearLayout>
+
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_10">
+
+            <com.wya.uikit.button.WYAButton
+                android:id="@+id/cancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginRight="@dimen/dp_20"
+                android:padding="@dimen/dp_10"
+                android:text="@string/cancel"
+                android:textSize="@dimen/sp_14"
+                app:buttonBackGroundColor="@color/c999999"
+                app:buttonBackGroundColorPress="@color/c999999"
+                app:buttonFillet="true"
+                app:buttonRadius="10dp"
+                app:buttonTextColor="@color/white" />
+
+            <com.wya.uikit.button.WYAButton
+                android:id="@+id/sure"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginRight="@dimen/dp_20"
+                android:padding="@dimen/dp_10"
+                android:text="@string/sure"
+                android:textSize="@dimen/sp_14"
+                app:buttonBackGroundColor="@color/app_blue"
+                app:buttonBackGroundColorPress="@color/app_blue"
+                app:buttonFillet="true"
+                app:buttonRadius="10dp"
+                app:buttonTextColor="@color/white" />
+
+        </TableRow>
+
+    </LinearLayout>
+
+
+</LinearLayout>

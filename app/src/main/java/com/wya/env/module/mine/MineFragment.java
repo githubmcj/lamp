@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
@@ -68,7 +69,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     TableRow tabExit;
 
     private List<LampSetting> lampSettings = new ArrayList<>();
-    private int listSize = 10;
     private MyLampAdapter myLampAdapter;
     private LoginInfo loginInfo;
     private String loc_ip;
@@ -94,6 +94,13 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         myLampAdapter = new MyLampAdapter(getActivity(), R.layout.lamp_setting_item, lampSettings);
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, ScreenUtil.dip2px(getContext(), 10), true));
         recyclerView.setAdapter(myLampAdapter);
+        myLampAdapter.setOnItemClickListener((adapter, view, position) -> {
+            for (int i = 0; i < lampSettings.size(); i++) {
+                lampSettings.get(i).setChose(false);
+            }
+            lampSettings.get(position).setChose(true);
+            adapter.notifyDataSetChanged();
+        });
     }
 
 
@@ -101,7 +108,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     protected void initView() {
         Glide.with(getActivity()).load("").apply(new RequestOptions().placeholder(R.drawable.avatar).error(R.drawable.avatar)).into(avatar);
         initData();
-        loc_ip = getIpAddressString();
     }
 
 
@@ -150,6 +156,10 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     private void sendData() {
         lampSettings.clear();
+        if(myLampAdapter != null){
+            myLampAdapter.setNewData(lampSettings);
+        }
+        loc_ip = getIpAddressString();
         new Thread(() -> {
             byte[] bytes = new byte[1];
             bytes[0] = 0x00;
@@ -202,9 +212,10 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                     lampSetting.setSize(msg.arg1);
                     lampSettings.add(lampSetting);
                     myLampAdapter.setNewData(lampSettings);
+                    saveInfoLamp(lampSettings);
                     break;
                 case 0:
-                    if(lampSettings != null && lampSettings.size() > 0){
+                    if (lampSettings != null && lampSettings.size() > 0) {
                         return;
                     }
                     showShort("未搜索到设备");
@@ -215,6 +226,17 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
             }
         }
     };
+
+
+    private void saveInfoLamp(List<LampSetting> lampSettings) {
+        Lamps lamps = new Lamps();
+        lamps.setLampSettings(lampSettings);
+        if (lampSettings.size() == 1) {
+            lamps.setChose_ip(lampSettings.get(0).getIp());
+            lamps.setSize(lampSettings.get(0).getSize());
+        }
+        SaveSharedPreferences.save(getActivity(), CommonValue.LAMPS, new Gson().toJson(lamps));
+    }
 
 
     private void toExit() {
@@ -231,8 +253,10 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
-            showLoading();
-            sendData();
+//            showLoading();
+//            sendData();
+        } else {
+            myLampAdapter.stopTcp();
         }
     }
 }

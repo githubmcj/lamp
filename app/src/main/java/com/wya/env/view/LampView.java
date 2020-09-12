@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class LampView extends View {
 
-
     /**
      * 背景画笔
      */
@@ -950,13 +949,8 @@ public class LampView extends View {
         upd_data[0] = 0x01;
         upd_data[1] = 0x00;
         upd_data[2] = 0x00;
-        if (size == 300) {
-            upd_data[3] = 0x2C;
-            upd_data[4] = 0x01;
-        } else if (size == 600) {
-            upd_data[3] = 0x58;
-            upd_data[4] = 0x02;
-        }
+        upd_data[3] = ByteUtil.intToByteArray(size)[0];
+        upd_data[4] = ByteUtil.intToByteArray(size)[1];
         isBlack = !isBlack;
         for (int i = 0; i < size; i++) {
             String color = data.get(String.valueOf(i)).getColor();
@@ -1085,7 +1079,6 @@ public class LampView extends View {
         // 非单例模式，置空防止重复的任务
         modelExecutorService = null;
     }
-
 
 }
 

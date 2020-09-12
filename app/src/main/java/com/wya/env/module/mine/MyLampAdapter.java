@@ -16,16 +16,19 @@ import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
 import com.wya.env.net.tpc.EasySocket;
 import com.wya.env.net.tpc.config.EasySocketOptions;
+import com.wya.env.net.tpc.connection.heartbeat.HeartManager;
 import com.wya.env.net.tpc.entity.OriginReadData;
 import com.wya.env.net.tpc.entity.SocketAddress;
 import com.wya.env.net.tpc.interfaces.conn.ISocketActionListener;
 import com.wya.env.net.tpc.interfaces.conn.SocketActionListener;
 import com.wya.env.util.ByteUtil;
+import com.wya.env.view.WheelView;
+import com.wya.uikit.button.WYAButton;
+import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.uikit.pickerview.CustomTimePicker;
 import com.wya.utils.utils.LogUtil;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.wya.env.common.CommonValue.TCP_PORT;
@@ -77,18 +80,28 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     @Override
     protected void convert(BaseViewHolder helper, LampSetting item) {
         helper.setText(R.id.name, item.getName());
-        if (item.isOpen()) {
-            helper.getView(R.id.img_open).setBackground(context.getResources().getDrawable(R.drawable.dengguang));
+        if (item.isChose()) {
+            helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
+            initEasySocket(item.getIp());
+            helper.getView(R.id.img_open).setEnabled(true);
+            helper.getView(R.id.img_time_open).setEnabled(true);
         } else {
-            helper.getView(R.id.img_open).setBackground(context.getResources().getDrawable(R.drawable.morenshebei));
+            helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
+            helper.getView(R.id.img_open).setEnabled(false);
+            helper.getView(R.id.img_time_open).setEnabled(false);
+        }
+        if (item.isOpen()) {
+            helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.dengguang));
+        } else {
+            helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.morenshebei));
         }
 
         if (item.isHasTimer()) {
-            helper.getView(R.id.img_time_open).setBackground(context.getResources().getDrawable(R.drawable.dengguang));
+            helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.dengguang));
             helper.setVisible(R.id.time, true);
             helper.setText(R.id.time, "定时开：" + item.getStartTime() + "    " + "定时关：" + item.getStopTime());
         } else {
-            helper.getView(R.id.img_time_open).setBackground(context.getResources().getDrawable(R.drawable.morenshebei));
+            helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.morenshebei));
             helper.setVisible(R.id.time, false);
         }
 
@@ -98,7 +111,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 ip = item.getIp();
                 position = helper.getAdapterPosition();
                 bodyData = getOpenLamp(!item.isOpen());
-                initEasySocket(item.getIp());
+                EasySocket.getInstance().upBytes(bodyData);
             }
         });
 
@@ -119,41 +132,124 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             public void onClick(View v) {
                 data.remove(helper.getAdapterPosition());
                 MyLampAdapter.this.notifyDataSetChanged();
-
-//                EasySocket.getInstance().startHeartBeat(getBreathData(), new HeartManager.HeartbeatListener() {
-//                    @Override
-//                    public boolean isServerHeartbeat(OriginReadData originReadData) {
-//                        LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-//                        return false;
-//                    }
-//                });
             }
         });
     }
 
+    private WYACustomDialog wyaCustomDialog;
+    private String s_hour = "0";
+    private String s_min = "0";
+    private String e_hour = "0";
+    private String e_min = "0";
 
     private void openChoseTime() {
-        mCustomTimePicker = new CustomTimePicker(context, new CustomTimePicker.OnTimePickerSelectedListener() {
-            @Override
-            public void selected(Date date) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-                String format = dateFormat.format(date);
-//                mYmdhmsText.setText(format);
-                LogUtil.e(format);
-            }
-        });
-        mCustomTimePicker.setType(new boolean[]{false, false, false, true, true, false})
-                .show();
-    }
 
-    private byte[] getBreathData() {
-        byte[] bodyData = new byte[1];
-        bodyData[0] = 0x06;
-        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
-        byte[] breathData = ByteUtil.byteMerger(send_head_data, bodyData);
-        return breathData;
-    }
+        wyaCustomDialog = new WYACustomDialog.Builder(context).setLayoutId(
+                R.layout.chose_time_layout, v -> {
+                    ArrayList<String> data_min = new ArrayList<>();
+                    for (int i = 0; i < 60; i++) {
+                        data_min.add(i + "");
+                    }
 
+                    ArrayList<String> data_hour = new ArrayList<>();
+                    for (int i = 0; i < 24; i++) {
+                        data_hour.add(i + "");
+                    }
+
+
+                    WheelView start_hour = v.findViewById(R.id.start_hour);
+                    start_hour.setData(data_hour);
+                    start_hour.setOnSelectListener(new WheelView.OnSelectListener() {
+                        @Override
+                        public void endSelect(int id, String text) {
+                            s_hour = text;
+                        }
+
+                        @Override
+                        public void selecting(int id, String text) {
+
+                        }
+                    });
+
+                    WheelView start_min = v.findViewById(R.id.start_min);
+
+                    start_min.setData(data_min);
+                    start_min.setOnSelectListener(new WheelView.OnSelectListener() {
+                        @Override
+                        public void endSelect(int id, String text) {
+                            s_min = text;
+                        }
+
+                        @Override
+                        public void selecting(int id, String text) {
+
+                        }
+                    });
+
+                    WheelView end_hour = v.findViewById(R.id.end_hour);
+                    end_hour.setData(data_hour);
+                    end_hour.setOnSelectListener(new WheelView.OnSelectListener() {
+                        @Override
+                        public void endSelect(int id, String text) {
+                            e_hour = text;
+                        }
+
+                        @Override
+                        public void selecting(int id, String text) {
+
+                        }
+                    });
+
+                    WheelView end_min = v.findViewById(R.id.end_min);
+
+                    end_min.setData(data_min);
+                    end_min.setOnSelectListener(new WheelView.OnSelectListener() {
+                        @Override
+                        public void endSelect(int id, String text) {
+                            e_min = text;
+                        }
+
+                        @Override
+                        public void selecting(int id, String text) {
+
+                        }
+                    });
+
+                    WYAButton sure = v.findViewById(R.id.sure);
+                    WYAButton cancel = v.findViewById(R.id.cancel);
+
+                    sure.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            LogUtil.e(s_hour + ":" + s_min + "-" + e_hour + ":" + e_min);
+
+                            wyaCustomDialog.dismiss();
+                        }
+                    });
+                    cancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            wyaCustomDialog.dismiss();
+                        }
+                    });
+
+                }
+        ).cancelable(false)
+                .cancelTouchout(false)
+                .build();
+        wyaCustomDialog.show();
+//        mCustomTimePicker = new CustomTimePicker(context, new CustomTimePicker.OnTimePickerSelectedListener() {
+//            @Override
+//            public void selected(Date date) {
+//                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+//                String format = dateFormat.format(date);
+////                mYmdhmsText.setText(format);
+//                LogUtil.e(format);
+//            }
+//        });
+//        mCustomTimePicker.setType(new boolean[]{false, false, false, true, true, false})
+//                .show();
+    }
 
     int step = 0;
 
@@ -177,9 +273,6 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      * 初始化EasySocket
      */
     private void initEasySocket(String ip) {
-        if(isConnected){
-            EasySocket.getInstance().disconnect(false);
-        }
         // socket配置
         EasySocketOptions options = new EasySocketOptions.Builder()
                 .setSocketAddress(new SocketAddress(ip, TCP_PORT)) // 主机地址
@@ -197,8 +290,26 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
         // 监听socket行为
         EasySocket.getInstance().subscribeSocketAction(socketActionListener);
+        toStartHeart();
     }
 
+    private void toStartHeart() {
+        EasySocket.getInstance().startHeartBeat(getBreathData(), new HeartManager.HeartbeatListener() {
+            @Override
+            public boolean isServerHeartbeat(OriginReadData originReadData) {
+                LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+                return false;
+            }
+        });
+    }
+
+    private byte[] getBreathData() {
+        byte[] bodyData = new byte[1];
+        bodyData[0] = 0x06;
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] breathData = ByteUtil.byteMerger(send_head_data, bodyData);
+        return breathData;
+    }
 
     /**
      * socket行为监听
@@ -211,8 +322,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         @Override
         public void onSocketConnSuccess(SocketAddress socketAddress) {
             super.onSocketConnSuccess(socketAddress);
-            LogUtil.d("连接成功, 并发送数据：" + ByteUtil.byte2hex(bodyData));
-            EasySocket.getInstance().upBytes(bodyData);
+            LogUtil.d("连接成功");
+//            LogUtil.d("连接成功, 并发送数据：" + ByteUtil.byte2hex(bodyData));
+//            EasySocket.getInstance().upBytes(bodyData);
             isConnected = true;
         }
 
@@ -259,9 +371,16 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
                 LogUtil.e("失败");
             }
-            EasySocket.getInstance().disconnect(false);
+//            EasySocket.getInstance().disconnect(false);
         }
     };
 
 
+    public void stopTcp() {
+//        try {
+//            EasySocket.getInstance().destroyConnection();
+//        } catch (Exception e) {
+//
+//        }
+    }
 }

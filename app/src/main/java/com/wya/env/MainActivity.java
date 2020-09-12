@@ -12,7 +12,9 @@ import com.wya.env.base.BaseActivity;
 import com.wya.env.module.doodle.DoodleFragment;
 import com.wya.env.module.home.fragment.HomeFragment;
 import com.wya.env.module.mine.MineFragment;
+import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.uikit.tabbar.WYATabBar;
+import com.wya.utils.utils.ScreenUtil;
 
 import butterknife.BindView;
 
@@ -105,6 +107,7 @@ public class MainActivity extends BaseActivity {
             handler.sendEmptyMessageDelayed(0, 2000);
         } else {
             this.finish();
+//            fragment1.toSendTcpData();
         }
     }
 

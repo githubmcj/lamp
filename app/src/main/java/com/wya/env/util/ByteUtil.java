@@ -1,5 +1,7 @@
 package com.wya.env.util;
 
+import java.math.BigInteger;
+
 public class ByteUtil {
 
     public static byte[] getHeadByteData(byte[] udpByteData) {
@@ -71,6 +73,80 @@ public class ByteUtil {
             sb.append(tmp + " ");
         }
         return sb.toString();
+    }
+
+    /**
+     * int 转 16进制byte[]
+     */
+    public static byte[] intToByteArray(int num) {
+        byte[] data = hexToByteArray(encodeHEX(num));
+        for (int i = 0; i < data.length; i++) {
+            byte temp;
+            int j = data.length - 1 - i;
+            if (i <= j) {
+                temp = data[i];
+                data[i] = data[j];
+                data[j] = temp;
+            }
+        }
+        return data;
+    }
+
+
+    /**
+     * hex字符串转byte数组
+     *
+     * @param inHex 待转换的Hex字符串
+     * @return 转换后的byte数组结果
+     */
+    public static byte[] hexToByteArray(String inHex) {
+        int hexlen = inHex.length();
+        byte[] result;
+        if (hexlen % 2 == 1) {
+            //奇数
+            hexlen++;
+            result = new byte[(hexlen / 2)];
+            inHex = "0" + inHex;
+        } else {
+            //偶数
+            result = new byte[(hexlen / 2)];
+        }
+        int j = 0;
+        for (int i = 0; i < hexlen; i += 2) {
+            result[j] = hexToByte(inHex.substring(i, i + 2));
+            j++;
+        }
+        return result;
+    }
+
+
+    /**
+     * Hex字符串转byte
+     *
+     * @param inHex 待转换的Hex字符串
+     * @return 转换后的byte
+     */
+    public static byte hexToByte(String inHex) {
+        return (byte) Integer.parseInt(inHex, 16);
+    }
+
+    /**
+     * 將10進制轉換為16進制
+     */
+    public static String encodeHEX(Integer numb) {
+
+        String hex = Integer.toHexString(numb);
+        return hex;
+
+    }
+
+    /**
+     * 將16進制字符串轉換為10進制數字
+     */
+    public static int decodeHEX(String hexs) {
+        BigInteger bigint = new BigInteger(hexs, 16);
+        int numb = bigint.intValue();
+        return numb;
     }
 
 }

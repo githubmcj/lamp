@@ -2,12 +2,21 @@ package com.wya.env.bean.doodle;
 
 public class LampSetting {
     private String name;
+    private boolean isChose;
     private boolean isOpen;
     private boolean hasTimer;
     private long startTime;
     private long stopTime;
     private String ip;
     private int size;
+
+    public boolean isChose() {
+        return isChose;
+    }
+
+    public void setChose(boolean chose) {
+        isChose = chose;
+    }
 
     public int getSize() {
         return size;

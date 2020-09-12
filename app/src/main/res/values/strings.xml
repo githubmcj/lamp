@@ -50,11 +50,17 @@
     <string name="phone">客服电话</string>
     <string name="mirror">镜像</string>
     <string name="save_success">保存成功</string>
+    <string name="time_open">定时开</string>
+    <string name="time_close">定时关</string>
+    <string name="time_open_close">定时开关</string>
+    <string name="cancel">取消</string>
+    <string name="sure">确定</string>
 
 
 
     <string name="facebook_app_id">Your App Id</string>
     <string name="fb_login_protocol_scheme">Your App Scheme</string>
+
 
 
 </resources>

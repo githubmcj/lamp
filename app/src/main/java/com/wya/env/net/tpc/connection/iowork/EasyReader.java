@@ -204,7 +204,6 @@ public class EasyReader implements IReader<EasySocketOptions> {
             if (value == -1) {
                 connectionManager.disconnect(new Boolean(true)); // 断开重连
                 throw new SocketReadExeption("读取数据的包头失败，在" + value + "位置断开了，可能是因为socket跟服务器断开了连接");
-
             }
             headBuf.put(bytes);
         }

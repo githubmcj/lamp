@@ -87,8 +87,6 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         lampModels = getModels();
         initGoogle();
         initFacebook();
-
-//        loginPresent.login("2@qq.com", "2");
     }
 
     @Override
@@ -235,9 +233,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         List<LampModel> mLampModels = new ArrayList<>();
         mLampModels.add(getFirstModel());
         mLampModels.add(getSecondModel());
-//        mLampModels.add(getThirdModel());
-//        mLampModels.add(getFourthModel());
-//        mLampModels.add(getFifthModel());
+        mLampModels.add(getThirdModel());
+        mLampModels.add(getFourthModel());
+        mLampModels.add(getFifthModel());
 
         return mLampModels;
     }
