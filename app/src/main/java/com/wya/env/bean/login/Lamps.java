@@ -9,6 +9,15 @@ public class Lamps {
 
     private String chose_ip;
     private int size;
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public int getSize() {
         return size;

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:src="@drawable/start4" />
+
+    <TextView
+        android:id="@+id/next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:autoLink="all"
+        android:gravity="center"
+        android:padding="@dimen/dp_10"
+        android:text="SKIP SETUP"
+        android:textColor="@color/app_blue"
+        android:textSize="16sp"></TextView>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_200"
+        android:gravity="center"
+        android:text="WelCome to the Word of\nDelightlux"
+        android:textColor="@color/app_blue"
+        android:padding="@dimen/dp_10"
+        android:textSize="30sp"></TextView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_200"
+        android:layout_below="@id/title"
+        android:gravity="center|left"
+        android:padding="@dimen/dp_10"
+        android:text="It seems tht you are not connected to your xx device yewt\n\nTo doso,go to WIFI Settings of your phone and connect to theWIFI network namedDelightlux-xxxxx' as you can see in the Graphics below "
+        android:textColor="@color/c666666"
+        android:textSize="14sp"></TextView>
+
+</RelativeLayout>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_200"
+        android:gravity="center"
+        android:text="We're done!"
+        android:padding="@dimen/dp_10"
+        android:textColor="@color/app_blue"
+        android:textSize="30sp"></TextView>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_200"
+        android:layout_below="@id/title"
+        android:gravity="left"
+        android:padding="@dimen/dp_10"
+        android:text="Now you can enjoy your xx lights at their full capabilities. GO ahead,try out some cool effects. "
+        android:textColor="@color/c666666"
+        android:textSize="14sp"></TextView>
+
+
+    <com.wya.uikit.button.WYAButton
+        android:id="@+id/use"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/add"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20"
+        android:layout_marginBottom="@dimen/dp_20"
+        android:padding="@dimen/dp_10"
+        android:text="STRT USING APP"
+        android:textSize="@dimen/sp_18"
+        app:buttonBackGroundColor="@color/app_blue"
+        app:buttonBackGroundColorPress="@color/app_blue"
+        app:buttonFillet="true"
+        app:buttonRadius="5dp"
+        app:buttonTextColor="@color/white" />
+
+    <com.wya.uikit.button.WYAButton
+        android:id="@+id/add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20"
+        android:layout_marginBottom="@dimen/dp_50"
+        android:padding="@dimen/dp_10"
+        android:text="ADD ANOTHER DEVICE"
+        android:textSize="@dimen/sp_18"
+        app:buttonBackGroundColor="@color/app_blue"
+        app:buttonBackGroundColorPress="@color/app_blue"
+        app:buttonFillet="true"
+        app:buttonRadius="5dp"
+        app:buttonTextColor="@color/white" />
+
+</RelativeLayout>

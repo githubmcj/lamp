@@ -1,17 +1,21 @@
 package com.wya.env.module.login;
 
 import android.content.Intent;
+import android.view.View;
 
+import com.google.gson.Gson;
 import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
+import com.wya.env.bean.login.Lamps;
 import com.wya.env.common.CommonValue;
+import com.wya.env.module.login.start.Start1Activity;
+import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
+import com.wya.uikit.button.WYAButton;
 
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import butterknife.BindView;
+import butterknife.OnClick;
 
 /**
  * @date: 2018/4/8 13:58
@@ -21,27 +25,51 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
  */
 
 public class StartUpActivity extends BaseActivity {
-    
+
+    @BindView(R.id.but_login)
+    WYAButton butLogin;
+    @BindView(R.id.but_sign)
+    WYAButton butSign;
+
+    private Lamps lamps;
+
     @Override
     protected void initView() {
         showToolBar(false);
         setBackgroundColor(R.color.white, true);
         //是否登录
         boolean isLogin = SaveSharedPreferences.getBoolean(this, CommonValue.IS_LOGIN);
-        Observable.just(1).delay(1000, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(integer -> {
-                    if (isLogin) {
-                        startActivity(new Intent(StartUpActivity.this, MainActivity.class));
-                        finish();
-                    } else {
-                        startActivity(new Intent(StartUpActivity.this, LoginActivity.class));
-                        finish();
-                    }
-                });
+        if (isLogin) {
+            // 保存数据
+            lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
+            if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
+                // 跳转到主界面
+                startActivity(new Intent(StartUpActivity.this, MainActivity.class));
+            } else {
+                startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
+            }
+            finish();
+        }
     }
-    
+
     @Override
     protected int getLayoutId() {
         return R.layout.start_up_activity;
+    }
+
+    @OnClick({R.id.but_login, R.id.but_sign})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.but_login:
+                startActivity(new Intent(StartUpActivity.this, LoginActivity.class));
+                finish();
+                break;
+            case R.id.but_sign:
+                startActivity(new Intent(StartUpActivity.this, RegisterActivity.class));
+                finish();
+                break;
+            default:
+                break;
+        }
     }
 }

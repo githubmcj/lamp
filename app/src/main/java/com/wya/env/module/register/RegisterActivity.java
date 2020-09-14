@@ -9,8 +9,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.wya.env.App;
+import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpActivity;
+import com.wya.env.bean.login.Lamps;
+import com.wya.env.bean.login.LoginInfo;
+import com.wya.env.common.CommonValue;
+import com.wya.env.module.login.LoginActivity;
+import com.wya.env.module.login.start.Start1Activity;
+import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
 
 import butterknife.BindView;
@@ -41,6 +50,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
 
     private boolean isRead;
     private RegisterPresent registerPresent;
+    private Lamps lamps;
 
     @Override
     protected void initView() {
@@ -104,7 +114,23 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
     }
 
     @Override
-    public void onRegisterResult() {
+    public void onRegisterResult(LoginInfo loginInfo) {
+        // 保存数据
+        saveInfo(loginInfo);
+        lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
+        if(lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
+            // 跳转到主界面
+            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+        } else {
+            startActivity(new Intent(RegisterActivity.this, Start1Activity.class));
+        }
         this.finish();
+    }
+
+    private void saveInfo(LoginInfo loginInfo) {
+        SaveSharedPreferences.save(RegisterActivity.this, CommonValue.IS_LOGIN, true);
+        App.TOKEN = loginInfo.getToken();
+        SaveSharedPreferences.save(RegisterActivity.this, CommonValue.TOKEN, loginInfo.getToken());
+        SaveSharedPreferences.save(this, CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
     }
 }

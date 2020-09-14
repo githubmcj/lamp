@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:src="@drawable/start3" />
+
+    <TextView
+        android:id="@+id/next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:autoLink="all"
+        android:text="SKIP SETUP"
+        android:padding="@dimen/dp_10"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/app_blue"
+        android:textSize="16sp"></TextView>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_200"
+        android:gravity="center"
+        android:padding="@dimen/dp_10"
+        android:text="WelCome to the Word of\nDelightlux"
+        android:textColor="@color/app_blue"
+        android:textSize="30sp"></TextView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_200"
+        android:layout_below="@id/title"
+        android:padding="@dimen/dp_10"
+        android:gravity="center|left"
+        android:text="It seems tht you are not connected to your xx device yewt\n\nTo doso,go to WIFI Settings of your phone and connect to theWIFI network namedDelightlux-xxxxx' as you can see in the Graphics below "
+        android:textColor="@color/c666666"
+        android:textSize="14sp"></TextView>
+
+</RelativeLayout>

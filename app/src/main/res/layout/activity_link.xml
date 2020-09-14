@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/f5f5f5"
+    android:orientation="vertical"
+    tools:context=".module.login.start.LinkActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_10"
+        android:background="@drawable/white_r5_bg"
+        android:orientation="vertical">
+
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/dp_10"
+                android:text="Account:"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_14">
+
+            </TextView>
+
+            <EditText
+                android:id="@+id/et_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:hint="Please enter account"
+                android:padding="@dimen/dp_10"
+                android:textColorHint="@color/c999999"
+                android:textSize="@dimen/sp_14">
+
+            </EditText>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/dp_10"
+                android:text="Password:"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_14">
+
+            </TextView>
+
+            <EditText
+                android:id="@+id/et_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:hint="Please enter password"
+                android:padding="@dimen/dp_10"
+                android:textColorHint="@color/c999999"
+                android:textSize="@dimen/sp_14">
+
+            </EditText>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/dp_10"
+                android:text="Rename:"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_14">
+
+            </TextView>
+
+            <EditText
+                android:id="@+id/et_rename"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:hint="Please enter name"
+                android:padding="@dimen/dp_10"
+                android:textColorHint="@color/c999999"
+                android:textSize="@dimen/sp_14">
+
+            </EditText>
+
+        </TableRow>
+
+
+    </LinearLayout>
+
+
+    <com.wya.uikit.button.WYAButton
+        android:id="@+id/but_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_40"
+        android:padding="@dimen/dp_10"
+        android:text="SUBMIT"
+        android:textSize="@dimen/sp_18"
+        app:buttonBackGroundColor="@color/app_blue"
+        app:buttonBackGroundColorPress="@color/app_blue"
+        app:buttonFillet="true"
+        app:buttonRadius="10dp"
+        app:buttonTextColor="@color/white" />
+
+</LinearLayout>

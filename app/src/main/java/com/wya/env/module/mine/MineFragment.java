@@ -72,6 +72,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     private MyLampAdapter myLampAdapter;
     private LoginInfo loginInfo;
     private String loc_ip;
+    private Lamps lamps;
 
     @Override
     protected int getLayoutResource() {
@@ -80,7 +81,13 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     private void initData() {
         initUserInfo();
+        initLampInfo();
         initRecyclerView();
+    }
+
+    private void initLampInfo() {
+        lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
+        lampSettings = lamps.getLampSettings();
     }
 
     private void initUserInfo() {
@@ -172,12 +179,12 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 }
 
                 @Override
-                public void success(String data, String ip) {
-                    Message msg = Message.obtain();
-                    msg.what = 1;
-                    msg.obj = ip;
-                    msg.arg1 = Integer.parseInt(data.substring(22, 24) + data.substring(20, 22), 16);
-                    handler.sendMessage(msg);
+                public void success(byte[] data, String ip) {
+//                    Message msg = Message.obtain();
+//                    msg.what = 1;
+//                    msg.obj = ip;
+//                    msg.arg1 = Integer.parseInt(data.substring(22, 24) + data.substring(20, 22), 16);
+//                    handler.sendMessage(msg);
                 }
 
 

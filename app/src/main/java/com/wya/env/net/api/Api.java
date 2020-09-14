@@ -40,7 +40,7 @@ public interface Api {
      * @return
      */
     @POST("loanFlow/user/regist")
-    Observable<BaseResult<Object>> register(@Body HashMap<String, String> hashMap);
+    Observable<BaseResult<LoginInfo>> register(@Body HashMap<String, String> hashMap);
 
     /**
      * 修改密码

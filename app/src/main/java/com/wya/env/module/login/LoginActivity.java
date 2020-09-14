@@ -3,6 +3,7 @@ package com.wya.env.module.login;
 import android.content.Context;
 import android.content.Intent;
 import android.support.multidex.MultiDex;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -21,9 +22,11 @@ import com.wya.env.base.BaseMvpActivity;
 import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.module.forgetpassword.ForgetPasswordActivity;
+import com.wya.env.module.login.start.Start1Activity;
 import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
@@ -71,6 +74,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
 
     private String[] snow_colors = {"#ffffff", "#B04F9C", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"};
     private String[] fifth_colors = {"#FA0000", "#FAA500", "#00FF00"};
+
+    private Lamps lamps;
+
 
     /**
      * 灯光模板
@@ -138,9 +144,14 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     @Override
     public void onLoginResult(LoginInfo loginInfo) {
         // 保存数据
+        lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
+        if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
+            // 跳转到主界面
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        } else {
+            startActivity(new Intent(LoginActivity.this, Start1Activity.class));
+        }
         saveInfo(loginInfo);
-        // 跳转到主界面
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
     }
 

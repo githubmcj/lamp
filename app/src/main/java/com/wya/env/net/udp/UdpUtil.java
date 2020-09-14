@@ -63,7 +63,7 @@ public class UdpUtil {
                     ipStr = ip.toString().replace("/", "");
                     LogUtil.d(ipStr + "----ipStr------------ipStr-----------");
                     LogUtil.d(loc_ip + "---loc_ip-------------ipStr-----------");
-                    if ((!ipStr.equals("")) && ipStr.equals(loc_ip)) {
+                    if (((!ipStr.equals("")) && ipStr.equals(loc_ip)) || loc_ip.equals("0.0.0.0")) {
                         continue;
                     }
                 }
@@ -71,7 +71,7 @@ public class UdpUtil {
                 byte[] data2 = packet2.getData();
                 System.out.println("回调传接收的数据-----------" + bytesToHex(data2));
                 //回调传接收的数据
-                iCallUdp.success(bytesToHex(data2), ipStr);
+                iCallUdp.success(data2, ipStr);
                 // 5,关闭资源
                 client.close();
                 client = null;

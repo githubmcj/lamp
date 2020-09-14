@@ -213,6 +213,9 @@ public class EasyReader implements IReader<EasySocketOptions> {
     private void readOriginDataFromSteam(OriginReadData readData) {
         try {
             byte[] bufArray = new byte[1024 * 4]; // 从服务器单次读取的最大数据
+           if(inputStream == null || bufArray == null){
+               return;
+           }
             int len = inputStream.read(bufArray);
             if (len == -1) { // no more data
                 return;

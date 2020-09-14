@@ -49,7 +49,7 @@ public class ResultApi {
      * @param userName
      * @return
      */
-    public Observable<BaseResult<Object>> registerApi(String userEmail, String pwd, String userName) {
+    public Observable<BaseResult<LoginInfo>> registerApi(String userEmail, String pwd, String userName) {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("userEmail", userEmail);
         hashMap.put("password", pwd);
