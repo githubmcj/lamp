@@ -42,8 +42,8 @@ public class NoFoundDeviceActivity extends BaseActivity {
                 finish();
                 break;
             case R.id.next:
-                ActivityManager.getInstance().exitApp();
                 startActivity(new Intent(NoFoundDeviceActivity.this, MainActivity.class));
+                ActivityManager.getInstance().exitApp();
                 break;
             default:
                 break;

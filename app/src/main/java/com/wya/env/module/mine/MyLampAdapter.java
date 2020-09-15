@@ -79,7 +79,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void convert(BaseViewHolder helper, LampSetting item) {
-        helper.setText(R.id.name, item.getName());
+        helper.setText(R.id.name, item.getDeviceName());
         if (item.isChose()) {
             helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
             initEasySocket(item.getIp());
@@ -131,6 +131,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             @Override
             public void onClick(View v) {
                 data.remove(helper.getAdapterPosition());
+                stopTcp();
                 MyLampAdapter.this.notifyDataSetChanged();
             }
         });
@@ -377,10 +378,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
 
     public void stopTcp() {
-//        try {
-//            EasySocket.getInstance().destroyConnection();
-//        } catch (Exception e) {
-//
-//        }
+        try {
+            EasySocket.getInstance().destroyConnection();
+        } catch (Exception e) {
+
+        }
     }
 }

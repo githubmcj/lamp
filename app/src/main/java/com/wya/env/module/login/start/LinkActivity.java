@@ -47,10 +47,6 @@ public class LinkActivity extends BaseActivity {
         setTitle("Please enter your home WIFI");
         initLampInfo();
         initEasySocket(lamps.getChose_ip());
-
-        etAccount.setText("WYA-T-5G");
-        etPassword.setText("wya88888");
-        etRename.setText("test");
     }
 
     private void initLampInfo() {

@@ -147,6 +147,7 @@ public class SearchDeviceActivity extends BaseActivity {
                 bundle.putString("ip", ip);
                 bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
                 bundle.putString("name", new String(getNameData(data)));
+                bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
                 msg.setData(bundle);
                 handler.sendMessage(msg);
             }
@@ -175,22 +176,36 @@ public class SearchDeviceActivity extends BaseActivity {
         return name;
     }
 
+    private byte[] getDeviceNameData(byte[] data) {
+        byte[] deviceName = new byte[32];
+        for (int i = 0; i < 32; i++) {
+            deviceName[i] = data[i + 52];
+        }
+        return deviceName;
+    }
+
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            tvSearching.setVisibility(View.GONE);
             switch (msg.what) {      //判断标志位
                 case 1:
+                    tvSearching.setVisibility(View.GONE);
                     if (lampSettings != null && lampSettings.size() > 0) {
                         boolean has = false;
                         for (int i = 0; i < lampSettings.size(); i++) {
                             String ip = msg.getData().getString("ip");
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
-                            if (lampSettings.get(i).getIp().equals(ip)) {
+                            String deviceName = msg.getData().getString("deviceName");
+                            if (lampSettings.get(i).getName().equals(name)) {
                                 has = true;
+                                lampSettings.get(i).setName(name);
+                                lampSettings.get(i).setIp(ip);
+                                lampSettings.get(i).setSize(size);
+                                lampSettings.get(i).setDeviceName(deviceName);
+                                deviceAdapter.setNewData(lampSettings);
                                 break;
                             }
                         }
@@ -198,10 +213,12 @@ public class SearchDeviceActivity extends BaseActivity {
                             String ip = msg.getData().getString("ip");
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
+                            String deviceName = msg.getData().getString("deviceName");
                             LampSetting lampSetting = new LampSetting();
                             lampSetting.setName(name);
                             lampSetting.setIp(ip);
                             lampSetting.setSize(size);
+                            lampSetting.setDeviceName(deviceName);
                             lampSettings.add(lampSetting);
                             deviceAdapter.setNewData(lampSettings);
                         }
@@ -209,9 +226,11 @@ public class SearchDeviceActivity extends BaseActivity {
                         String ip = msg.getData().getString("ip");
                         String name = msg.getData().getString("name");
                         int size = msg.getData().getInt("size");
+                        String deviceName = msg.getData().getString("deviceName");
                         LampSetting lampSetting = new LampSetting();
                         lampSetting.setName(name);
                         lampSetting.setIp(ip);
+                        lampSetting.setDeviceName(deviceName);
                         lampSetting.setSize(size);
                         lampSettings.add(lampSetting);
                         deviceAdapter.setNewData(lampSettings);

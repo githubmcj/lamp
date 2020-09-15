@@ -38,8 +38,8 @@ public class Start4Activity extends BaseActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.use:
-                ActivityManager.getInstance().exitApp();
                 startActivity(new Intent(Start4Activity.this, MainActivity.class));
+                ActivityManager.getInstance().exitApp();
                 break;
             case R.id.add:
                 // 跳转到主界面

@@ -44,19 +44,8 @@ public class StartUpActivity extends BaseActivity {
             // 保存数据
             lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
             if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
-                boolean hasChose = false;
-                for (int i = 0; i < lamps.getLampSettings().size(); i++) {
-                    if(lamps.getLampSettings().get(i).isChose()){
-                        hasChose = true;
-                    }
-                }
-                if(hasChose){
-                    ActivityManager.getInstance().exitApp();
-                    startActivity(new Intent(StartUpActivity.this, MainActivity.class));
-                } else {
-                    startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
-                    finish();
-                }
+                startActivity(new Intent(StartUpActivity.this, MainActivity.class));
+                ActivityManager.getInstance().exitApp();
             } else {
                 startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
                 finish();

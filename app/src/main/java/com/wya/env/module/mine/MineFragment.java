@@ -106,6 +106,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
             for (int i = 0; i < lampSettings.size(); i++) {
                 lampSettings.get(i).setChose(false);
             }
+            saveInfoLamp(lampSettings);
             lampSettings.get(position).setChose(true);
             adapter.notifyDataSetChanged();
         });
@@ -183,6 +184,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                     bundle.putString("ip", ip);
                     bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
                     bundle.putString("name", new String(getNameData(data)));
+                    bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
                     msg.setData(bundle);
                     handler.sendMessage(msg);
                 }
@@ -230,6 +232,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         return name;
     }
 
+    private byte[] getDeviceNameData(byte[] data) {
+        byte[] deviceName = new byte[32];
+        for (int i = 0; i < 32; i++) {
+            deviceName[i] = data[i + 52];
+        }
+        return deviceName;
+    }
+
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
@@ -243,8 +253,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             String ip = msg.getData().getString("ip");
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
-                            if (lampSettings.get(i).getIp().equals(ip)) {
+                            String deviceName = msg.getData().getString("deviceName");
+                            if (lampSettings.get(i).getName().equals(name)) {
                                 has = true;
+                                lampSettings.get(i).setName(name);
+                                lampSettings.get(i).setIp(ip);
+                                lampSettings.get(i).setSize(size);
+                                lampSettings.get(i).setDeviceName(deviceName);
+                                myLampAdapter.setNewData(lampSettings);
                                 break;
                             }
                         }
@@ -252,10 +268,12 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             String ip = msg.getData().getString("ip");
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
+                            String deviceName = msg.getData().getString("deviceName");
                             LampSetting lampSetting = new LampSetting();
                             lampSetting.setName(name);
                             lampSetting.setIp(ip);
                             lampSetting.setSize(size);
+                            lampSetting.setDeviceName(deviceName);
                             lampSettings.add(lampSetting);
                             myLampAdapter.setNewData(lampSettings);
                         }
@@ -263,23 +281,26 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         String ip = msg.getData().getString("ip");
                         String name = msg.getData().getString("name");
                         int size = msg.getData().getInt("size");
+                        String deviceName = msg.getData().getString("deviceName");
                         LampSetting lampSetting = new LampSetting();
                         lampSetting.setName(name);
                         lampSetting.setIp(ip);
                         lampSetting.setSize(size);
+                        lampSetting.setDeviceName(deviceName);
                         lampSettings.add(lampSetting);
                         myLampAdapter.setNewData(lampSettings);
                     }
                     hideLoading();
                     break;
                 case 0:
+                    hideLoading();
                     if (lampSettings != null && lampSettings.size() > 0) {
                         return;
                     }
                     showShort("未搜索到设备");
-                    hideLoading();
                     break;
                 default:
+                    hideLoading();
                     break;
             }
         }
@@ -289,29 +310,37 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     private void saveInfoLamp(List<LampSetting> lampSettings) {
         Lamps lamps = new Lamps();
         lamps.setLampSettings(lampSettings);
-        if (lampSettings.size() == 1) {
-            lamps.setChose_ip(lampSettings.get(0).getIp());
-            lamps.setSize(lampSettings.get(0).getSize());
+        for (int i = 0; i < lampSettings.size(); i++) {
+            if (lampSettings.get(i).isChose()) {
+                lamps.setChose_ip(lampSettings.get(i).getIp());
+                lamps.setSize(lampSettings.get(i).getSize());
+                lamps.setName(lampSettings.get(i).getName());
+            }
         }
         SaveSharedPreferences.save(getActivity(), CommonValue.LAMPS, new Gson().toJson(lamps));
     }
-
 
     private void toExit() {
         SaveSharedPreferences.save(getActivity(), CommonValue.IS_LOGIN, false);
         SaveSharedPreferences.save(getActivity(), CommonValue.TOKEN, "");
         SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, "");
-        ActivityManager.getInstance().exitApp();
         startActivity(new Intent(getActivity(), LoginActivity.class));
+        ActivityManager.getInstance().exitApp();
         hideLoading();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        myLampAdapter.stopTcp();
     }
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
-//            showLoading();
-//            sendData();
+            showLoading();
+            sendData();
         } else {
             myLampAdapter.stopTcp();
         }

@@ -15,6 +15,8 @@
         android:text="Searching Devices ..."
         android:padding="@dimen/dp_10"
         android:textSize="@dimen/sp_14"
+        android:background="@color/white"
+        android:layout_marginTop="@dimen/dp_10"
         android:textColor="@color/color_33">
 
     </TextView>

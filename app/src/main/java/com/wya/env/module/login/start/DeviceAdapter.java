@@ -84,7 +84,7 @@ public class DeviceAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void convert(BaseViewHolder helper, LampSetting item) {
-        helper.setText(R.id.name, item.getName());
+        helper.setText(R.id.name, item.getDeviceName());
         helper.getView(R.id.edit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

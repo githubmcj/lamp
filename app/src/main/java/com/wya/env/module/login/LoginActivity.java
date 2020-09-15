@@ -149,8 +149,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
         if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
             saveInfo(loginInfo);
-            ActivityManager.getInstance().exitApp();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            ActivityManager.getInstance().exitApp();
         } else {
             saveInfo(loginInfo);
             startActivity(new Intent(LoginActivity.this, Start1Activity.class));

@@ -135,8 +135,8 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         saveInfo(loginInfo);
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
         if(lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
-            ActivityManager.getInstance().exitApp();
             startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+            ActivityManager.getInstance().exitApp();
         } else {
             startActivity(new Intent(RegisterActivity.this, Start1Activity.class));
             this.finish();

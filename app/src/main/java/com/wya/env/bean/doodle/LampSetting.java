@@ -2,6 +2,7 @@ package com.wya.env.bean.doodle;
 
 public class LampSetting {
     private String name;
+    private String deviceName;
     private boolean isChose;
     private boolean isOpen;
     private boolean hasTimer;
@@ -9,6 +10,14 @@ public class LampSetting {
     private long stopTime;
     private String ip;
     private int size;
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
 
     public boolean isChose() {
         return isChose;
