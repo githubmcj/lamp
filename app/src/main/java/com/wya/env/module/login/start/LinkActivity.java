@@ -1,5 +1,6 @@
 package com.wya.env.module.login.start;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -43,9 +44,13 @@ public class LinkActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        setTitle("Set Wifi");
+        setTitle("Please enter your home WIFI");
         initLampInfo();
         initEasySocket(lamps.getChose_ip());
+
+        etAccount.setText("WYA-T-5G");
+        etPassword.setText("wya88888");
+        etRename.setText("test");
     }
 
     private void initLampInfo() {
@@ -83,7 +88,7 @@ public class LinkActivity extends BaseActivity {
         byte[] data3 = new byte[31];
         for (int i = 0; i < 31; i++) {
             if (password.length > i) {
-                data3[i] = wifi[i];
+                data3[i] = password[i];
             } else {
                 data3[i] = 0x00;
             }
@@ -97,13 +102,15 @@ public class LinkActivity extends BaseActivity {
         byte[] data4 = new byte[31];
         for (int i = 0; i < 31; i++) {
             if (name.length > i) {
-                data4[i] = wifi[i];
+                data4[i] = name[i];
             } else {
                 data4[i] = 0x00;
             }
         }
 
         byte[] initData = getIntData(data2, data3, data4);
+        LogUtil.d("initData-----------=" + ByteUtil.byte2hex(initData));
+
         EasySocket.getInstance().upBytes(initData);
     }
 
@@ -220,10 +227,9 @@ public class LinkActivity extends BaseActivity {
             LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
             if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
                 LogUtil.e("成功");
-//                Message msg = Message.obtain();
-//                msg.what = 1;
-//                msg.obj = position;
-//                handler.sendMessage(msg);
+                // 跳转到主界面
+                startActivity(new Intent(LinkActivity.this, Start4Activity.class));
+                finish();
             } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
                 LogUtil.e("失败");
             }
@@ -231,4 +237,13 @@ public class LinkActivity extends BaseActivity {
     };
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            EasySocket.getInstance().destroyConnection();
+        } catch (Exception e) {
+
+        }
+    }
 }

@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.wya.env.R;
@@ -29,6 +31,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import static com.wya.env.module.mine.MineFragment.getIpAddressString;
 
@@ -36,6 +39,8 @@ public class SearchDeviceActivity extends BaseActivity {
 
     @BindView(R.id.rv_device)
     RecyclerView recyclerView;
+    @BindView(R.id.tv_searching)
+    TextView tvSearching;
 
     private List<LampSetting> lampSettings = new ArrayList<>();
     private DeviceAdapter deviceAdapter;
@@ -52,6 +57,7 @@ public class SearchDeviceActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         getDevices();
+        tvSearching.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -73,7 +79,7 @@ public class SearchDeviceActivity extends BaseActivity {
                 public void run() {
                     LogUtil.e("addMode----------" + addMode);
                     addMode++;
-                    if (addMode < 30) {
+                    if (addMode < 6) {
                         sendData();
                     } else {
                         stopSendUdpModeData();
@@ -81,6 +87,7 @@ public class SearchDeviceActivity extends BaseActivity {
                             LogUtil.e("搜到设备" + lampSettings.size() + "台");
                         } else {
                             LogUtil.e("无设备");
+                            startActivity(new Intent(SearchDeviceActivity.this, NoFoundDeviceActivity.class));
                         }
                     }
                 }
@@ -173,16 +180,15 @@ public class SearchDeviceActivity extends BaseActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            tvSearching.setVisibility(View.GONE);
             switch (msg.what) {      //判断标志位
                 case 1:
                     if (lampSettings != null && lampSettings.size() > 0) {
                         boolean has = false;
                         for (int i = 0; i < lampSettings.size(); i++) {
-
                             String ip = msg.getData().getString("ip");
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
-
                             if (lampSettings.get(i).getIp().equals(ip)) {
                                 has = true;
                                 break;

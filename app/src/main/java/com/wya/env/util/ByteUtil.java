@@ -10,6 +10,10 @@ public class ByteUtil {
         head_data[1] = 0x48;
         head_data[2] = 0x59;
         head_data[3] = 0x55;
+//
+//        head_data[4] = ByteUtil.intToByteArray(udpByteData.length)[0];
+//        head_data[5] = ByteUtil.intToByteArray(udpByteData.length)[1];
+
         if (udpByteData.length == 4) {
             head_data[4] = 0x04;
             head_data[5] = 0x00;
@@ -19,7 +23,10 @@ public class ByteUtil {
         } else if (udpByteData.length == 905) {
             head_data[4] = (byte) 0x89;
             head_data[5] = 0x03;
-        } else {
+        } else if (udpByteData.length == 94){
+            head_data[4] = 0x5e;
+            head_data[5] = 0x00;
+        }else {
             head_data[4] = (byte) 0x0d;
             head_data[5] = 0x07;
         }

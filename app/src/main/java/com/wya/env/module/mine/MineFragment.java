@@ -2,6 +2,7 @@ package com.wya.env.module.mine;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
@@ -162,10 +163,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
 
     private void sendData() {
-        lampSettings.clear();
-        if(myLampAdapter != null){
-            myLampAdapter.setNewData(lampSettings);
-        }
         loc_ip = getIpAddressString();
         new Thread(() -> {
             byte[] bytes = new byte[1];
@@ -180,11 +177,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
                 @Override
                 public void success(byte[] data, String ip) {
-//                    Message msg = Message.obtain();
-//                    msg.what = 1;
-//                    msg.obj = ip;
-//                    msg.arg1 = Integer.parseInt(data.substring(22, 24) + data.substring(20, 22), 16);
-//                    handler.sendMessage(msg);
+                    Message msg = Message.obtain();
+                    msg.what = 1;
+                    Bundle bundle = new Bundle();
+                    bundle.putString("ip", ip);
+                    bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
+                    bundle.putString("name", new String(getNameData(data)));
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
                 }
 
 
@@ -204,22 +204,73 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         }).start();
     }
 
+    /**
+     * 将接收到byte数组转成String字符串
+     *
+     * @param bytes 接收的byte数组
+     * @return string字符串
+     */
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte aByte : bytes) {
+            String hex = Integer.toHexString(aByte & 0xFF);
+            if (hex.length() < 2) {
+                sb.append(0);
+            }
+            sb.append(hex);
+        }
+        return sb.toString();
+    }
+
+    private byte[] getNameData(byte[] data) {
+        byte[] name = new byte[32];
+        for (int i = 0; i < 32; i++) {
+            name[i] = data[i + 20];
+        }
+        return name;
+    }
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {      //判断标志位
-                case 1:
+            switch (msg.what) {
+                case 1://判断标志位
+                    if (lampSettings != null && lampSettings.size() > 0) {
+                        boolean has = false;
+                        for (int i = 0; i < lampSettings.size(); i++) {
+                            String ip = msg.getData().getString("ip");
+                            String name = msg.getData().getString("name");
+                            int size = msg.getData().getInt("size");
+                            if (lampSettings.get(i).getIp().equals(ip)) {
+                                has = true;
+                                break;
+                            }
+                        }
+                        if (!has) {
+                            String ip = msg.getData().getString("ip");
+                            String name = msg.getData().getString("name");
+                            int size = msg.getData().getInt("size");
+                            LampSetting lampSetting = new LampSetting();
+                            lampSetting.setName(name);
+                            lampSetting.setIp(ip);
+                            lampSetting.setSize(size);
+                            lampSettings.add(lampSetting);
+                            myLampAdapter.setNewData(lampSettings);
+                        }
+                    } else {
+                        String ip = msg.getData().getString("ip");
+                        String name = msg.getData().getString("name");
+                        int size = msg.getData().getInt("size");
+                        LampSetting lampSetting = new LampSetting();
+                        lampSetting.setName(name);
+                        lampSetting.setIp(ip);
+                        lampSetting.setSize(size);
+                        lampSettings.add(lampSetting);
+                        myLampAdapter.setNewData(lampSettings);
+                    }
                     hideLoading();
-                    LampSetting lampSetting = new LampSetting();
-                    lampSetting.setName("设备");
-                    lampSetting.setIp(msg.obj.toString());
-                    lampSetting.setSize(msg.arg1);
-                    lampSettings.add(lampSetting);
-                    myLampAdapter.setNewData(lampSettings);
-                    saveInfoLamp(lampSettings);
                     break;
                 case 0:
                     if (lampSettings != null && lampSettings.size() > 0) {
@@ -250,9 +301,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         SaveSharedPreferences.save(getActivity(), CommonValue.IS_LOGIN, false);
         SaveSharedPreferences.save(getActivity(), CommonValue.TOKEN, "");
         SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, "");
-        if (!ActivityManager.getInstance().leaveFirstActivity()) {
-            startActivity(new Intent(getActivity(), LoginActivity.class));
-        }
+        ActivityManager.getInstance().exitApp();
+        startActivity(new Intent(getActivity(), LoginActivity.class));
         hideLoading();
     }
 

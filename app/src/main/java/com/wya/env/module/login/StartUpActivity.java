@@ -9,6 +9,7 @@ import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.common.CommonValue;
+import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.login.start.Start1Activity;
 import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
@@ -43,12 +44,23 @@ public class StartUpActivity extends BaseActivity {
             // 保存数据
             lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
             if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
-                // 跳转到主界面
-                startActivity(new Intent(StartUpActivity.this, MainActivity.class));
+                boolean hasChose = false;
+                for (int i = 0; i < lamps.getLampSettings().size(); i++) {
+                    if(lamps.getLampSettings().get(i).isChose()){
+                        hasChose = true;
+                    }
+                }
+                if(hasChose){
+                    ActivityManager.getInstance().exitApp();
+                    startActivity(new Intent(StartUpActivity.this, MainActivity.class));
+                } else {
+                    startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
+                    finish();
+                }
             } else {
                 startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
+                finish();
             }
-            finish();
         }
     }
 

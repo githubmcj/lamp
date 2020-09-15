@@ -25,7 +25,9 @@ import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
+import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.forgetpassword.ForgetPasswordActivity;
+import com.wya.env.module.login.start.NoFoundDeviceActivity;
 import com.wya.env.module.login.start.Start1Activity;
 import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
@@ -146,13 +148,14 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         // 保存数据
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
         if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
-            // 跳转到主界面
+            saveInfo(loginInfo);
+            ActivityManager.getInstance().exitApp();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         } else {
+            saveInfo(loginInfo);
             startActivity(new Intent(LoginActivity.this, Start1Activity.class));
+            finish();
         }
-        saveInfo(loginInfo);
-        finish();
     }
 
     private void saveInfo(LoginInfo loginInfo) {
@@ -237,8 +240,6 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             showShort("Google sign in fail");
         }
     }
-
-    private String color_wu = "#ffffff";
 
     private List<LampModel> getModels() {
         List<LampModel> mLampModels = new ArrayList<>();
@@ -378,80 +379,6 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         lampModel.setModeArr(modeArr);
         return lampModel;
     }
-
-    private DoodlePattern getWu() {
-        DoodlePattern doodlePattern = new DoodlePattern();
-        HashMap<String, Doodle> light_status = new HashMap<>();
-        for (int i = 0; i < column; i++) {
-            for (int j = 0; j < size / column; j++) {
-                Doodle doodle = new Doodle();
-                if (j == 3 || j == 6 || j == 8) {
-                    if (i > 3 && i < 11) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 4 || j == 5) {
-                    if (i == 3 || i == 11) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 9 || j == 10) {
-                    if (i == 7) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 11) {
-                    if (i > 1 && i < 14) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 12) {
-                    if (i == 7) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 13) {
-                    if (i == 6 || i == 8) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 14) {
-                    if (i == 5 || i == 9) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 15) {
-                    if (i == 4 || i == 1 || i == 10 || i == 13) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else if (j == 16) {
-                    if (i == 3 || i == 2 || i == 11 || i == 12) {
-                        doodle.setColor(color_wu);
-                    } else {
-                        doodle.setColor("#000000");
-                    }
-                } else {
-                    doodle.setColor("#000000");
-                }
-                doodle.setLight(255);
-                doodle.setFlash(0);
-                light_status.put(String.valueOf(i * size / column + j), doodle);
-            }
-        }
-        doodlePattern.setLight_status(light_status);
-        doodlePattern.setSize(size);
-        return doodlePattern;
-    }
-
 
     private LampModel getFirstModel() {
         LampModel lampModel = new LampModel();

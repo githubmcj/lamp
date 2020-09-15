@@ -67,10 +67,10 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     Circle circle7;
     @BindView(R.id.tab7)
     TableRow tab7;
-    @BindView(R.id.circle8)
-    Circle circle8;
-    @BindView(R.id.tab8)
-    TableRow tab8;
+    @BindView(R.id.img_add)
+    ImageView img_add;
+    @BindView(R.id.tab_add)
+    TableRow tabAdd;
     @BindView(R.id.tab_chose_color)
     TableRow tabChoseColor;
     @BindView(R.id.et_name)
@@ -164,7 +164,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         initData();//初始化数据
     }
 
-    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab8, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.ll_mirror})
+    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab_add, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.tab_mirror})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab1:
@@ -195,63 +195,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 color_index = 7;
                 getColorIndex(color_index);
                 break;
-            case R.id.tab8:
-                color_index = 8;
-                getColorIndex(color_index);
-                break;
-            case R.id.ll_bold_paint:
-                if (painter_type == 1) {
-                    painter_type = 0;
-                } else {
-                    painter_type = 1;
-                }
-                lampView.setPaintBold(true);
-                setPainter(painter_type);
-                break;
-            case R.id.ll_thin_paint:
-                lampView.setPaintBold(false);
-                if (painter_type == 2) {
-                    painter_type = 0;
-                } else {
-                    painter_type = 2;
-                }
-                setPainter(painter_type);
-                break;
-            case R.id.ll_clean:
-                if (painter_type == 3) {
-                    painter_type = 0;
-                } else {
-                    painter_type = 3;
-                }
-                lampView.setPaintBold(false);
-                setPainter(painter_type);
-                break;
-            case R.id.ll_twinkle:
-                isTwinkle = !isTwinkle;
-                lampView.setTwinkle(isTwinkle);
-                if (isTwinkle) {
-                    imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
-                } else {
-                    imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
-                }
-                break;
-            case R.id.ll_mirror:
-                isMirror = 1 - isMirror;
-                if (isMirror == 1) {
-                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
-                } else {
-                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
-                }
-                lampView.setMirror(isMirror);
-                break;
-            case R.id.ll_save:
-                if (TextUtils.isEmpty(etName.getText().toString())) {
-                    showShort("请输入模式名称");
-                    return;
-                }
-                toSave();
-                break;
-            case R.id.tab_chose_color:
+            case R.id.tab_add:
                 choseColorDialog = new WYACustomDialog.Builder(getActivity())
                         .title("")
                         .message("")
@@ -308,6 +252,61 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                         })
                         .build();
                 choseColorDialog.show();
+                break;
+            case R.id.ll_bold_paint:
+                if (painter_type == 1) {
+                    painter_type = 0;
+                } else {
+                    painter_type = 1;
+                }
+                lampView.setPaintBold(true);
+                setPainter(painter_type);
+                break;
+            case R.id.ll_thin_paint:
+                lampView.setPaintBold(false);
+                if (painter_type == 2) {
+                    painter_type = 0;
+                } else {
+                    painter_type = 2;
+                }
+                setPainter(painter_type);
+                break;
+            case R.id.ll_clean:
+                if (painter_type == 3) {
+                    painter_type = 0;
+                } else {
+                    painter_type = 3;
+                }
+                lampView.setPaintBold(false);
+                setPainter(painter_type);
+                break;
+            case R.id.ll_twinkle:
+                isTwinkle = !isTwinkle;
+                lampView.setTwinkle(isTwinkle);
+                if (isTwinkle) {
+                    imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
+                } else {
+                    imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
+                }
+                break;
+            case R.id.tab_mirror:
+                isMirror = 1 - isMirror;
+                if (isMirror == 1) {
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
+                } else {
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
+                }
+                lampView.setMirror(isMirror);
+                break;
+            case R.id.ll_save:
+                if (TextUtils.isEmpty(etName.getText().toString())) {
+                    showShort("请输入模式名称");
+                    return;
+                }
+                toSave();
+                break;
+            case R.id.tab_chose_color:
+
                 break;
             default:
                 break;
@@ -379,7 +378,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         circle5.setCircle_chose(false);
         circle6.setCircle_chose(false);
         circle7.setCircle_chose(false);
-        circle8.setCircle_chose(false);
         switch (color_index) {
             case 1:
                 chose_color = "#EA1318";
@@ -408,10 +406,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             case 7:
                 circle7.setCircle_chose(true);
                 chose_color = "#B04F9C";
-                break;
-            case 8:
-                circle8.setCircle_chose(true);
-                chose_color = "#ffffff";
                 break;
             default:
                 break;

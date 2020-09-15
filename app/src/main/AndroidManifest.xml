@@ -18,7 +18,10 @@
         android:theme="@style/AppTheme">
         <activity android:name=".module.login.start.LinkActivity"></activity>
         <activity android:name=".module.login.start.SearchDeviceActivity" />
-        <activity android:name=".module.login.start.Start1Activity" />
+        <activity android:name=".module.login.start.NoFoundDeviceActivity" />
+        <activity
+            android:name=".module.login.start.Start1Activity"
+            android:launchMode="singleTask"></activity>
         <activity android:name=".module.login.start.Start2Activity" />
         <activity android:name=".module.login.start.Start3Activity" />
         <activity android:name=".module.login.start.Start4Activity" />

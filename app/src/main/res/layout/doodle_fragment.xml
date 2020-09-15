@@ -21,22 +21,6 @@
             android:padding="@dimen/dp_12"
             android:textSize="@dimen/sp_18"></EditText>
 
-
-        <LinearLayout
-            android:id="@+id/ll_mirror"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="@dimen/dp_10"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/img_mirror"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/mirror_select"></ImageView>
-
-        </LinearLayout>
     </TableRow>
 
 
@@ -188,11 +172,7 @@
 
 
                             </TableRow>
-                        </TableRow>
 
-                        <TableRow
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
 
                             <TableRow
                                 android:id="@+id/tab5"
@@ -253,24 +233,61 @@
                             </TableRow>
 
                             <TableRow
-                                android:id="@+id/tab8"
+                                android:id="@+id/tab_add"
                                 android:layout_width="0dp"
                                 android:layout_marginTop="@dimen/dp_10"
                                 android:layout_marginBottom="@dimen/dp_10"
                                 android:layout_weight="1"
                                 android:gravity="center">
 
-                                <com.wya.env.view.Circle
-                                    android:id="@+id/circle8"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    app:circle_color="@color/white"
-                                    app:circle_width="@dimen/dp_40">
-
-                                </com.wya.env.view.Circle>
+                                <ImageView
+                                    android:id="@+id/img_add"
+                                    android:layout_width="@dimen/dp_40"
+                                    android:layout_height="@dimen/dp_40"
+                                    android:src="@drawable/add_color"></ImageView>
 
 
                             </TableRow>
+                        </TableRow>
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TableRow
+                                android:id="@+id/tab_del"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/img_del"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/mirror_select"></ImageView>
+
+
+                            </TableRow>
+
+                            <TableRow
+                                android:id="@+id/tab_mirror"
+                                android:layout_width="0dp"
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:layout_weight="1"
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/img_mirror"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/mirror_select"></ImageView>
+
+
+                            </TableRow>
+
                         </TableRow>
 
                         <TableRow

@@ -4,10 +4,8 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.widget.TextView;
 
-import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
-import com.wya.env.module.login.LoginActivity;
 
 import butterknife.BindView;
 import butterknife.OnClick;
