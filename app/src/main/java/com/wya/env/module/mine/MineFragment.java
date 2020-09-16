@@ -96,9 +96,11 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     private void initLampInfo() {
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
-        lampSettings = lamps.getLampSettings();
-        if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
-            lampSettings.add(new LampSetting());
+        if(lamps != null){
+            lampSettings = lamps.getLampSettings();
+            if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                lampSettings.add(new LampSetting());
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.view.View;
+import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -32,8 +33,13 @@ import com.wya.utils.utils.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import static com.wya.env.common.CommonValue.TCP_PORT;
 
@@ -140,6 +146,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                         item.setHasTimer(!item.isHasTimer());
                         MyLampAdapter.this.notifyDataSetChanged();
                     } else {
+                        EasySocket.getInstance().upBytes(getTimeData());
                         openChoseTime();
                     }
                 }
@@ -154,6 +161,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 }
             });
         }
+    }
+
+    private byte[] getTimeData() {
+        return new byte[0];
     }
 
     private WYACustomDialog wyaCustomDialog;
@@ -241,8 +252,18 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     sure.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            LogUtil.e(s_hour + ":" + s_min + "-" + e_hour + ":" + e_min);
 
+
+
+//                            Observable.just(1).delay(5, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribe(integer -> {
+//                                        LogUtil.e(s_hour + ":" + s_min);
+//                                    });
+//
+//                            Observable.just(1).delay(8, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribe(integer -> {
+//                                        LogUtil.e(e_hour + ":" + e_min);
+//                                    });
                             wyaCustomDialog.dismiss();
                         }
                     });
@@ -317,8 +338,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         EasySocket.getInstance().startHeartBeat(getBreathData(), new HeartManager.HeartbeatListener() {
             @Override
             public boolean isServerHeartbeat(OriginReadData originReadData) {
-                LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-                return false;
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == -122) {
+                    LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+                    return true;
+                } else {
+                    return false;
+                }
             }
         });
     }
@@ -370,6 +395,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             super.onSocketDisconnect(socketAddress, isNeedReconnect);
             LogUtil.d("socket断开连接，是否需要重连：" + isNeedReconnect);
             LogUtil.d("socket连接被断开");
+            Toast.makeText(context, "socket连接被断开", Toast.LENGTH_SHORT).show();
             isConnected = false;
         }
 
