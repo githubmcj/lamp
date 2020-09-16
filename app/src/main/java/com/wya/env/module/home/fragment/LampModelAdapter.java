@@ -25,40 +25,48 @@ import java.util.List;
 public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder> {
 
     private Context context;
+    private List<LampModel> data;
+
 
 
     public LampModelAdapter(Context context, int layoutResId, @Nullable List<LampModel> data) {
         super(layoutResId, data);
         this.context = context;
+        this.data = data;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void convert(BaseViewHolder helper, LampModel item) {
-        helper.setText(R.id.tv_mode_name, item.getName());
-        ((LampView) helper.getView(R.id.lamp_view)).setMirror(item.getMirror());
-        ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr(), false);
-        ((LampView) helper.getView(R.id.lamp_view)).setModelName(item.getName());
-        if (item.isChose() == 1) {
-            helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
+        if (item.getName() == null) {
+            helper.setGone(R.id.ll_add, true);
         } else {
-            helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
-        }
-        if (item.isMusic() == 1) {
-            helper.getView(R.id.img_music).setBackground(context.getResources().getDrawable(R.drawable.yinyueshibie));
-        } else {
-            helper.getView(R.id.img_music).setBackground(context.getResources().getDrawable(R.drawable.yinyuemoren));
-        }
-        helper.getView(R.id.img_music).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (item.isChose() == 1) {
-                    item.setMusic(1 - item.isMusic());
-                    LampModelAdapter.this.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(context, "请先选中该模式", Toast.LENGTH_SHORT).show();
-                }
+            helper.setGone(R.id.ll_add, false);
+            helper.setText(R.id.tv_mode_name, item.getName());
+            ((LampView) helper.getView(R.id.lamp_view)).setMirror(item.getMirror());
+            ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr(), false);
+            ((LampView) helper.getView(R.id.lamp_view)).setModelName(item.getName());
+            if (item.isChose() == 1) {
+                helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
+            } else {
+                helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
             }
-        });
+            if (item.isMusic() == 1) {
+                helper.getView(R.id.img_music).setBackground(context.getResources().getDrawable(R.drawable.yinyueshibie));
+            } else {
+                helper.getView(R.id.img_music).setBackground(context.getResources().getDrawable(R.drawable.yinyuemoren));
+            }
+            helper.getView(R.id.img_music).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (item.isChose() == 1) {
+                        item.setMusic(1 - item.isMusic());
+                        LampModelAdapter.this.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(context, "请先选中该模式", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 }

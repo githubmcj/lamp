@@ -22,6 +22,7 @@ import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.login.LoginActivity;
+import com.wya.env.module.login.start.Start1Activity;
 import com.wya.env.net.udp.ICallUdp;
 import com.wya.env.net.udp.UdpUtil;
 import com.wya.env.util.ByteUtil;
@@ -89,6 +90,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     private void initLampInfo() {
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
         lampSettings = lamps.getLampSettings();
+        if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+            lampSettings.add(new LampSetting());
+        }
     }
 
     private void initUserInfo() {
@@ -103,12 +107,16 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, ScreenUtil.dip2px(getContext(), 10), true));
         recyclerView.setAdapter(myLampAdapter);
         myLampAdapter.setOnItemClickListener((adapter, view, position) -> {
-            for (int i = 0; i < lampSettings.size(); i++) {
-                lampSettings.get(i).setChose(false);
+            if (position == lampSettings.size() - 1) {
+                startActivity(new Intent(getActivity(), Start1Activity.class));
+            } else {
+                for (int i = 0; i < lampSettings.size(); i++) {
+                    lampSettings.get(i).setChose(false);
+                }
+                saveInfoLamp(lampSettings);
+                lampSettings.get(position).setChose(true);
+                adapter.notifyDataSetChanged();
             }
-            saveInfoLamp(lampSettings);
-            lampSettings.get(position).setChose(true);
-            adapter.notifyDataSetChanged();
         });
     }
 
@@ -309,6 +317,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     private void saveInfoLamp(List<LampSetting> lampSettings) {
         Lamps lamps = new Lamps();
+        if (lampSettings.get(lampSettings.size() - 1).getName() == null) {
+            lampSettings.remove(lampSettings.size() - 1);
+        }
         lamps.setLampSettings(lampSettings);
         for (int i = 0; i < lampSettings.size(); i++) {
             if (lampSettings.get(i).isChose()) {

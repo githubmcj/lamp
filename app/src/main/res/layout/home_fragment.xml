@@ -32,7 +32,8 @@
             app:bg_color="@color/white"
             app:margin_left="@dimen/dp_30"
             app:margin_right="@dimen/dp_30"
-            app:size="300">
+            app:size="300"
+            android:visibility="invisible">
 
         </com.wya.env.view.LampView>
 

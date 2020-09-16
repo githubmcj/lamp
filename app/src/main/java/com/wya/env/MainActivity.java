@@ -9,12 +9,17 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 
 import com.wya.env.base.BaseActivity;
+import com.wya.env.bean.home.AddModel;
 import com.wya.env.module.doodle.DoodleFragment;
 import com.wya.env.module.home.fragment.HomeFragment;
 import com.wya.env.module.mine.MineFragment;
 import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.uikit.tabbar.WYATabBar;
 import com.wya.utils.utils.ScreenUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 
@@ -42,6 +47,23 @@ public class MainActivity extends BaseActivity {
         initFragment();
         setToolBar();
         getSwipeBackLayout().setEnableGesture(false);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(AddModel event) {
+        tab.setSelectedItemId(R.id.navigation_doodle);
     }
 
     private void initFragment() {

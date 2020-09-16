@@ -1,7 +1,10 @@
 package com.wya.env.module.doodle;
 
+import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,7 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 /**
  * @date: 2018/7/3 13:55
@@ -71,8 +76,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     ImageView img_add;
     @BindView(R.id.tab_add)
     TableRow tabAdd;
-    @BindView(R.id.tab_chose_color)
-    TableRow tabChoseColor;
     @BindView(R.id.et_name)
     EditText etName;
     @BindView(R.id.lamp_view)
@@ -97,6 +100,13 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     ImageView imgClean;
     @BindView(R.id.img_mirror)
     ImageView imgMirror;
+    @BindView(R.id.img_del)
+    ImageView imgDel;
+    @BindView(R.id.tab_del)
+    TableRow tabDel;
+    @BindView(R.id.tab_mirror)
+    TableRow tabMirror;
+    Unbinder unbinder;
     private DoodleFragmentPresenter doodleFragmentPresenter = new DoodleFragmentPresenter();
 
     private int color_index;
@@ -164,7 +174,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         initData();//初始化数据
     }
 
-    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab_add, R.id.tab_chose_color, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.tab_mirror})
+    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab_add, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.img_mirror, R.id.img_del})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab1:
@@ -289,12 +299,12 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                     imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
                 }
                 break;
-            case R.id.tab_mirror:
+            case R.id.img_mirror:
                 isMirror = 1 - isMirror;
                 if (isMirror == 1) {
                     imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
                 } else {
-                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
+                    imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_lef));
                 }
                 lampView.setMirror(isMirror);
                 break;
@@ -305,8 +315,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 }
                 toSave();
                 break;
-            case R.id.tab_chose_color:
-
+            case R.id.img_del:
+                toCleanChose();
                 break;
             default:
                 break;
@@ -331,7 +341,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         if (isMirror == 1) {
             imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
         } else {
-            imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_left));
+            imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_lef));
         }
         painter_type = 0;
         setPainter(painter_type);
@@ -438,4 +448,5 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         showShort(getActivity().getResources().getString(R.string.save_success));
         SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, true);
     }
+
 }

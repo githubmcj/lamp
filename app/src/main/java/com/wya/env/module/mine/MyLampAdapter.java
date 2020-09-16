@@ -79,62 +79,67 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void convert(BaseViewHolder helper, LampSetting item) {
-        helper.setText(R.id.name, item.getDeviceName());
-        if (item.isChose()) {
-            helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
-            initEasySocket(item.getIp());
-            helper.getView(R.id.img_open).setEnabled(true);
-            helper.getView(R.id.img_time_open).setEnabled(true);
+        if(item.getName() == null){
+            helper.setGone(R.id.ll_add, true);
         } else {
-            helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
-            helper.getView(R.id.img_open).setEnabled(false);
-            helper.getView(R.id.img_time_open).setEnabled(false);
-        }
-        if (item.isOpen()) {
-            helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.dengguang));
-        } else {
-            helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.morenshebei));
-        }
-
-        if (item.isHasTimer()) {
-            helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.dengguang));
-            helper.setVisible(R.id.time, true);
-            helper.setText(R.id.time, "定时开：" + item.getStartTime() + "    " + "定时关：" + item.getStopTime());
-        } else {
-            helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.morenshebei));
-            helper.setVisible(R.id.time, false);
-        }
-
-        helper.getView(R.id.img_open).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ip = item.getIp();
-                position = helper.getAdapterPosition();
-                bodyData = getOpenLamp(!item.isOpen());
-                EasySocket.getInstance().upBytes(bodyData);
+            helper.setGone(R.id.ll_add, false);
+            helper.setText(R.id.name, item.getDeviceName());
+            if (item.isChose()) {
+                helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
+                initEasySocket(item.getIp());
+                helper.getView(R.id.img_open).setEnabled(true);
+                helper.getView(R.id.img_time_open).setEnabled(true);
+            } else {
+                helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
+                helper.getView(R.id.img_open).setEnabled(false);
+                helper.getView(R.id.img_time_open).setEnabled(false);
             }
-        });
+            if (item.isOpen()) {
+                helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.dengguang));
+            } else {
+                helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.morenshebei));
+            }
 
-        helper.getView(R.id.img_time_open).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (item.isHasTimer()) {
-                    item.setHasTimer(!item.isHasTimer());
-                    MyLampAdapter.this.notifyDataSetChanged();
-                } else {
-                    openChoseTime();
+            if (item.isHasTimer()) {
+                helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.dengguang));
+                helper.setVisible(R.id.time, true);
+                helper.setText(R.id.time, "定时开：" + item.getStartTime() + "    " + "定时关：" + item.getStopTime());
+            } else {
+                helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.morenshebei));
+                helper.setVisible(R.id.time, false);
+            }
+
+            helper.getView(R.id.img_open).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ip = item.getIp();
+                    position = helper.getAdapterPosition();
+                    bodyData = getOpenLamp(!item.isOpen());
+                    EasySocket.getInstance().upBytes(bodyData);
                 }
-            }
-        });
+            });
 
-        helper.getView(R.id.img_del).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                data.remove(helper.getAdapterPosition());
-                stopTcp();
-                MyLampAdapter.this.notifyDataSetChanged();
-            }
-        });
+            helper.getView(R.id.img_time_open).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (item.isHasTimer()) {
+                        item.setHasTimer(!item.isHasTimer());
+                        MyLampAdapter.this.notifyDataSetChanged();
+                    } else {
+                        openChoseTime();
+                    }
+                }
+            });
+
+            helper.getView(R.id.img_del).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    data.remove(helper.getAdapterPosition());
+                    stopTcp();
+                    MyLampAdapter.this.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     private WYACustomDialog wyaCustomDialog;

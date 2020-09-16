@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.SaveModel;
+import com.wya.env.bean.home.AddModel;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
@@ -31,6 +33,8 @@ import com.wya.env.view.LampView;
 import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +81,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private void initData() {
         getLocalData();
-//        getNetData();
+        getNetData();
         initRecyclerView();
     }
 
@@ -99,15 +103,19 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         recyclerView.setAdapter(adapter);
         // RecyclerView条目点击事件
         adapter.setOnItemClickListener((adapter, view, position) -> {
-            name.setText(lampModels.get(position).getName());
-            lampView.setMirror(lampModels.get(position).getMirror());
-            lampView.setModel(lampModels.get(position).getModeArr(), true);
-            choseModel = lampModels.get(position).getModeArr();
-            for (int i = 0; i < lampModels.size(); i++) {
-                lampModels.get(i).setChose(0);
-            }
-            lampModels.get(position).setChose(1);
-            adapter.notifyDataSetChanged();
+           if(position == lampModels.size() -1){
+               EventBus.getDefault().post(new AddModel());
+           } else {
+               name.setText(lampModels.get(position).getName());
+               lampView.setMirror(lampModels.get(position).getMirror());
+               lampView.setModel(lampModels.get(position).getModeArr(), true);
+               choseModel = lampModels.get(position).getModeArr();
+               for (int i = 0; i < lampModels.size(); i++) {
+                   lampModels.get(i).setChose(0);
+               }
+               lampModels.get(position).setChose(1);
+               adapter.notifyDataSetChanged();
+           }
 //            setTcpData(lampModels.get(position).getModeArr());
         });
     }
@@ -162,7 +170,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         if (!hidden && toRefresh) {
             SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, false);
             getLocalData();
-//            getNetData();
+            getNetData();
         } else {
             lampView.toStopSendUdpModeData(true);
         }
@@ -188,6 +196,9 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             netLampModels.add(lampModel);
         }
         lampModels.addAll(netLampModels);
+        if(lampModels.get(lampModels.size() -1) != null){
+            lampModels.add(new LampModel());
+        }
         if (adapter != null) {
             adapter.setNewData(lampModels);
         }
