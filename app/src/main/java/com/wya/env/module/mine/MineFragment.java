@@ -17,12 +17,15 @@ import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.home.AddModel;
+import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.login.LoginActivity;
 import com.wya.env.module.login.start.Start1Activity;
+import com.wya.env.net.tpc.EasySocket;
 import com.wya.env.net.udp.ICallUdp;
 import com.wya.env.net.udp.UdpUtil;
 import com.wya.env.util.ByteUtil;
@@ -30,6 +33,10 @@ import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.AvatarImageView;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -113,9 +120,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 for (int i = 0; i < lampSettings.size(); i++) {
                     lampSettings.get(i).setChose(false);
                 }
-                saveInfoLamp(lampSettings);
                 lampSettings.get(position).setChose(true);
                 adapter.notifyDataSetChanged();
+                saveInfoLamp(lampSettings);
             }
         });
     }
@@ -268,6 +275,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                                 lampSettings.get(i).setIp(ip);
                                 lampSettings.get(i).setSize(size);
                                 lampSettings.get(i).setDeviceName(deviceName);
+                                if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                                    lampSettings.add(new LampSetting());
+                                }
                                 myLampAdapter.setNewData(lampSettings);
                                 break;
                             }
@@ -283,6 +293,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             lampSetting.setSize(size);
                             lampSetting.setDeviceName(deviceName);
                             lampSettings.add(lampSetting);
+                            if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                                lampSettings.add(new LampSetting());
+                            }
                             myLampAdapter.setNewData(lampSettings);
                         }
                     } else {
@@ -296,6 +309,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         lampSetting.setSize(size);
                         lampSetting.setDeviceName(deviceName);
                         lampSettings.add(lampSetting);
+                        if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                            lampSettings.add(new LampSetting());
+                        }
                         myLampAdapter.setNewData(lampSettings);
                     }
                     hideLoading();
@@ -317,9 +333,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     private void saveInfoLamp(List<LampSetting> lampSettings) {
         Lamps lamps = new Lamps();
-        if (lampSettings.get(lampSettings.size() - 1).getName() == null) {
-            lampSettings.remove(lampSettings.size() - 1);
-        }
         lamps.setLampSettings(lampSettings);
         for (int i = 0; i < lampSettings.size(); i++) {
             if (lampSettings.get(i).isChose()) {
@@ -352,8 +365,47 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         if (!hidden) {
             showLoading();
             sendData();
-        } else {
-            myLampAdapter.stopTcp();
         }
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MusicModel event) {
+        if(myLampAdapter != null){
+            myLampAdapter.setMusicModel(event);
+        }
+        try {
+            EasySocket.getInstance().upBytes(getMusicData(event));
+        } catch (Exception e){
+            LogUtil.e("打开灯光失败");
+        }
+    }
+
+    int step = 1;
+    private byte[] getMusicData(MusicModel event) {
+        byte[] bodyData = new byte[4];
+        bodyData[0] = 0x01;
+        bodyData[1] = (byte) (0xff & step);
+        bodyData[2] = (byte) 0x00;
+        if (event.getMusic() == 0) {
+            bodyData[3] = 0x01;
+        } else {
+            bodyData[3] = 0x00;
+        }
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
+        return openFileData;
     }
 }

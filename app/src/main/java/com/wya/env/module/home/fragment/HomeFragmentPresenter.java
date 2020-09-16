@@ -26,7 +26,7 @@ public class HomeFragmentPresenter extends BasePresent<HomeFragmentView> {
      */
     public void getSaveModels() {
         //业务逻辑的处理
-        mView.showLoading();
+//        mView.showLoading();
         BaseExt.ext(resultApi.getSaveModelsApi(), new BaseSubscriber<BaseResult<List<SaveModel>>>(mView) {
             @Override
             public void onNext(BaseResult<List<SaveModel>> result) {

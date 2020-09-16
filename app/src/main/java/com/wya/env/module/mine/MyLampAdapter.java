@@ -13,6 +13,8 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.home.MusicModel;
+import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
 import com.wya.env.net.tpc.EasySocket;
 import com.wya.env.net.tpc.config.EasySocketOptions;
@@ -27,6 +29,8 @@ import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.uikit.pickerview.CustomTimePicker;
 import com.wya.utils.utils.LogUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     private int position;
     private boolean isConnected;
 
+    private MusicModel musicModel;
+
+    public void setMusicModel(MusicModel musicModel) {
+        this.musicModel = musicModel;
+    }
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
@@ -61,6 +70,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 case 1:
                     data.get((Integer) msg.obj).setOpen(!data.get((Integer) msg.obj).isOpen());
                     MyLampAdapter.this.notifyDataSetChanged();
+                    break;
+                case 2:
+                    MusicSuccess musicSuccess = new MusicSuccess();
+                    musicSuccess.setPosition(musicModel.getPosition());
+                    EventBus.getDefault().post(musicSuccess);
                     break;
                 default:
                     break;
@@ -79,7 +93,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void convert(BaseViewHolder helper, LampSetting item) {
-        if(item.getName() == null){
+        if (item.getName() == null) {
             helper.setGone(R.id.ll_add, true);
         } else {
             helper.setGone(R.id.ll_add, false);
@@ -368,16 +382,33 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
             super.onSocketResponse(socketAddress, originReadData);
             LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                LogUtil.e("成功");
-                Message msg = Message.obtain();
-                msg.what = 1;
-                msg.obj = position;
-                handler.sendMessage(msg);
-            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
-                LogUtil.e("失败");
+            switch (originReadData.getBodyData()[originReadData.getBodyData().length - 3]) {
+                case 0:
+                    LogUtil.e("开灯关灯");
+                    if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                        LogUtil.e("成功");
+                        Message msg = Message.obtain();
+                        msg.what = 1;
+                        msg.obj = position;
+                        handler.sendMessage(msg);
+                    } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                        LogUtil.e("失败");
+                    }
+                    break;
+                case 1:
+                    LogUtil.e("音乐关灯");
+                    if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                        LogUtil.e("成功");
+                        Message msg = Message.obtain();
+                        msg.what = 2;
+                        handler.sendMessage(msg);
+                    } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                        LogUtil.e("失败");
+                    }
+                    break;
+                default:
+                    break;
             }
-//            EasySocket.getInstance().disconnect(false);
         }
     };
 

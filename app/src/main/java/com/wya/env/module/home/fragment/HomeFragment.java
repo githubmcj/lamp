@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -16,6 +15,7 @@ import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.SaveModel;
 import com.wya.env.bean.home.AddModel;
+import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
@@ -35,6 +35,8 @@ import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,6 +81,27 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MusicSuccess event) {
+        if (adapter != null) {
+            lampModels.get(event.getPosition()).setMusic(1 - lampModels.get(event.getPosition()).isMusic());
+            adapter.setNewData(lampModels);
+        }
+    }
+
     private void initData() {
         getLocalData();
         getNetData();
@@ -103,19 +126,19 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         recyclerView.setAdapter(adapter);
         // RecyclerView条目点击事件
         adapter.setOnItemClickListener((adapter, view, position) -> {
-           if(position == lampModels.size() -1){
-               EventBus.getDefault().post(new AddModel());
-           } else {
-               name.setText(lampModels.get(position).getName());
-               lampView.setMirror(lampModels.get(position).getMirror());
-               lampView.setModel(lampModels.get(position).getModeArr(), true);
-               choseModel = lampModels.get(position).getModeArr();
-               for (int i = 0; i < lampModels.size(); i++) {
-                   lampModels.get(i).setChose(0);
-               }
-               lampModels.get(position).setChose(1);
-               adapter.notifyDataSetChanged();
-           }
+            if (position == lampModels.size() - 1) {
+                EventBus.getDefault().post(new AddModel());
+            } else {
+                name.setText(lampModels.get(position).getName());
+                lampView.setMirror(lampModels.get(position).getMirror());
+                lampView.setModel(lampModels.get(position).getModeArr(), true);
+                choseModel = lampModels.get(position).getModeArr();
+                for (int i = 0; i < lampModels.size(); i++) {
+                    lampModels.get(i).setChose(0);
+                }
+                lampModels.get(position).setChose(1);
+                adapter.notifyDataSetChanged();
+            }
 //            setTcpData(lampModels.get(position).getModeArr());
         });
     }
@@ -158,7 +181,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     @Override
     protected void initView() {
         homeFragmentPresenter.mView = this;
-//        lampView.setFocusable(false);
+        lampView.setFocusable(false);
         initData();//初始化数据
     }
 
@@ -196,7 +219,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             netLampModels.add(lampModel);
         }
         lampModels.addAll(netLampModels);
-        if(lampModels.get(lampModels.size() -1) != null){
+        if (lampModels.get(lampModels.size() - 1) != null) {
             lampModels.add(new LampModel());
         }
         if (adapter != null) {
@@ -325,7 +348,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 handler.sendMessage(msg);
             } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
                 LogUtil.e("失败");
-            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0x86){
+            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0x86) {
                 LogUtil.e("心跳数据");
             } else {
                 LogUtil.e("其他数据");
@@ -350,7 +373,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         byte[] breathData = ByteUtil.byteMerger(send_head_data, bodyData);
         return breathData;
     }
-
 
 
     /**
@@ -437,41 +459,4 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         }
         return tcp_data;
     }
-
-//
-//    private void toSendData() {
-//        Observable.create(new ObservableOnSubscribe<String>() {
-//            @Override
-//            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
-//                emitter.onNext("连载1");
-//                emitter.onNext("连载2");
-//                emitter.onNext("连载3");
-//                emitter.onComplete();
-//            }
-//        })
-//                .observeOn(AndroidSchedulers.mainThread())//回调在主线程
-//                .subscribeOn(Schedulers.io())//执行在io线程
-//                .subscribe(new Observer<String>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//                        Log.e(TAG, "onSubscribe");
-//                    }
-//
-//                    @Override
-//                    public void onNext(String value) {
-//                        Log.e(TAG, "onNext:" + value);
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Log.e(TAG, "onError=" + e.getMessage());
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                        Log.e(TAG, "onComplete()");
-//                    }
-//                });
-//    }
-
 }

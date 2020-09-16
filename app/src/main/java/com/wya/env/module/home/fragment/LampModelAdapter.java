@@ -11,7 +11,10 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.home.MusicModel;
 import com.wya.env.view.LampView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -60,10 +63,14 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
                 @Override
                 public void onClick(View v) {
                     if (item.isChose() == 1) {
-                        item.setMusic(1 - item.isMusic());
-                        LampModelAdapter.this.notifyDataSetChanged();
+                        MusicModel musicModel = new MusicModel();
+                        musicModel.setPosition(helper.getAdapterPosition());
+                        musicModel.setMusic(item.isMusic());
+                        EventBus.getDefault().post(musicModel);
+//                        item.setMusic(1 - item.isMusic());
+//                        LampModelAdapter.this.notifyDataSetChanged();
                     } else {
-                        Toast.makeText(context, "请先选中该模式", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Please select the mode first", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
