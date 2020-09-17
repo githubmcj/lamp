@@ -134,7 +134,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         // 保存数据
         saveInfo(loginInfo);
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
-        if(lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
+        if(lamps != null &&  lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
             startActivity(new Intent(RegisterActivity.this, MainActivity.class));
             ActivityManager.getInstance().exitApp();
         } else {
@@ -151,7 +151,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         SaveSharedPreferences.save(this, CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
     }
 
-    int column = 15;
+    int column = 20;
     int size = 300;
 
     private List<LampModel> getModels() {
@@ -160,7 +160,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         mLampModels.add(getSecondModel());
         mLampModels.add(getThirdModel());
         mLampModels.add(getFourthModel());
-        mLampModels.add(getFifthModel());
+//        mLampModels.add(getFifthModel());
 
         return mLampModels;
     }

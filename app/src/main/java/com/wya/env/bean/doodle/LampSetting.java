@@ -6,10 +6,44 @@ public class LampSetting {
     private boolean isChose;
     private boolean isOpen;
     private boolean hasTimer;
-    private long startTime;
-    private long stopTime;
+    private String s_hour = "0";
+    private String s_min = "0";
+    private String e_hour = "0";
+    private String e_min = "0";
     private String ip;
     private int size;
+
+    public String getS_hour() {
+        return s_hour;
+    }
+
+    public void setS_hour(String s_hour) {
+        this.s_hour = s_hour;
+    }
+
+    public String getS_min() {
+        return s_min;
+    }
+
+    public void setS_min(String s_min) {
+        this.s_min = s_min;
+    }
+
+    public String getE_hour() {
+        return e_hour;
+    }
+
+    public void setE_hour(String e_hour) {
+        this.e_hour = e_hour;
+    }
+
+    public String getE_min() {
+        return e_min;
+    }
+
+    public void setE_min(String e_min) {
+        this.e_min = e_min;
+    }
 
     public String getDeviceName() {
         return deviceName;
@@ -67,19 +101,4 @@ public class LampSetting {
         this.hasTimer = hasTimer;
     }
 
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    public long getStopTime() {
-        return stopTime;
-    }
-
-    public void setStopTime(long stopTime) {
-        this.stopTime = stopTime;
-    }
 }

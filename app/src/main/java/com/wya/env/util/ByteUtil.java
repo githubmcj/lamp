@@ -26,7 +26,13 @@ public class ByteUtil {
         } else if (udpByteData.length == 94){
             head_data[4] = 0x5e;
             head_data[5] = 0x00;
-        }else {
+        }else if (udpByteData.length == 13){
+            head_data[4] = (byte) 0x0d;
+            head_data[5] = 0x00;
+        } else if (udpByteData.length == 19){
+            head_data[4] = (byte) 0x13;
+            head_data[5] = 0x00;
+        } else {
             head_data[4] = (byte) 0x0d;
             head_data[5] = 0x07;
         }

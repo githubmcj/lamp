@@ -33,13 +33,10 @@ import com.wya.utils.utils.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import static com.wya.env.common.CommonValue.TCP_PORT;
 
@@ -82,6 +79,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     musicSuccess.setPosition(musicModel.getPosition());
                     EventBus.getDefault().post(musicSuccess);
                     break;
+                case 3:
+                    data.get((Integer) msg.obj).setHasTimer(!data.get((Integer) msg.obj).isHasTimer());
+                    MyLampAdapter.this.notifyDataSetChanged();
+                    break;
                 default:
                     break;
             }
@@ -123,7 +124,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             if (item.isHasTimer()) {
                 helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.dengguang));
                 helper.setVisible(R.id.time, true);
-                helper.setText(R.id.time, "定时开：" + item.getStartTime() + "    " + "定时关：" + item.getStopTime());
+                helper.setText(R.id.time, "定时开：" + item.getS_hour() + ":" + item.getS_min() + "    " + "\n定时关：" + item.getE_hour() + ":" + item.getE_min());
             } else {
                 helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.morenshebei));
                 helper.setVisible(R.id.time, false);
@@ -142,12 +143,13 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             helper.getView(R.id.img_time_open).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    position = helper.getAdapterPosition();
                     if (item.isHasTimer()) {
-                        item.setHasTimer(!item.isHasTimer());
-                        MyLampAdapter.this.notifyDataSetChanged();
+                        bodyData = getTimerTime(false, item.getS_hour(), item.getS_min(), item.getE_hour(), item.getE_min());
+                        EasySocket.getInstance().upBytes(bodyData);
                     } else {
-                        EasySocket.getInstance().upBytes(getTimeData());
-                        openChoseTime();
+                        toSendTime();
+                        openChoseTime(item);
                     }
                 }
             });
@@ -163,18 +165,17 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         }
     }
 
-    private byte[] getTimeData() {
-        return new byte[0];
-    }
-
     private WYACustomDialog wyaCustomDialog;
     private String s_hour = "0";
     private String s_min = "0";
     private String e_hour = "0";
     private String e_min = "0";
 
-    private void openChoseTime() {
-
+    private void openChoseTime(LampSetting item) {
+        s_hour = item.getS_hour();
+        s_min = item.getS_min();
+        e_hour = item.getE_hour();
+        e_min = item.getE_min();
         wyaCustomDialog = new WYACustomDialog.Builder(context).setLayoutId(
                 R.layout.chose_time_layout, v -> {
                     ArrayList<String> data_min = new ArrayList<>();
@@ -190,6 +191,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
                     WheelView start_hour = v.findViewById(R.id.start_hour);
                     start_hour.setData(data_hour);
+                    start_hour.setDefault(Integer.valueOf(s_hour).intValue());
                     start_hour.setOnSelectListener(new WheelView.OnSelectListener() {
                         @Override
                         public void endSelect(int id, String text) {
@@ -203,8 +205,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     });
 
                     WheelView start_min = v.findViewById(R.id.start_min);
-
                     start_min.setData(data_min);
+                    start_min.setDefault(Integer.valueOf(s_min).intValue());
                     start_min.setOnSelectListener(new WheelView.OnSelectListener() {
                         @Override
                         public void endSelect(int id, String text) {
@@ -219,6 +221,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
                     WheelView end_hour = v.findViewById(R.id.end_hour);
                     end_hour.setData(data_hour);
+                    end_hour.setDefault(Integer.valueOf(e_hour).intValue());
                     end_hour.setOnSelectListener(new WheelView.OnSelectListener() {
                         @Override
                         public void endSelect(int id, String text) {
@@ -232,8 +235,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     });
 
                     WheelView end_min = v.findViewById(R.id.end_min);
-
                     end_min.setData(data_min);
+                    end_min.setDefault(Integer.valueOf(e_min).intValue());
                     end_min.setOnSelectListener(new WheelView.OnSelectListener() {
                         @Override
                         public void endSelect(int id, String text) {
@@ -252,18 +255,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     sure.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-
-
-
-//                            Observable.just(1).delay(5, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
-//                                    .subscribe(integer -> {
-//                                        LogUtil.e(s_hour + ":" + s_min);
-//                                    });
-//
-//                            Observable.just(1).delay(8, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
-//                                    .subscribe(integer -> {
-//                                        LogUtil.e(e_hour + ":" + e_min);
-//                                    });
+                            item.setS_hour(s_hour);
+                            item.setS_min(s_min);
+                            item.setE_hour(e_hour);
+                            item.setE_min(e_min);
+                            bodyData = getTimerTime(true, s_hour, s_min, e_hour, e_min);
+                            EasySocket.getInstance().upBytes(bodyData);
                             wyaCustomDialog.dismiss();
                         }
                     });
@@ -279,17 +276,51 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 .cancelTouchout(false)
                 .build();
         wyaCustomDialog.show();
-//        mCustomTimePicker = new CustomTimePicker(context, new CustomTimePicker.OnTimePickerSelectedListener() {
-//            @Override
-//            public void selected(Date date) {
-//                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-//                String format = dateFormat.format(date);
-////                mYmdhmsText.setText(format);
-//                LogUtil.e(format);
-//            }
-//        });
-//        mCustomTimePicker.setType(new boolean[]{false, false, false, true, true, false})
-//                .show();
+    }
+
+    private byte[] getTimerTime(boolean isOpen, String s_hour, String s_min, String e_hour, String e_min) {
+        byte[] bodyData = new byte[19];
+        bodyData[0] = 0x0d;
+        bodyData[1] = 0x00;
+        if (isOpen) {
+            bodyData[2] = 0x01;
+        } else {
+            bodyData[2] = 0x00;
+        }
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(date.getTime());
+        if (ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900).length == 2) {
+            bodyData[3] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[0];
+            bodyData[4] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[1];
+        } else {
+            bodyData[3] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[0];
+            bodyData[4] = 0x00;
+        }
+        bodyData[5] = (byte) (0xff & c.get(Calendar.MONTH));
+        bodyData[6] = (byte) (0xff & c.get(Calendar.DATE));
+        bodyData[7] = (byte) (0xff & Integer.valueOf(s_hour));
+        bodyData[8] = (byte) (0xff & Integer.valueOf(s_min));
+        bodyData[9] = (byte) (0xff & 0);
+        bodyData[10] = (byte) (0xff & (c.get(Calendar.DAY_OF_WEEK) - 1));
+
+        if (ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900).length == 2) {
+            bodyData[11] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[0];
+            bodyData[12] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[1];
+        } else {
+            bodyData[11] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[0];
+            bodyData[12] = 0x00;
+        }
+        bodyData[13] = (byte) (0xff & c.get(Calendar.MONTH));
+        bodyData[14] = (byte) (0xff & c.get(Calendar.DATE));
+        bodyData[15] = (byte) (0xff & Integer.valueOf(e_hour));
+        bodyData[16] = (byte) (0xff & Integer.valueOf(e_min));
+        bodyData[17] = (byte) (0xff & 0);
+        bodyData[18] = (byte) (0xff & (c.get(Calendar.DAY_OF_WEEK) - 1));
+
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
+        return openFileData;
     }
 
     int step = 0;
@@ -331,7 +362,6 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
         // 监听socket行为
         EasySocket.getInstance().subscribeSocketAction(socketActionListener);
-        toStartHeart();
     }
 
     private void toStartHeart() {
@@ -368,8 +398,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         public void onSocketConnSuccess(SocketAddress socketAddress) {
             super.onSocketConnSuccess(socketAddress);
             LogUtil.d("连接成功");
-//            LogUtil.d("连接成功, 并发送数据：" + ByteUtil.byte2hex(bodyData));
-//            EasySocket.getInstance().upBytes(bodyData);
+            toStartHeart();
+//            toSendTime();
             isConnected = true;
         }
 
@@ -408,35 +438,102 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
             super.onSocketResponse(socketAddress, originReadData);
             LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-            switch (originReadData.getBodyData()[originReadData.getBodyData().length - 3]) {
-                case 0:
-                    LogUtil.e("开灯关灯");
-                    if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                        LogUtil.e("成功");
-                        Message msg = Message.obtain();
-                        msg.what = 1;
-                        msg.obj = position;
-                        handler.sendMessage(msg);
-                    } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
-                        LogUtil.e("失败");
-                    }
-                    break;
-                case 1:
-                    LogUtil.e("音乐关灯");
-                    if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                        LogUtil.e("成功");
-                        Message msg = Message.obtain();
-                        msg.what = 2;
-                        handler.sendMessage(msg);
-                    } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
-                        LogUtil.e("失败");
-                    }
-                    break;
-                default:
-                    break;
+            if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == -116) {
+                LogUtil.e("时间同步");
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                    LogUtil.e("成功");
+                } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 3) {
+                    LogUtil.e("以公网时间为准");
+                } else {
+                    LogUtil.e("失败");
+                }
+            }
+            if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == -115) {
+                LogUtil.e("定时器设置");
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                    LogUtil.e("成功");
+                    Message msg = Message.obtain();
+                    msg.what = 3;
+                    msg.obj = position;
+                    handler.sendMessage(msg);
+                } else {
+                    LogUtil.e("失败");
+                }
+            } else {
+                switch (originReadData.getBodyData()[originReadData.getBodyData().length - 3]) {
+                    case 0:
+                        LogUtil.e("开灯关灯");
+                        if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                            LogUtil.e("成功");
+                            Message msg = Message.obtain();
+                            msg.what = 1;
+                            msg.obj = position;
+                            handler.sendMessage(msg);
+                        } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                            LogUtil.e("失败");
+                        }
+                        break;
+                    case 1:
+                        LogUtil.e("音乐关灯");
+                        if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                            LogUtil.e("成功");
+                            Message msg = Message.obtain();
+                            msg.what = 2;
+                            handler.sendMessage(msg);
+                        } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                            LogUtil.e("失败");
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     };
+
+    /**
+     * 同步时间
+     */
+    private void toSendTime() {
+        bodyData = getTime();
+        EasySocket.getInstance().upBytes(bodyData);
+    }
+
+    private byte[] getTime() {
+        byte[] bodyData = new byte[13];
+        bodyData[0] = 0x0c;
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(date.getTime());
+        LogUtil.e(c.get(Calendar.YEAR) + "---" + c.get(Calendar.MONTH) + "---" + c.get(Calendar.DATE) + "---" + c.get(Calendar.HOUR) + "---" + c.get(Calendar.MINUTE) + "---" + c.get(Calendar.SECOND) + "---" + c.get(Calendar.DAY_OF_WEEK));
+        if (ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900).length == 2) {
+            bodyData[1] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[0];
+            bodyData[2] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[1];
+        } else {
+            bodyData[1] = ByteUtil.intToByteArray(c.get(Calendar.YEAR) - 1900)[0];
+            bodyData[2] = 0x00;
+        }
+        bodyData[3] = (byte) (0xff & c.get(Calendar.MONTH));
+        bodyData[4] = (byte) (0xff & c.get(Calendar.DATE));
+        bodyData[5] = (byte) (0xff & c.get(Calendar.HOUR));
+        bodyData[6] = (byte) (0xff & c.get(Calendar.MINUTE));
+        bodyData[7] = (byte) (0xff & c.get(Calendar.SECOND));
+        bodyData[8] = (byte) (0xff & (c.get(Calendar.DAY_OF_WEEK) - 1));
+        //1、取得本地时间：
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        //2、取得时间偏移量：
+        int zoneOffset = cal.get(java.util.Calendar.ZONE_OFFSET) / 1000;
+        for (int i = 0; i < 4; i++) {
+            if (ByteUtil.intToByteArray(zoneOffset).length > i) {
+                bodyData[9 + i] = ByteUtil.intToByteArray(zoneOffset)[i];
+            } else {
+                bodyData[9 + i] = 0x00;
+            }
+        }
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
+        return openFileData;
+    }
 
 
     public void stopTcp() {

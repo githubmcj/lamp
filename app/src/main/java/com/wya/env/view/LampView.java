@@ -453,7 +453,9 @@ public class LampView extends View {
             mWidth = (int) typedArray.getDimension(R.styleable.LampView_width, ScreenUtil.getScreenWidth(mContext) / 2 - (int) typedArray.getDimension(R.styleable.LampView_margin_left, 0) - (int) typedArray.getDimension(R.styleable.LampView_margin_right, 0) - ScreenUtil.dip2px(mContext, 20));
         }
 
-        column = typedArray.getColor(R.styleable.LampView_column, 15);
+//        column = typedArray.getColor(R.styleable.LampView_column, 15);
+        //TODO
+        column = 20;
         if (type == 1) {
             lamp_margin = typedArray.getColor(R.styleable.LampView_lamp_margin, 2);
         } else if (type == 2) {

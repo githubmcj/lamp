@@ -3,7 +3,6 @@ package com.wya.env.module.login;
 import android.content.Context;
 import android.content.Intent;
 import android.support.multidex.MultiDex;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,7 +26,6 @@ import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.forgetpassword.ForgetPasswordActivity;
-import com.wya.env.module.login.start.NoFoundDeviceActivity;
 import com.wya.env.module.login.start.Start1Activity;
 import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
@@ -85,7 +83,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
      */
     private List<LampModel> lampModels;
 
-    int column = 15;
+    //    int column = 15;
+    // TODO
+    int column = 20;
     int size = 300;
 
     @Override
@@ -147,7 +147,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     public void onLoginResult(LoginInfo loginInfo) {
         // 保存数据
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
-        if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
+        if (lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0) {
             saveInfo(loginInfo);
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             ActivityManager.getInstance().exitApp();
@@ -247,7 +247,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         mLampModels.add(getSecondModel());
         mLampModels.add(getThirdModel());
         mLampModels.add(getFourthModel());
-        mLampModels.add(getFifthModel());
+//        mLampModels.add(getFifthModel());
 
         return mLampModels;
     }
@@ -268,53 +268,53 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             HashMap<String, Doodle> light_status = new HashMap<>();
             for (int j = 0; j < size; j++) {
                 Doodle doodle = new Doodle();
-                if (a > b && b > c){
-                    if((double)(19-j%20)/(double)(j/20+1)>=a){
+                if (a > b && b > c) {
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= a) {
                         doodle.setColor(fifth_colors[0]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<a&&(double)(19-j%20)/(double)(j/20+1)>=b){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < a && (double) (19 - j % 20) / (double) (j / 20 + 1) >= b) {
                         doodle.setColor(fifth_colors[1]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<b&&(double)(19-j%20)/(double)(j/20+1)>=c){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < b && (double) (19 - j % 20) / (double) (j / 20 + 1) >= c) {
                         doodle.setColor(fifth_colors[2]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<c){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < c) {
                         doodle.setColor(fifth_colors[0]);
                     }
                 }
 
-                if (a < c && b > c){
-                    if((double)(19-j%20)/(double)(j/20+1)>=b){
+                if (a < c && b > c) {
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= b) {
                         doodle.setColor(fifth_colors[1]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<b&&(double)(19-j%20)/(double)(j/20+1)>=c){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < b && (double) (19 - j % 20) / (double) (j / 20 + 1) >= c) {
                         doodle.setColor(fifth_colors[2]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)>=a&&(double)(19-j%20)/(double)(j/20+1)<c){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= a && (double) (19 - j % 20) / (double) (j / 20 + 1) < c) {
                         doodle.setColor(fifth_colors[0]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<a){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < a) {
                         doodle.setColor(fifth_colors[1]);
                     }
                 }
 
-                if (a > b && b < c){
-                    if((double)(19-j%20)/(double)(j/20+1)>=c){
+                if (a > b && b < c) {
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= c) {
                         doodle.setColor(fifth_colors[2]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<c&&(double)(19-j%20)/(double)(j/20+1)>=a){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < c && (double) (19 - j % 20) / (double) (j / 20 + 1) >= a) {
                         doodle.setColor(fifth_colors[0]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)>=b&&(double)(19-j%20)/(double)(j/20+1)<a){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= b && (double) (19 - j % 20) / (double) (j / 20 + 1) < a) {
                         doodle.setColor(fifth_colors[1]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<b){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < b) {
                         doodle.setColor(fifth_colors[2]);
                     }
                 }
                 doodle.setLight(255);
                 doodle.setFlash(0);
-                light_status.put(String.valueOf( j), doodle);
+                light_status.put(String.valueOf(j), doodle);
             }
             doodlePattern.setLight_status(light_status);
             doodlePattern.setSize(size);
@@ -362,7 +362,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         LampModel lampModel = new LampModel();
         lampModel.setName("第3个模板");
         List<DoodlePattern> modeArr = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < column; i++) {
             DoodlePattern doodlePattern = new DoodlePattern();
             HashMap<String, Doodle> light_status = new HashMap<>();
             for (int j = 0; j < size; j++) {

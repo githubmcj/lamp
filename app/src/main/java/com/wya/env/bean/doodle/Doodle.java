@@ -54,9 +54,17 @@ public class Doodle implements Cloneable {
      */
     public int getLampColor() {
         if (light > 255) {
-            return Color.argb(255, ColorUtil.int2Rgb(Color.parseColor(color))[0], ColorUtil.int2Rgb(Color.parseColor(color))[1], ColorUtil.int2Rgb(Color.parseColor(color))[2]);
+            if(color != null){
+                return Color.argb(255, ColorUtil.int2Rgb(Color.parseColor(color))[0], ColorUtil.int2Rgb(Color.parseColor(color))[1], ColorUtil.int2Rgb(Color.parseColor(color))[2]);
+            } else {
+                return Color.argb(0, 0, 0, 0);
+            }
         } else if (light > 0) {
-            return Color.argb(light, ColorUtil.int2Rgb(Color.parseColor(color))[0], ColorUtil.int2Rgb(Color.parseColor(color))[1], ColorUtil.int2Rgb(Color.parseColor(color))[2]);
+            if(color != null){
+                return Color.argb(light, ColorUtil.int2Rgb(Color.parseColor(color))[0], ColorUtil.int2Rgb(Color.parseColor(color))[1], ColorUtil.int2Rgb(Color.parseColor(color))[2]);
+            } else {
+                return Color.argb(0, 0, 0, 0);
+            }
         } else {
             return Color.argb(0, 0, 0, 0);
         }

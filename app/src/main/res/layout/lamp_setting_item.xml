@@ -7,15 +7,15 @@
 
     <LinearLayout
         android:id="@+id/ll_item"
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="vertical">
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
+            android:layout_height="match_parent"
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/time"
@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="@dimen/dp_10"
-                android:text="定时开 2:00"
+                android:text="定时开 2:00 \n 定时关 2:00"
                 android:textColor="@color/app_blue"
                 android:textSize="@dimen/sp_10"></TextView>
 
@@ -52,9 +52,9 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxLength="20"
             android:padding="@dimen/dp_10"
             android:text="设备名称"
-            android:maxLength="20"
             android:textColor="@color/black"
             android:textSize="@dimen/sp_16"></TextView>
 
@@ -116,11 +116,11 @@
         android:id="@+id/ll_add"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/white"
         android:layout_marginLeft="@dimen/dp_10"
         android:layout_marginRight="@dimen/dp_10"
+        android:background="@color/white"
         android:gravity="center"
+        android:orientation="vertical"
         android:visibility="gone">
 
         <ImageView

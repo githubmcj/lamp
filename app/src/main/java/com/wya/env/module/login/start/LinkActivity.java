@@ -156,8 +156,12 @@ public class LinkActivity extends BaseActivity {
         EasySocket.getInstance().startHeartBeat(getBreathData(), new HeartManager.HeartbeatListener() {
             @Override
             public boolean isServerHeartbeat(OriginReadData originReadData) {
-                LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-                return false;
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == -122) {
+                    LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+                    return true;
+                } else {
+                    return false;
+                }
             }
         });
     }
