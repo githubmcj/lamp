@@ -20,6 +20,9 @@ public class ByteUtil {
         }else if (udpByteData.length == 1) {
             head_data[4] = 0x01;
             head_data[5] = 0x00;
+        }else if (udpByteData.length == 2) {
+            head_data[4] = 0x02;
+            head_data[5] = 0x00;
         } else if (udpByteData.length == 905) {
             head_data[4] = (byte) 0x89;
             head_data[5] = 0x03;

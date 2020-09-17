@@ -129,15 +129,16 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             if (position == lampModels.size() - 1) {
                 EventBus.getDefault().post(new AddModel());
             } else {
-                name.setText(lampModels.get(position).getName());
-                lampView.setMirror(lampModels.get(position).getMirror());
-                lampView.setModel(lampModels.get(position).getModeArr(), true);
                 choseModel = lampModels.get(position).getModeArr();
                 for (int i = 0; i < lampModels.size(); i++) {
                     lampModels.get(i).setChose(0);
                 }
                 lampModels.get(position).setChose(1);
                 adapter.notifyDataSetChanged();
+
+                name.setText(lampModels.get(position).getName());
+                lampView.setMirror(lampModels.get(position).getMirror());
+                lampView.setModel(lampModels.get(position).getModeArr(), true);
             }
 //            setTcpData(lampModels.get(position).getModeArr());
         });
@@ -184,6 +185,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampView.setFocusable(false);
         initData();//初始化数据
     }
+
 
 
     @Override

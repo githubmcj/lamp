@@ -3,6 +3,7 @@ package com.wya.env.module.mine;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -83,6 +84,18 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     data.get((Integer) msg.obj).setHasTimer(!data.get((Integer) msg.obj).isHasTimer());
                     MyLampAdapter.this.notifyDataSetChanged();
                     break;
+                case 4:
+                    data.get((Integer) msg.obj).setOpen(msg.getData().getBoolean("isOpen"));
+                    MyLampAdapter.this.notifyDataSetChanged();
+                    break;
+                case 5:
+                    data.get((Integer) msg.obj).setHasTimer(msg.getData().getBoolean("hasTime"));
+                    data.get((Integer) msg.obj).setS_hour(msg.getData().getString("s_hour"));
+                    data.get((Integer) msg.obj).setS_min(msg.getData().getString("s_min"));
+                    data.get((Integer) msg.obj).setE_hour(msg.getData().getString("e_hour"));
+                    data.get((Integer) msg.obj).setE_min(msg.getData().getString("e_min"));
+                    MyLampAdapter.this.notifyDataSetChanged();
+                    break;
                 default:
                     break;
             }
@@ -107,6 +120,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             helper.setText(R.id.name, item.getDeviceName());
             if (item.isChose()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
+                position = helper.getAdapterPosition();
                 initEasySocket(item.getIp());
                 helper.getView(R.id.img_open).setEnabled(true);
                 helper.getView(R.id.img_time_open).setEnabled(true);
@@ -399,7 +413,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             super.onSocketConnSuccess(socketAddress);
             LogUtil.d("连接成功");
             toStartHeart();
-//            toSendTime();
+            getLampOpenState();
+            getLampTimerState();
             isConnected = true;
         }
 
@@ -438,6 +453,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
             super.onSocketResponse(socketAddress, originReadData);
             LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+            LogUtil.e(originReadData.getBodyData()[originReadData.getBodyData().length - 2] + "-----------");
+            LogUtil.e(originReadData.getBodyData()[originReadData.getBodyData().length - 3] + "-----------");
             if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == -116) {
                 LogUtil.e("时间同步");
                 if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
@@ -447,8 +464,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 } else {
                     LogUtil.e("失败");
                 }
-            }
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == -115) {
+            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == -115) {
                 LogUtil.e("定时器设置");
                 if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
                     LogUtil.e("成功");
@@ -458,6 +474,61 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     handler.sendMessage(msg);
                 } else {
                     LogUtil.e("失败");
+                }
+            } else if (originReadData.getBodyData().length > 3 &&originReadData.getBodyData()[originReadData.getBodyData().length - 3] == (byte) 0x8e) {
+                LogUtil.e("获取灯状态");
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == (byte) 0x81) {
+                    LogUtil.e("获取灯开关");
+                    if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                        LogUtil.e("灯开着的");
+                        Message msg = Message.obtain();
+                        msg.what = 4;
+                        msg.obj = position;
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean("isOpen", true);
+                        msg.setData(bundle);
+                        handler.sendMessage(msg);
+                    } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                        LogUtil.e("灯关着的");
+                        Message msg = Message.obtain();
+                        msg.what = 4;
+                        msg.obj = position;
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean("isOpen", false);
+                        msg.setData(bundle);
+                        handler.sendMessage(msg);
+                    } else {
+                        LogUtil.e("无该功能");
+                    }
+                }
+            } else if (originReadData.getBodyData().length > 28 && originReadData.getBodyData()[originReadData.getBodyData().length - 28] == (byte) 0x8f) {
+                LogUtil.e("获取灯定时状态");
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 26] == 1) {
+                    LogUtil.e("灯定时开着的");
+                    Message msg = Message.obtain();
+                    msg.what = 5;
+                    msg.obj = position;
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("hasTime", true);
+                    bundle.putString("s_hour", originReadData.getBodyData()[originReadData.getBodyData().length - 21] + "");
+                    bundle.putString("s_min", originReadData.getBodyData()[originReadData.getBodyData().length - 20] + "");
+                    bundle.putString("e_hour", originReadData.getBodyData()[originReadData.getBodyData().length - 13] + "");
+                    bundle.putString("e_min", originReadData.getBodyData()[originReadData.getBodyData().length - 12] + "");
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
+                } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 26] == 0) {
+                    LogUtil.e("灯定时关着的");
+                    Message msg = Message.obtain();
+                    msg.what = 5;
+                    msg.obj = position;
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("hasTime", false);
+                    bundle.putString("s_hour", originReadData.getBodyData()[originReadData.getBodyData().length - 21] + "");
+                    bundle.putString("s_min", originReadData.getBodyData()[originReadData.getBodyData().length - 20] + "");
+                    bundle.putString("e_hour", originReadData.getBodyData()[originReadData.getBodyData().length - 13] + "");
+                    bundle.putString("e_min", originReadData.getBodyData()[originReadData.getBodyData().length - 12] + "");
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
                 }
             } else {
                 switch (originReadData.getBodyData()[originReadData.getBodyData().length - 3]) {
@@ -490,6 +561,33 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             }
         }
     };
+
+    private void getLampTimerState() {
+        bodyData = getLampTimer();
+        EasySocket.getInstance().upBytes(bodyData);
+    }
+
+    private byte[] getLampTimer() {
+        byte[] bodyData = new byte[1];
+        bodyData[0] = 0x0f;
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openStateData = ByteUtil.byteMerger(send_head_data, bodyData);
+        return openStateData;
+    }
+
+    private void getLampOpenState() {
+        bodyData = getLampState((byte) 0x81);
+        EasySocket.getInstance().upBytes(bodyData);
+    }
+
+    private byte[] getLampState(byte function) {
+        byte[] bodyData = new byte[2];
+        bodyData[0] = 0x0e;
+        bodyData[1] = function;
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openStateData = ByteUtil.byteMerger(send_head_data, bodyData);
+        return openStateData;
+    }
 
     /**
      * 同步时间

@@ -344,6 +344,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                         doodle.setColor("#6BBA2B");
                     } else if (i == (k + 12) % column || i == (k + 13) % column || i == (k + 14) % column) {
                         doodle.setColor("#1A489E");
+                    } else {
+                        doodle.setColor("#000000");
                     }
                     doodle.setLight(255);
                     doodle.setFlash(0);

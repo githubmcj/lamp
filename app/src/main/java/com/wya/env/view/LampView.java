@@ -110,7 +110,7 @@ public class LampView extends View {
         // 防抖动
         lampPaint.setDither(true);
 
-         // 画边框
+        // 画边框
         framePaint = new Paint();
         // 消除锯齿
         framePaint.setAntiAlias(true);
@@ -135,7 +135,7 @@ public class LampView extends View {
                     lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
                 }
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2 + 1, framePaint);
-                canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2 , whitePaint);
+                canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, whitePaint);
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, lampPaint);
             }
         }
@@ -351,7 +351,7 @@ public class LampView extends View {
     }
 
     public void setChoseColor(String choseColor) {
-        if(choseColor == null){
+        if (choseColor == null) {
             choseColor = "#000000";
         }
         this.choseColor = choseColor;
@@ -362,6 +362,7 @@ public class LampView extends View {
 
 
     public void setModel(List<DoodlePattern> modeArr, boolean toShow) {
+        LogUtil.e("toShow=============" + toShow);
         this.size = modeArr.get(0).getSize();
         mHeight = (size / column) * (lamp_size + 2 * lamp_margin);
         setMeasuredDimension(mWidth, mHeight);
@@ -400,7 +401,7 @@ public class LampView extends View {
                         postInvalidate();
                         if (toShow) {
                             try {
-                                if(isStopSendUdpModeData){
+                                if (isStopSendUdpModeData) {
                                     send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)));
                                     stopSendUdpModeData();
                                 } else {
@@ -992,7 +993,7 @@ public class LampView extends View {
 
     private void sendUdpMessage() {
         stopSendUdpData();
-        sendUdpDataAdd = -1;
+        sendUdpDataAdd = 0;
         if (udpExecutorService == null) {
             udpExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("udpExecutorService").daemon(true).build());
@@ -1004,7 +1005,7 @@ public class LampView extends View {
                     if (sendUdpDataAdd != -1) {
                         addMode++;
                         try {
-                            if(isStopSendUdpData){
+                            if (isStopSendUdpData) {
                                 send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)));
                                 stopSendUdpData();
                             } else {
@@ -1069,7 +1070,7 @@ public class LampView extends View {
         udpExecutorService = null;
     }
 
-   public void toStopSendUdpModeData(boolean isStopSendUdpModeData) {
+    public void toStopSendUdpModeData(boolean isStopSendUdpModeData) {
         this.isStopSendUdpModeData = isStopSendUdpModeData;
     }
 
