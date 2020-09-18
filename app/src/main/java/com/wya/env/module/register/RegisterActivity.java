@@ -21,7 +21,6 @@ import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
-import com.wya.env.module.login.LoginActivity;
 import com.wya.env.module.login.start.Start1Activity;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
@@ -134,7 +133,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         // 保存数据
         saveInfo(loginInfo);
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
-        if(lamps != null &&  lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
+        if (lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0) {
             startActivity(new Intent(RegisterActivity.this, MainActivity.class));
             ActivityManager.getInstance().exitApp();
         } else {
@@ -183,59 +182,62 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             HashMap<String, Doodle> light_status = new HashMap<>();
             for (int j = 0; j < size; j++) {
                 Doodle doodle = new Doodle();
-                if (a > b && b > c){
-                    if((double)(19-j%20)/(double)(j/20+1)>=a){
+                if (a > b && b > c) {
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= a) {
                         doodle.setColor(fifth_colors[0]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<a&&(double)(19-j%20)/(double)(j/20+1)>=b){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < a && (double) (19 - j % 20) / (double) (j / 20 + 1) >= b) {
                         doodle.setColor(fifth_colors[1]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<b&&(double)(19-j%20)/(double)(j/20+1)>=c){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < b && (double) (19 - j % 20) / (double) (j / 20 + 1) >= c) {
                         doodle.setColor(fifth_colors[2]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<c){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < c) {
                         doodle.setColor(fifth_colors[0]);
                     }
                 }
 
-                if (a < c && b > c){
-                    if((double)(19-j%20)/(double)(j/20+1)>=b){
+                if (a < c && b > c) {
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= b) {
                         doodle.setColor(fifth_colors[1]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<b&&(double)(19-j%20)/(double)(j/20+1)>=c){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < b && (double) (19 - j % 20) / (double) (j / 20 + 1) >= c) {
                         doodle.setColor(fifth_colors[2]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)>=a&&(double)(19-j%20)/(double)(j/20+1)<c){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= a && (double) (19 - j % 20) / (double) (j / 20 + 1) < c) {
                         doodle.setColor(fifth_colors[0]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<a){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < a) {
                         doodle.setColor(fifth_colors[1]);
                     }
                 }
 
-                if (a > b && b < c){
-                    if((double)(19-j%20)/(double)(j/20+1)>=c){
+                if (a > b && b < c) {
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= c) {
                         doodle.setColor(fifth_colors[2]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<c&&(double)(19-j%20)/(double)(j/20+1)>=a){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < c && (double) (19 - j % 20) / (double) (j / 20 + 1) >= a) {
                         doodle.setColor(fifth_colors[0]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)>=b&&(double)(19-j%20)/(double)(j/20+1)<a){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) >= b && (double) (19 - j % 20) / (double) (j / 20 + 1) < a) {
                         doodle.setColor(fifth_colors[1]);
                     }
-                    if((double)(19-j%20)/(double)(j/20+1)<b){
+                    if ((double) (19 - j % 20) / (double) (j / 20 + 1) < b) {
                         doodle.setColor(fifth_colors[2]);
                     }
                 }
                 doodle.setLight(255);
                 doodle.setFlash(0);
-                light_status.put(String.valueOf( j), doodle);
+                light_status.put(String.valueOf(j), doodle);
             }
             doodlePattern.setLight_status(light_status);
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 
@@ -270,6 +272,9 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 
@@ -292,6 +297,9 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 
@@ -322,6 +330,9 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 
@@ -354,6 +365,9 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 

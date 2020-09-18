@@ -354,6 +354,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         List<DoodlePattern> doodlePatterns = new ArrayList<>();
         doodlePatterns.add(doodlePattern);
         lampModel.setModeArr(doodlePatterns);
+        lampModel.setSize(lampView.getSize());
+        lampModel.setLightRow(lampView.getSize() / lampView.getColumn());
+        lampModel.setColumn(lampView.getColumn());
         doodleFragmentPresenter.saveModel(new Gson().toJson(lampModel));
     }
 

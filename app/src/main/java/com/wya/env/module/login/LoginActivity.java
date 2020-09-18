@@ -321,6 +321,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 
@@ -357,6 +360,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 
@@ -379,6 +385,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 
@@ -409,6 +418,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 
@@ -441,6 +453,9 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
         return lampModel;
     }
 

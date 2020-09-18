@@ -203,6 +203,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             getNetData();
         } else {
             lampView.toStopSendUdpModeData(true);
+            lampView.stopSendUdpData();
         }
     }
 

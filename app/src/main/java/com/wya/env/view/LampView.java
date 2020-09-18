@@ -242,10 +242,19 @@ public class LampView extends View {
     }
 
     /**
-     * @return 等的数量
+     * @return 灯的数量
      */
     public int getSize() {
         return size;
+    }
+
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
     }
 
     public void setTwinkle(boolean twinkle) {
@@ -371,26 +380,25 @@ public class LampView extends View {
             this.data = modeArr.get(0).getLight_status();
             if (hasTwinkle()) {
                 toTwinkle();
+                if (toShow) {
+                    isStopSendUdpData = false;
+                    sendUdpMessage();
+                    stopSendUdpModeData();
+                }
             } else {
                 stopTwinkle();
                 postInvalidate();
-                if(toShow){
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();
+                if (toShow) {
+                    isStopSendUdpData = false;
+                    sendUdpMessage();
+                    stopSendUdpModeData();
                 }
             }
         } else {
             add = -1;
             this.modeArr = modeArr;
             toShowModel(toShow);
+            stopSendUdpData();
         }
     }
 
@@ -957,8 +965,6 @@ public class LampView extends View {
      *
      * @return
      */
-    boolean isBlack = false;
-
     public byte[] getUdpByteData(HashMap<String, Doodle> data) {
         byte[] upd_data = new byte[1 + 2 + 2 + 3 * size];
         upd_data[0] = 0x01;
@@ -966,12 +972,11 @@ public class LampView extends View {
         upd_data[2] = 0x00;
         upd_data[3] = ByteUtil.intToByteArray(size)[0];
         upd_data[4] = ByteUtil.intToByteArray(size)[1];
-        isBlack = !isBlack;
         for (int i = 0; i < size; i++) {
             String color = data.get(String.valueOf(i)).getColor();
             boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
             if (isTwinkle) {
-                if (isBlack) {
+                if (Math.random() * 10 < 4) {
                     upd_data[i * 3 + 5] = 0x00;
                     upd_data[i * 3 + 6] = 0x00;
                     upd_data[i * 3 + 7] = 0x00;

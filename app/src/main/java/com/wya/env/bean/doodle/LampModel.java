@@ -14,6 +14,33 @@ public class LampModel {
     int music;
     int isChose;
     int mirror;
+    int column;
+    int lightRow;
+    int size;
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
+    }
+
+    public int getLightRow() {
+        return lightRow;
+    }
+
+    public void setLightRow(int lightRow) {
+        this.lightRow = lightRow;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
 
     public int getMirror() {
         return mirror;

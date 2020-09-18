@@ -123,7 +123,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                     lampSettings.get(i).setChose(false);
                 }
                 lampSettings.get(position).setChose(true);
-                adapter.notifyDataSetChanged();
+                myLampAdapter.notifyDataSetChanged();
+                myLampAdapter.toLinkTcp();
                 saveInfoLamp(lampSettings);
             }
         });
@@ -389,5 +390,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
             myLampAdapter.setMusicModel(event);
         }
 
+    }
+
+    public void toLinkTcp() {
+        LogUtil.e("toLinkTcp-----------------");
     }
 }

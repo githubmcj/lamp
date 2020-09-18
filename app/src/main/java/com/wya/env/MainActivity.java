@@ -47,6 +47,11 @@ public class MainActivity extends BaseActivity {
         initFragment();
         setToolBar();
         getSwipeBackLayout().setEnableGesture(false);
+        toLinkTcp();
+    }
+
+    private void toLinkTcp() {
+        fragment2.toLinkTcp();
     }
 
     @Override

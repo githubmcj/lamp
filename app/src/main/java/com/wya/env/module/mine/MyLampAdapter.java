@@ -112,6 +112,18 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         super(layoutResId, data);
         this.context = context;
         this.data = data;
+        toLinkTcp();
+        LogUtil.e("MyLampAdapter-----------------");
+    }
+
+    public void toLinkTcp() {
+        for (int i = 0; i < data.size(); i++) {
+            if(data.get(i).isChose()){
+                ip = data.get(i).getIp();
+                position = i;
+                initEasySocket(ip);
+            }
+        }
     }
 
 
@@ -125,8 +137,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             helper.setText(R.id.name, item.getDeviceName());
             if (item.isChose()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
-                position = helper.getAdapterPosition();
-                initEasySocket(item.getIp());
+//                position = helper.getAdapterPosition();
+//                initEasySocket(item.getIp());
                 helper.getView(R.id.img_open).setEnabled(true);
                 helper.getView(R.id.img_time_open).setEnabled(true);
             } else {
