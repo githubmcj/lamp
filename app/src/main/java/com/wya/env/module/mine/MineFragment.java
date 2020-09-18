@@ -388,26 +388,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         if(myLampAdapter != null){
             myLampAdapter.setMusicModel(event);
         }
-        try {
-            EasySocket.getInstance().upBytes(getMusicData(event));
-        } catch (Exception e){
-            LogUtil.e("打开灯光失败");
-        }
-    }
 
-    int step = 1;
-    private byte[] getMusicData(MusicModel event) {
-        byte[] bodyData = new byte[4];
-        bodyData[0] = 0x01;
-        bodyData[1] = (byte) (0xff & step);
-        bodyData[2] = (byte) 0x00;
-        if (event.getMusic() == 0) {
-            bodyData[3] = 0x01;
-        } else {
-            bodyData[3] = 0x00;
-        }
-        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
-        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
-        return openFileData;
     }
 }

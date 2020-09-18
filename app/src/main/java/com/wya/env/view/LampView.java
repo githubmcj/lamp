@@ -374,6 +374,18 @@ public class LampView extends View {
             } else {
                 stopTwinkle();
                 postInvalidate();
+                if(toShow){
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+                }
             }
         } else {
             add = -1;

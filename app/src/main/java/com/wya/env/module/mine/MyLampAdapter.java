@@ -63,6 +63,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
     public void setMusicModel(MusicModel musicModel) {
         this.musicModel = musicModel;
+        getLampMusicState();
     }
 
     @SuppressLint("HandlerLeak")
@@ -76,9 +77,13 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     MyLampAdapter.this.notifyDataSetChanged();
                     break;
                 case 2:
-                    MusicSuccess musicSuccess = new MusicSuccess();
-                    musicSuccess.setPosition(musicModel.getPosition());
-                    EventBus.getDefault().post(musicSuccess);
+                    if(musicModel.isClick()){
+                        MusicSuccess musicSuccess = new MusicSuccess();
+                        musicSuccess.setPosition(musicModel.getPosition());
+                        EventBus.getDefault().post(musicSuccess);
+                    } else {
+                        LogUtil.e("声控开关和模型同步");
+                    }
                     break;
                 case 3:
                     data.get((Integer) msg.obj).setHasTimer(!data.get((Integer) msg.obj).isHasTimer());
@@ -403,7 +408,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     /**
      * socket行为监听
      */
-    private ISocketActionListener socketActionListener = new SocketActionListener() {
+    private final ISocketActionListener socketActionListener = new SocketActionListener() {
         /**
          * socket连接成功
          * @param socketAddress
@@ -475,7 +480,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 } else {
                     LogUtil.e("失败");
                 }
-            } else if (originReadData.getBodyData().length > 3 &&originReadData.getBodyData()[originReadData.getBodyData().length - 3] == (byte) 0x8e) {
+            } else if (originReadData.getBodyData().length > 3 && originReadData.getBodyData()[originReadData.getBodyData().length - 3] == (byte) 0x8e) {
                 LogUtil.e("获取灯状态");
                 if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == (byte) 0x81) {
                     LogUtil.e("获取灯开关");
@@ -499,6 +504,37 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                         handler.sendMessage(msg);
                     } else {
                         LogUtil.e("无该功能");
+                    }
+                }
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == (byte) 0x00) {
+                    if(musicModel.isClick()){
+                        try {
+                            EasySocket.getInstance().upBytes(getMusicData(musicModel,  musicModel.isClick()));
+                        } catch (Exception e) {
+                            LogUtil.e("打开灯光失败");
+                        }
+                    } else {
+                        if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                            LogUtil.e("声控开着的");
+                            if(musicModel.getMusic() == 0){
+                                try {
+                                    EasySocket.getInstance().upBytes(getMusicData(musicModel, musicModel.isClick()));
+                                } catch (Exception e) {
+                                    LogUtil.e("打开灯光失败");
+                                }
+                            }
+                        } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                            LogUtil.e("声控关着的");
+                            if(musicModel.getMusic() == 1){
+                                try {
+                                    EasySocket.getInstance().upBytes(getMusicData(musicModel, musicModel.isClick()));
+                                } catch (Exception e) {
+                                    LogUtil.e("打开灯光失败");
+                                }
+                            }
+                        } else {
+                            LogUtil.e("无该功能");
+                        }
                     }
                 }
             } else if (originReadData.getBodyData().length > 28 && originReadData.getBodyData()[originReadData.getBodyData().length - 28] == (byte) 0x8f) {
@@ -575,6 +611,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         return openStateData;
     }
 
+    private void getLampMusicState() {
+        bodyData = getLampState((byte) 0x00);
+        EasySocket.getInstance().upBytes(bodyData);
+    }
+
+
     private void getLampOpenState() {
         bodyData = getLampState((byte) 0x81);
         EasySocket.getInstance().upBytes(bodyData);
@@ -633,6 +675,31 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         return openFileData;
     }
 
+
+    int m_step = 1;
+
+    private byte[] getMusicData(MusicModel event, boolean isClick) {
+        byte[] bodyData = new byte[4];
+        bodyData[0] = 0x01;
+        bodyData[1] = (byte) (0xff & m_step);
+        bodyData[2] = (byte) 0x00;
+        if(isClick){
+            if (event.getMusic() == 0) {
+                bodyData[3] = 0x01;
+            } else {
+                bodyData[3] = 0x00;
+            }
+        } else {
+            if (event.getMusic() == 0) {
+                bodyData[3] = 0x00;
+            } else {
+                bodyData[3] = 0x01;
+            }
+        }
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
+        return openFileData;
+    }
 
     public void stopTcp() {
         try {

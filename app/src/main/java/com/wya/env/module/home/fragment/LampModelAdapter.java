@@ -31,7 +31,6 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
     private List<LampModel> data;
 
 
-
     public LampModelAdapter(Context context, int layoutResId, @Nullable List<LampModel> data) {
         super(layoutResId, data);
         this.context = context;
@@ -50,6 +49,13 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
             ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr(), false);
             ((LampView) helper.getView(R.id.lamp_view)).setModelName(item.getName());
             if (item.isChose() == 1) {
+                MusicModel musicModel = new MusicModel();
+                musicModel.setPosition(helper.getAdapterPosition());
+                musicModel.setMusic(item.isMusic());
+                musicModel.setClick(false);
+                EventBus.getDefault().post(musicModel);
+            }
+            if (item.isChose() == 1) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
             } else {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
@@ -66,9 +72,8 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
                         MusicModel musicModel = new MusicModel();
                         musicModel.setPosition(helper.getAdapterPosition());
                         musicModel.setMusic(item.isMusic());
+                        musicModel.setClick(true);
                         EventBus.getDefault().post(musicModel);
-//                        item.setMusic(1 - item.isMusic());
-//                        LampModelAdapter.this.notifyDataSetChanged();
                     } else {
                         Toast.makeText(context, "Please select the mode first", Toast.LENGTH_SHORT).show();
                     }

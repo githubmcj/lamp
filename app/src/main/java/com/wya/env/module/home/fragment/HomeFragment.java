@@ -91,6 +91,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+        lampView.toStopSendUdpModeData(true);
     }
 
 
@@ -129,16 +130,21 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             if (position == lampModels.size() - 1) {
                 EventBus.getDefault().post(new AddModel());
             } else {
-                choseModel = lampModels.get(position).getModeArr();
-                for (int i = 0; i < lampModels.size(); i++) {
-                    lampModels.get(i).setChose(0);
-                }
-                lampModels.get(position).setChose(1);
-                adapter.notifyDataSetChanged();
+                if(lampModels.get(position).isChose() != 1){
+                    choseModel = lampModels.get(position).getModeArr();
+                    for (int i = 0; i < lampModels.size(); i++) {
+                        lampModels.get(i).setChose(0);
+                    }
+                    lampModels.get(position).setChose(1);
+                    adapter.notifyDataSetChanged();
 
-                name.setText(lampModels.get(position).getName());
-                lampView.setMirror(lampModels.get(position).getMirror());
-                lampView.setModel(lampModels.get(position).getModeArr(), true);
+                    name.setText(lampModels.get(position).getName());
+                    lampView.setMirror(lampModels.get(position).getMirror());
+                    lampView.setModel(lampModels.get(position).getModeArr(), true);
+                } else {
+                   LogUtil.e("该模板已经选中");
+                }
+
             }
 //            setTcpData(lampModels.get(position).getModeArr());
         });
@@ -185,7 +191,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampView.setFocusable(false);
         initData();//初始化数据
     }
-
 
 
     @Override
@@ -461,4 +466,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         }
         return tcp_data;
     }
+
+
 }
