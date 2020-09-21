@@ -128,12 +128,17 @@ public class LampView extends View {
 
         for (int i = 0; i < column; i++) {
             for (int j = 0; j < size / column; j++) {
-                if (data.get(String.valueOf(j + size / column * i)).isFlash() == 1) {
-                    data.get(String.valueOf(j + size / column * i)).setLight(light);
-                    lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
+                if(data.get(String.valueOf(j + size / column * i)) != null){
+                    if (data.get(String.valueOf(j + size / column * i)).isFlash() == 1) {
+                        data.get(String.valueOf(j + size / column * i)).setLight(light);
+                        lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
+                    } else {
+                        lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
+                    }
                 } else {
-                    lampPaint.setColor(data.get(String.valueOf(j + size / column * i)).getLampColor());
+                    lampPaint.setColor(Color.argb(0, 0, 0, 0));
                 }
+
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2 + 1, framePaint);
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, whitePaint);
                 canvas.drawCircle((lamp_size / 2 + lamp_margin) + mWidth / column * i, (lamp_size / 2 + lamp_margin) + mWidth / column * j, lamp_size / 2, lampPaint);
@@ -565,7 +570,7 @@ public class LampView extends View {
                                 if (!data.get(String.valueOf(position)).getColor().equalsIgnoreCase(choseColor)) {
                                     data.get(String.valueOf(position)).setColor(choseColor);
                                     data.get(String.valueOf(position)).setLight(choseLight);
-                                    if (isTwinkle) {
+                                    if (isTwinkle && choseColor != "#000000") {
                                         data.get(String.valueOf(position)).setFlash(1);
                                     } else {
                                         data.get(String.valueOf(position)).setFlash(0);
@@ -596,7 +601,7 @@ public class LampView extends View {
                                     if (!data.get(String.valueOf(position)).getColor().equalsIgnoreCase(choseColor)) {
                                         data.get(String.valueOf(position)).setColor(choseColor);
                                         data.get(String.valueOf(position)).setLight(choseLight);
-                                        if (isTwinkle) {
+                                        if (isTwinkle && choseColor != "#000000") {
                                             data.get(String.valueOf(position)).setFlash(1);
                                         } else {
                                             data.get(String.valueOf(position)).setFlash(0);

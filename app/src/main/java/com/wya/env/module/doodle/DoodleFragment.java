@@ -420,7 +420,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 break;
         }
         lampView.setChoseColor(chose_color);
-        if(painter_type == 0){
+        if(painter_type == 0 || painter_type == 3){
             lampView.setPaintBold(false);
             painter_type = 2;
             setPainter(painter_type);

@@ -9,7 +9,8 @@
 
     <TableRow
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center">
 
         <TextView
             android:id="@+id/name"
@@ -18,7 +19,6 @@
             android:layout_marginLeft="@dimen/dp_20"
             android:layout_weight="1"
             android:padding="@dimen/dp_10"
-            android:maxLength="20"
             android:text="device name"
             android:textColor="@color/black"
             android:textSize="@dimen/sp_16"></TextView>

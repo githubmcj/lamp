@@ -327,7 +327,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/dp_10"
                                 android:text="@string/bold_paint"
-                                android:textSize="@dimen/sp_14"></TextView>
+                                android:textSize="@dimen/sp_14"
+                                android:visibility="gone"></TextView>
                         </LinearLayout>
 
                         <LinearLayout
@@ -354,7 +355,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/dp_10"
                                 android:text="@string/thin_paint"
-                                android:textSize="@dimen/sp_14"></TextView>
+                                android:textSize="@dimen/sp_14"
+                                android:visibility="gone"></TextView>
                         </LinearLayout>
 
                         <LinearLayout
@@ -381,7 +383,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/dp_10"
                                 android:text="@string/clean"
-                                android:textSize="@dimen/sp_14"></TextView>
+                                android:textSize="@dimen/sp_14"
+                                android:visibility="gone"></TextView>
                         </LinearLayout>
 
                         <LinearLayout
@@ -408,7 +411,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/dp_10"
                                 android:text="@string/twinkle"
-                                android:textSize="@dimen/sp_14"></TextView>
+                                android:textSize="@dimen/sp_14"
+                                android:visibility="gone"></TextView>
                         </LinearLayout>
 
                         <LinearLayout
@@ -434,7 +438,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/dp_10"
                                 android:text="@string/save"
-                                android:textSize="@dimen/sp_14"></TextView>
+                                android:textSize="@dimen/sp_14"
+                                android:visibility="gone"></TextView>
                         </LinearLayout>
 
                     </TableRow>

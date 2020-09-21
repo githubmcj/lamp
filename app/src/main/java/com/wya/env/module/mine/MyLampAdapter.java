@@ -155,7 +155,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             if (item.isHasTimer()) {
                 helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.dengguang));
                 helper.setVisible(R.id.time, true);
-                helper.setText(R.id.time, "定时开：" + item.getS_hour() + ":" + item.getS_min() + "    " + "\n定时关：" + item.getE_hour() + ":" + item.getE_min());
+                helper.setText(R.id.time, "turn on:" + item.getS_hour() + ":" + item.getS_min() + "    " + "\nturn off:" + item.getE_hour() + ":" + item.getE_min());
             } else {
                 helper.setImageDrawable(R.id.img_time_open, context.getResources().getDrawable(R.drawable.morenshebei));
                 helper.setVisible(R.id.time, false);
