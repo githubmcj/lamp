@@ -115,9 +115,7 @@
         android:id="@+id/ll_add"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/dp_10"
-        android:layout_marginRight="@dimen/dp_10"
-        android:background="@color/white"
+        android:background="@drawable/lamp_pattern_normal_bg"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone">

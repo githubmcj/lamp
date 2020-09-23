@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">灯饰</string>
+    <string name="app_name">DS</string>
 
     <string name="title_home">Demo</string>
     <string name="title_doodle">Graffiti</string>
@@ -39,7 +39,7 @@
     <string name="register_protocol_title">注册协议</string>
     <string name="has_read">我已阅读</string>
     <string name="sure_register">SIGN UP</string>
-    <string name="sure_forget">确认找回</string>
+    <string name="sure_forget">Confirm Recovery</string>
     <string name="register">Registration</string>
     <string name="forget">Forgot Password</string>
     <string name="code">get code</string>

@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:padding="@dimen/dp_12"
-        android:text="@string/equipment_name"
+        android:text="@string/app_name"
         android:textColor="@color/black"
         android:textSize="@dimen/sp_18"></TextView>
 
@@ -128,10 +128,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@null"
-                            android:padding="@dimen/dp_12"
+                            android:paddingTop="@dimen/dp_12"
+                            android:paddingBottom="@dimen/dp_12"
+                            android:paddingLeft="@dimen/dp_10"
+                            android:paddingRight="@dimen/dp_10"
                             android:text="@string/refresh"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/sp_18"></TextView>
+                            android:textSize="@dimen/sp_14"></TextView>
 
                     </TableRow>
 
@@ -154,10 +157,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@null"
-                            android:padding="@dimen/dp_12"
+                            android:paddingTop="@dimen/dp_12"
+                            android:paddingBottom="@dimen/dp_12"
+                            android:paddingLeft="@dimen/dp_10"
+                            android:paddingRight="@dimen/dp_10"
                             android:text="@string/about_us"
                             android:textColor="@color/white"
-                            android:textSize="@dimen/sp_18"></TextView>
+                            android:textSize="@dimen/sp_14"></TextView>
                     </TableRow>
 
 
