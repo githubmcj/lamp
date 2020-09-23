@@ -950,7 +950,7 @@ public class LampView extends View {
     public void clean() {
         for (int i = 0; i < data.size(); i++) {
             data.get(String.valueOf(i)).setColor("#000000");
-//            data.get(String.valueOf(i)).setLight(255);
+            data.get(String.valueOf(i)).setShowColor("#000000");
             data.get(String.valueOf(i)).setFlash(0);
         }
         postInvalidate();

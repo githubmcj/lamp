@@ -221,6 +221,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                     picker_chose_color = "#ffffff";
                                 }
                                 chose_color = circle.getColor(picker_chose_color, chose_light);
+                                tvLight.setText(chose_light + "");
                                 show_color = circle.getShowColor(picker_chose_color, chose_light);
                                 colorPickerView.setOnColorPickListener(new PickerViewListener() {
                                     @Override
@@ -332,6 +333,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         color_index = 0;
         chose_color = null;
         lampView.setChoseColor(chose_color);
+        lampView.setShowColor(chose_color);
         getColorIndex(color_index);
         isTwinkle = false;
         lampView.setTwinkle(isTwinkle);
@@ -376,12 +378,15 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         if (painter_type == 1) {
             imgBoldPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.cubidianji));
             lampView.setChoseColor(chose_color);
+            lampView.setShowColor(chose_color);
         } else if (painter_type == 2) {
             imgThinPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.xibidianji));
             lampView.setChoseColor(chose_color);
+            lampView.setShowColor(chose_color);
         } else if (painter_type == 3) {
             imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachudianji));
             lampView.setChoseColor("#000000");
+            lampView.setShowColor("#000000");
         } else {
             lampView.setPaintBold(false);
         }
@@ -429,6 +434,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 break;
         }
         lampView.setChoseColor(chose_color);
+        lampView.setShowColor(chose_color);
         if (painter_type == 0 || painter_type == 3) {
             lampView.setPaintBold(false);
             painter_type = 2;
