@@ -107,6 +107,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
 
     private int color_index;
     private String chose_color;
+    private String show_color;
+    private String picker_chose_color;
     private int chose_light;
     /**
      * 0 不选中， 1 粗笔， 2 细笔  3 擦除
@@ -140,6 +142,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     private void initData() {
         chose_light = 100;
         lampView.setChoseColor(chose_color);
+        lampView.setShowColor(show_color);
         //        if (!isFirst) {
 //        initListData();
 //        getData();
@@ -214,21 +217,24 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 ColorPickerView colorPickerView = v.findViewById(R.id.picker_view);
                                 TextView tvLight = v.findViewById(R.id.tv_light);
                                 Circle circle = v.findViewById(R.id.circle);
-                                if (chose_color == null) {
-                                    chose_color = "#ffffff";
+                                if (picker_chose_color == null) {
+                                    picker_chose_color = "#ffffff";
                                 }
-                                circle.setColor(chose_color, chose_light);
+                                chose_color = circle.getColor(picker_chose_color, chose_light);
+                                show_color = circle.getShowColor(picker_chose_color, chose_light);
                                 colorPickerView.setOnColorPickListener(new PickerViewListener() {
                                     @Override
                                     public void onPickerColor(int color) {
-                                        chose_color = String.format("#%06X", (0xFFFFFF & color));
-                                        circle.setColor(chose_color, chose_light);
+                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & color));
+                                        chose_color = circle.getColor(picker_chose_color, chose_light);
+                                        show_color = circle.getShowColor(picker_chose_color, chose_light);
                                     }
                                 });
                                 sure.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
                                         lampView.setChoseColor(chose_color);
+                                        lampView.setShowColor(show_color);
                                         color_index = 0;
                                         getColorIndex(color_index);
                                         choseColorDialog.dismiss();
@@ -242,7 +248,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                                         chose_light = progress;
                                         tvLight.setText(chose_light + "");
-                                        circle.setColor(chose_color, chose_light);
+                                        chose_color = circle.getColor(picker_chose_color, chose_light);
+                                        show_color = circle.getShowColor(picker_chose_color, chose_light);
                                     }
 
                                     @Override
@@ -251,7 +258,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
 
                                     @Override
                                     public void onStopTrackingTouch(SeekBar seekBar) {
-                                        lampView.setChoseLight(chose_light);
+                                        lampView.setChoseColor(chose_color);
+                                        lampView.setShowColor(show_color);
                                     }
                                 });
                             }
@@ -421,7 +429,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 break;
         }
         lampView.setChoseColor(chose_color);
-        if(painter_type == 0 || painter_type == 3){
+        if (painter_type == 0 || painter_type == 3) {
             lampView.setPaintBold(false);
             painter_type = 2;
             setPainter(painter_type);

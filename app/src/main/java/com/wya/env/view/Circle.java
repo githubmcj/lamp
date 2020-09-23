@@ -108,8 +108,17 @@ public class Circle extends View {
 
     }
 
-    public void setColor(String chose_color, int chose_light) {
-        mColor = Color.argb(255 * chose_light / 100, ColorUtil.int2Rgb(Color.parseColor(chose_color))[0], ColorUtil.int2Rgb(Color.parseColor(chose_color))[1], ColorUtil.int2Rgb(Color.parseColor(chose_color))[2]);
+    public String getColor(String chose_color, int chose_light) {
+        mColor = Color.rgb((ColorUtil.int2Rgb(Color.parseColor(chose_color))[0]) * chose_light / 100, (ColorUtil.int2Rgb(Color.parseColor(chose_color))[1]) * chose_light / 100, (ColorUtil.int2Rgb(Color.parseColor(chose_color))[2]) * chose_light / 100);
         postInvalidate();
+        return ColorUtil.int2Hex(mColor);
+    }
+
+    public String getShowColor(String chose_color, int chose_light) {
+        if (chose_light < 15) {
+            chose_light = 15;
+        }
+        return ColorUtil.int2Hex(Color.rgb((ColorUtil.int2Rgb(Color.parseColor(chose_color))[0]) * chose_light / 100, (ColorUtil.int2Rgb(Color.parseColor(chose_color))[1]) * chose_light / 100, (ColorUtil.int2Rgb(Color.parseColor(chose_color))[2]) * chose_light / 100));
+
     }
 }

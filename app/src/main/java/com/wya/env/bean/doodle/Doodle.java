@@ -3,18 +3,25 @@ package com.wya.env.bean.doodle;
 import android.graphics.Color;
 
 import com.wya.env.util.ColorUtil;
-import com.wya.utils.utils.LogUtil;
 
 public class Doodle implements Cloneable {
 
     private String color;
 
-//    private int light = 255;
+    private String showColor;
 
     /**
      * 是否闪烁 0 不闪， 1闪
      */
     private int isFlash;
+
+    public String getShowColor() {
+        return showColor;
+    }
+
+    public void setShowColor(String showColor) {
+        this.showColor = showColor;
+    }
 
     public String getColor() {
         return color;
@@ -32,20 +39,6 @@ public class Doodle implements Cloneable {
         isFlash = flash;
     }
 
-//    public int getLight() {
-//        return light;
-//    }
-//
-//    public void setLight(int light) {
-//        if (light < 0) {
-//            this.light = 0;
-//        } else if (light > 255) {
-//            this.light = 255;
-//        } else {
-//            this.light = light;
-//        }
-//    }
-
 
     /**
      * 灯的颜色+亮度
@@ -53,15 +46,18 @@ public class Doodle implements Cloneable {
      * @return
      */
     public int getLampColor(int light) {
-
         if (light > 255) {
-            if(color != null){
+            if (showColor != null && !showColor.equals("")) {
+                return Color.argb(255, ColorUtil.int2Rgb(Color.parseColor(showColor))[0], ColorUtil.int2Rgb(Color.parseColor(showColor))[1], ColorUtil.int2Rgb(Color.parseColor(showColor))[2]);
+            } else if (color != null && !color.equals("")) {
                 return Color.argb(255, ColorUtil.int2Rgb(Color.parseColor(color))[0], ColorUtil.int2Rgb(Color.parseColor(color))[1], ColorUtil.int2Rgb(Color.parseColor(color))[2]);
             } else {
                 return Color.argb(0, 0, 0, 0);
             }
         } else if (light > 0) {
-            if(color != null){
+            if (showColor != null && !showColor.equals("")) {
+                return Color.argb(light, ColorUtil.int2Rgb(Color.parseColor(showColor))[0], ColorUtil.int2Rgb(Color.parseColor(showColor))[1], ColorUtil.int2Rgb(Color.parseColor(showColor))[2]);
+            } else if (color != null && !color.equals("")) {
                 return Color.argb(light, ColorUtil.int2Rgb(Color.parseColor(color))[0], ColorUtil.int2Rgb(Color.parseColor(color))[1], ColorUtil.int2Rgb(Color.parseColor(color))[2]);
             } else {
                 return Color.argb(0, 0, 0, 0);
