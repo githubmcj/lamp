@@ -14,6 +14,7 @@ import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.SaveModel;
+import com.wya.env.bean.event.EventtDeviceName;
 import com.wya.env.bean.home.AddModel;
 import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.bean.login.Lamps;
@@ -103,6 +104,12 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventtDeviceName eventtDeviceName) {
+        name.setText(eventtDeviceName.getDeviceName() == null ? "device name" : eventtDeviceName.getDeviceName());
+    }
+
+
     private void initData() {
         getLocalData();
         getNetData();
@@ -130,7 +137,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             if (position == lampModels.size() - 1) {
                 EventBus.getDefault().post(new AddModel());
             } else {
-                if(lampModels.get(position).isChose() != 1){
+                if (lampModels.get(position).isChose() != 1) {
                     choseModel = lampModels.get(position).getModeArr();
                     for (int i = 0; i < lampModels.size(); i++) {
                         lampModels.get(i).setChose(0);
@@ -138,11 +145,10 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                     lampModels.get(position).setChose(1);
                     adapter.notifyDataSetChanged();
 
-                    name.setText(lampModels.get(position).getName());
                     lampView.setMirror(lampModels.get(position).getMirror());
                     lampView.setModel(lampModels.get(position).getModeArr(), lampModels.get(position).getLight(), true);
                 } else {
-                   LogUtil.e("该模板已经选中");
+                    LogUtil.e("该模板已经选中");
                 }
 
             }

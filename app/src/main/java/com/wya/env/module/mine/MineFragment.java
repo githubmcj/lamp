@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
+import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
@@ -92,6 +93,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         initUserInfo();
         initLampInfo();
         initRecyclerView();
+        showLoading();
+        sendData();
     }
 
     private void initLampInfo() {
@@ -362,13 +365,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         myLampAdapter.stopTcp();
     }
 
+
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-        if (!hidden) {
-            showLoading();
-            sendData();
-        }
+//        if (!hidden) {
+//            showLoading();
+//            sendData();
+//        }
     }
 
 
@@ -393,6 +397,13 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     }
 
     public void toLinkTcp() {
-        LogUtil.e("toLinkTcp-----------------");
+        if(!App.getInstance().isTcpConnected() && myLampAdapter != null){
+            myLampAdapter.toLinkTcp();
+            LogUtil.e("toLinkTcp-----------------");
+        } else if(App.getInstance().isTcpConnected()){
+            LogUtil.e("Tcp is Connected");
+        } else {
+            LogUtil.e("myLampAdapter is null");
+        }
     }
 }

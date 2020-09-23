@@ -13,8 +13,10 @@ import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.event.EventtDeviceName;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
@@ -57,9 +59,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     private String ip;
     private byte[] bodyData;
     private int position;
-    private boolean isConnected;
 
     private MusicModel musicModel;
+    private String deviceName;
+    private EventtDeviceName eventtDeviceName;
 
     public void setMusicModel(MusicModel musicModel) {
         this.musicModel = musicModel;
@@ -113,7 +116,6 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         this.context = context;
         this.data = data;
         toLinkTcp();
-        LogUtil.e("MyLampAdapter-----------------");
     }
 
     public void toLinkTcp() {
@@ -121,6 +123,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             if(data.get(i).isChose()){
                 ip = data.get(i).getIp();
                 position = i;
+                deviceName = data.get(i).getDeviceName();
                 initEasySocket(ip);
             }
         }
@@ -138,10 +141,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         } else {
             helper.setGone(R.id.ll_add, false);
             helper.setText(R.id.name, item.getDeviceName());
-            if (item.isChose()) {
+            if (item.isChose() && App.getInstance().isTcpConnected()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
-//                position = helper.getAdapterPosition();
-//                initEasySocket(item.getIp());
                 helper.getView(R.id.img_open).setEnabled(true);
                 helper.getView(R.id.img_time_open).setEnabled(true);
             } else {
@@ -167,23 +168,32 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             helper.getView(R.id.img_open).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ip = item.getIp();
-                    position = helper.getAdapterPosition();
-                    bodyData = getOpenLamp(!item.isOpen());
-                    EasySocket.getInstance().upBytes(bodyData);
+                    if(App.getInstance().isTcpConnected()){
+                        ip = item.getIp();
+                        position = helper.getAdapterPosition();
+                        bodyData = getOpenLamp(!item.isOpen());
+                        EasySocket.getInstance().upBytes(bodyData);
+                    } else {
+                        Toast.makeText(context,  "Device is Disconnect", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             });
 
             helper.getView(R.id.img_time_open).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    position = helper.getAdapterPosition();
-                    if (item.isHasTimer()) {
-                        bodyData = getTimerTime(false, item.getS_hour(), item.getS_min(), item.getE_hour(), item.getE_min());
-                        EasySocket.getInstance().upBytes(bodyData);
+                    if(App.getInstance().isTcpConnected()){
+                        position = helper.getAdapterPosition();
+                        if (item.isHasTimer()) {
+                            bodyData = getTimerTime(false, item.getS_hour(), item.getS_min(), item.getE_hour(), item.getE_min());
+                            EasySocket.getInstance().upBytes(bodyData);
+                        } else {
+                            toSendTime();
+                            openChoseTime(item);
+                        }
                     } else {
-                        toSendTime();
-                        openChoseTime(item);
+                        Toast.makeText(context,  "Device is Disconnect", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -435,7 +445,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             toStartHeart();
             getLampOpenState();
             getLampTimerState();
-            isConnected = true;
+            App.getInstance().setTcpConnected(true);
+            eventtDeviceName = new EventtDeviceName();
+            eventtDeviceName.setDeviceName(deviceName);
+            EventBus.getDefault().post(eventtDeviceName);
+            MyLampAdapter.this.notifyDataSetChanged();
         }
 
         /**
@@ -447,7 +461,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         public void onSocketConnFail(SocketAddress socketAddress, Boolean isNeedReconnect) {
             super.onSocketConnFail(socketAddress, isNeedReconnect);
             LogUtil.d("socket连接被断开");
-            isConnected = false;
+            App.getInstance().setTcpConnected(false);
+            eventtDeviceName = new EventtDeviceName();
+            eventtDeviceName.setDeviceName(null);
+            EventBus.getDefault().post(eventtDeviceName);
+            MyLampAdapter.this.notifyDataSetChanged();
         }
 
         /**
@@ -460,8 +478,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             super.onSocketDisconnect(socketAddress, isNeedReconnect);
             LogUtil.d("socket断开连接，是否需要重连：" + isNeedReconnect);
             LogUtil.d("socket连接被断开");
-            Toast.makeText(context, "socket连接被断开", Toast.LENGTH_SHORT).show();
-            isConnected = false;
+            Toast.makeText(context,  "Device is Disconnect", Toast.LENGTH_SHORT).show();
+            App.getInstance().setTcpConnected(false);
+            eventtDeviceName = new EventtDeviceName();
+            eventtDeviceName.setDeviceName(null);
+            EventBus.getDefault().post(eventtDeviceName);
+            MyLampAdapter.this.notifyDataSetChanged();
         }
 
         /**

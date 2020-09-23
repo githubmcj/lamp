@@ -2,12 +2,13 @@ package com.wya.env;
 
 import android.app.Application;
 import android.support.v7.app.AppCompatDelegate;
+import android.widget.Toast;
 
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
-import com.squareup.leakcanary.LeakCanary;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
+import com.wya.env.net.tpc.utils.LogUtil;
 import com.wya.env.util.DynamicTimeFormatUtil;
 import com.wya.env.util.SaveSharedPreferences;
 
@@ -19,15 +20,31 @@ import com.wya.env.util.SaveSharedPreferences;
  */
 
 public class App extends Application {
-    
+
     private static App INSTANCE;
 
     public static String TOKEN;
-    
+
+    /**
+     * tcp是否连接
+     */
+    private boolean isTcpConnected = false;
+
+
+    public boolean isTcpConnected() {
+        return isTcpConnected;
+    }
+
+
+    public void setTcpConnected(boolean tcpConnected) {
+        isTcpConnected = tcpConnected;
+    }
+
+
     public static App getInstance() {
         return INSTANCE;
     }
-    
+
     static {
         //启用矢量图兼容
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -37,10 +54,12 @@ public class App extends Application {
             return new ClassicsHeader(context).setTimeFormat(new DynamicTimeFormatUtil("更新于 %s"));
         });
     }
-    
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        INSTANCE = this;
 
         TOKEN = SaveSharedPreferences.getString(getApplicationContext(), CommonValue.TOKEN);
 
@@ -56,4 +75,5 @@ public class App extends Application {
 //        LeakCanary.install(this);
 
     }
+
 }

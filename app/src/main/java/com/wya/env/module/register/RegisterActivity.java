@@ -89,7 +89,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         setRead(isRead);
         setRead2(isRead2);
         //设置Hello World前三个字符有点击事件
-        SpannableStringBuilder textSpanned = new SpannableStringBuilder("I declae to have read,understood and agreed the Terms&Conditions of use of this app and the Privacy Police");
+        SpannableStringBuilder textSpanned = new SpannableStringBuilder("I declare to have read,understood and agreed the Terms&Conditions of use of this app and the Privacy Police");
         textSpanned.setSpan(new ForegroundColorSpan(Color.RED),
                 47, 65, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         textSpanned.setSpan(new ForegroundColorSpan(Color.RED),
