@@ -1,13 +1,20 @@
 package com.wya.env.module.register;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.wya.env.App;
@@ -56,8 +63,11 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
     TextView tvRegisterProtocol;
     @BindView(R.id.but_login)
     WYAButton butLogin;
+    @BindView(R.id.img_read2)
+    ImageView imgRead2;
 
     private boolean isRead;
+    private boolean isRead2;
     private RegisterPresent registerPresent;
     private Lamps lamps;
 
@@ -66,13 +76,62 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
      */
     private List<LampModel> lampModels;
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void initView() {
         setTitle(getResources().getString(R.string.register));
-        isRead = false;
+        setLeftText("Back");
+        isRead = true;
+        isRead2 = true;
         registerPresent = new RegisterPresent();
         registerPresent.mView = this;
         lampModels = getModels();
+        setRead(isRead);
+        setRead2(isRead2);
+        //设置Hello World前三个字符有点击事件
+        SpannableStringBuilder textSpanned = new SpannableStringBuilder("I declae to have read,understood and agreed the Terms&Conditions of use of this app and the Privacy Police");
+        textSpanned.setSpan(new ForegroundColorSpan(Color.RED),
+                47, 65, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textSpanned.setSpan(new ForegroundColorSpan(Color.RED),
+                91, 106, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(RegisterActivity.this, "Hello World", Toast.LENGTH_SHORT).show();
+            }
+        };
+        ClickableSpan clickableSpan2 = new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(RegisterActivity.this, "Hello World2", Toast.LENGTH_SHORT).show();
+            }
+        };
+        textSpanned.setSpan(clickableSpan,
+                47, 65, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textSpanned.setSpan(clickableSpan2,
+                91, 106, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        //注意：此时必须加这一句，不然点击事件不会生效
+        tvRegisterProtocol.setMovementMethod(LinkMovementMethod.getInstance());
+        tvRegisterProtocol.setText(textSpanned);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    private void setRead(boolean isRead) {
+        if (isRead) {
+            imgRead.setBackground(getResources().getDrawable(R.drawable.xuanzekuangxuanze));
+        } else {
+            imgRead.setBackground(getResources().getDrawable(R.drawable.xuanzekuangmoren));
+        }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    private void setRead2(boolean setRead2) {
+        if (setRead2) {
+            imgRead2.setBackground(getResources().getDrawable(R.drawable.xuanzekuangxuanze));
+        } else {
+            imgRead2.setBackground(getResources().getDrawable(R.drawable.xuanzekuangmoren));
+        }
     }
 
     @Override
@@ -82,43 +141,43 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
 
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    @OnClick({R.id.img_read, R.id.tv_register_protocol, R.id.but_login})
+    @OnClick({R.id.img_read, R.id.img_read2, R.id.but_login})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.img_read:
                 isRead = !isRead;
-                if (isRead) {
-                    imgRead.setBackground(getResources().getDrawable(R.drawable.xuanzekuangxuanze));
-                } else {
-                    imgRead.setBackground(getResources().getDrawable(R.drawable.xuanzekuangmoren));
-                }
+                setRead(isRead);
                 break;
-            case R.id.tv_register_protocol:
-                startActivity(new Intent(RegisterActivity.this, RegisterProtocolActivity.class));
+            case R.id.img_read2:
+                isRead2 = !isRead2;
+                setRead2(isRead2);
                 break;
+//            case R.id.tv_register_protocol:
+//                startActivity(new Intent(RegisterActivity.this, RegisterProtocolActivity.class));
+//                break;
             case R.id.but_login:
                 if (TextUtils.isEmpty(userName.getText().toString())) {
-                    showShort("请输入用户名");
+                    showShort("please enter Full Name");
                     return;
                 }
                 if (TextUtils.isEmpty(email.getText().toString())) {
-                    showShort("请输入邮箱");
+                    showShort("please enter email");
                     return;
                 }
                 if (TextUtils.isEmpty(password.getText().toString())) {
-                    showShort("请输入密码");
+                    showShort("please enter password");
                     return;
                 }
                 if (TextUtils.isEmpty(surePassword.getText().toString())) {
-                    showShort("请再次输入密码");
+                    showShort("confirm password");
                     return;
                 }
                 if (!password.getText().toString().equals(surePassword.getText().toString())) {
-                    showShort("两次密码不一致");
+                    showShort("password is different");
                     return;
                 }
-                if (!isRead) {
-                    showShort("请确认已查看注册协议");
+                if (!isRead || !isRead2) {
+                    showShort("please make sure read protocol");
                     return;
                 }
                 registerPresent.register(email.getText().toString(), password.getText().toString(), userName.getText().toString());
@@ -149,6 +208,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         SaveSharedPreferences.save(RegisterActivity.this, CommonValue.TOKEN, loginInfo.getToken());
         SaveSharedPreferences.save(this, CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
     }
+
     // TODO 行列修改
     int column = 20;
     int size = 300;
@@ -189,7 +249,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                 } else {
                     doodle.setColor("#000000");
                 }
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
@@ -199,6 +259,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         }
 
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -217,7 +278,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor(colorHexArr[(i % row - 0 + row + 1) / 1 % 4]);
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 int x = (int) (Math.random() * 2);
                 if (x == 1) {
@@ -231,6 +292,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         }
 
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -250,7 +312,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor(colorHexArr[(i / row - k + column + 1) / 3 % 7]);
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
@@ -260,6 +322,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         }
 
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -286,7 +349,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             for (int j = 0; j < size; j++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor("#000000");
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(j), doodle);
 
@@ -296,26 +359,26 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
                         doodle.setColor(colors[0]);
                         doodle.setFlash(0);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a && (double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
                         doodle.setColor(colors[1]);
                         doodle.setFlash(0);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
 
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors[2]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c) {
                         doodle.setColor(colors[0]);
                         doodle.setFlash(0);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                 }
@@ -324,25 +387,25 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
                         doodle.setColor(colors[1]);
                         doodle.setFlash(1);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors[2]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= a && (double) (row - 1 - j % row) / (double) (j / row + 1) < c) {
                         doodle.setColor(colors[0]);
                         doodle.setFlash(0);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
                         doodle.setColor(colors[1]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                 }
@@ -351,25 +414,25 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors[2]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c && (double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
                         doodle.setColor(colors[0]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b && (double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
                         doodle.setColor(colors[1]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b) {
                         doodle.setColor(colors[2]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                 }
@@ -381,6 +444,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
 
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -400,7 +464,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor(colorHexArr[(i % row - k + row + 1) / 3 % 7]);
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
@@ -410,6 +474,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         }
 
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -427,7 +492,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor(colorHexArr[(i % row - k + row + 1) / 3 % 7]);
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
@@ -436,6 +501,8 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -458,7 +525,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     } else {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -481,7 +548,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                             doodle.setColor("#000000");
                         }
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -492,6 +559,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -500,7 +568,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
 
     private LampModel getModel1() {
         LampModel lampModel = new LampModel();
-        lampModel.setName("第1个模板");
+        lampModel.setName("Diagonal");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < size / column; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -515,7 +583,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     } else {
                         doodle.setColor("#F2E93F");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     light_status.put(String.valueOf(i * size / column + j), doodle);
                 }
@@ -525,6 +593,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -547,7 +616,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     } else {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -572,7 +641,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     } else {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -595,7 +664,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                         doodle.setColor("#000000");
                     }
 
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -619,7 +688,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                         doodle.setColor("#000000");
                     }
 
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -630,6 +699,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -656,7 +726,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -683,7 +753,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -709,7 +779,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -736,7 +806,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -762,7 +832,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -787,7 +857,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -798,10 +868,10 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
         return lampModel;
     }
-
 }

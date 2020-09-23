@@ -17,6 +17,15 @@ public class LampModel {
     int column;
     int lightRow;
     int size;
+    int light = 100;
+
+    public int getLight() {
+        return light;
+    }
+
+    public void setLight(int light) {
+        this.light = light;
+    }
 
     public int getColumn() {
         return column;

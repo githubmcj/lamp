@@ -277,7 +277,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                 } else {
                     doodle.setColor("#000000");
                 }
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
@@ -285,8 +285,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
-
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -305,7 +305,6 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor(colorHexArr[(i % row - 0 + row + 1) / 1 % 4]);
-                doodle.setLight(255);
                 doodle.setFlash(0);
                 int x = (int) (Math.random() * 2);
                 if (x == 1) {
@@ -319,6 +318,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         }
 
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -338,7 +338,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor(colorHexArr[(i / row - k + column + 1) / 3 % 7]);
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
@@ -348,6 +348,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         }
 
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -374,7 +375,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             for (int j = 0; j < size; j++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor("#000000");
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(j), doodle);
 
@@ -384,26 +385,26 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
                         doodle.setColor(colors[0]);
                         doodle.setFlash(0);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a && (double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
                         doodle.setColor(colors[1]);
                         doodle.setFlash(0);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
 
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors[2]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c) {
                         doodle.setColor(colors[0]);
                         doodle.setFlash(0);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                 }
@@ -412,25 +413,25 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
                         doodle.setColor(colors[1]);
                         doodle.setFlash(1);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors[2]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= a && (double) (row - 1 - j % row) / (double) (j / row + 1) < c) {
                         doodle.setColor(colors[0]);
                         doodle.setFlash(0);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
                         doodle.setColor(colors[1]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                 }
@@ -439,25 +440,25 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors[2]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c && (double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
                         doodle.setColor(colors[0]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b && (double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
                         doodle.setColor(colors[1]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b) {
                         doodle.setColor(colors[2]);
                         doodle.setFlash(2);
-                        doodle.setLight(255);
+
                         light_status.put(String.valueOf(j), doodle);
                     }
                 }
@@ -469,6 +470,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
 
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -488,7 +490,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor(colorHexArr[(i % row - k + row + 1) / 3 % 7]);
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
@@ -498,6 +500,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
         }
 
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -515,7 +518,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
                 doodle.setColor(colorHexArr[(i % row - k + row + 1) / 3 % 7]);
-                doodle.setLight(255);
+
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
@@ -524,6 +527,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -546,7 +550,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     } else {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -569,7 +573,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                             doodle.setColor("#000000");
                         }
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -580,6 +584,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -588,7 +593,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
 
     private LampModel getModel1() {
         LampModel lampModel = new LampModel();
-        lampModel.setName("第1个模板");
+        lampModel.setName("Diagonal");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < size / column; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -603,7 +608,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     } else {
                         doodle.setColor("#F2E93F");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     light_status.put(String.valueOf(i * size / column + j), doodle);
                 }
@@ -613,6 +618,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -635,7 +641,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     } else {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -660,7 +666,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     } else {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -683,7 +689,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                         doodle.setColor("#000000");
                     }
 
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -707,7 +713,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                         doodle.setColor("#000000");
                     }
 
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -718,6 +724,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
@@ -744,7 +751,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -771,7 +778,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -797,7 +804,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -824,7 +831,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -850,7 +857,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -875,7 +882,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
                     if (x == 1) {
                         doodle.setColor("#000000");
                     }
-                    doodle.setLight(255);
+
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -886,6 +893,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
             modeArr.add(doodlePattern);
         }
         lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);

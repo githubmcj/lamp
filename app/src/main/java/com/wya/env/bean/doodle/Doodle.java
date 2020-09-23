@@ -9,7 +9,7 @@ public class Doodle implements Cloneable {
 
     private String color;
 
-    private int light = 255;
+//    private int light = 255;
 
     /**
      * 是否闪烁 0 不闪， 1闪
@@ -32,19 +32,19 @@ public class Doodle implements Cloneable {
         isFlash = flash;
     }
 
-    public int getLight() {
-        return light;
-    }
-
-    public void setLight(int light) {
-        if (light < 0) {
-            this.light = 0;
-        } else if (light > 255) {
-            this.light = 255;
-        } else {
-            this.light = light;
-        }
-    }
+//    public int getLight() {
+//        return light;
+//    }
+//
+//    public void setLight(int light) {
+//        if (light < 0) {
+//            this.light = 0;
+//        } else if (light > 255) {
+//            this.light = 255;
+//        } else {
+//            this.light = light;
+//        }
+//    }
 
 
     /**
@@ -52,7 +52,8 @@ public class Doodle implements Cloneable {
      *
      * @return
      */
-    public int getLampColor() {
+    public int getLampColor(int light) {
+
         if (light > 255) {
             if(color != null){
                 return Color.argb(255, ColorUtil.int2Rgb(Color.parseColor(color))[0], ColorUtil.int2Rgb(Color.parseColor(color))[1], ColorUtil.int2Rgb(Color.parseColor(color))[2]);

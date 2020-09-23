@@ -132,6 +132,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     protected void convert(BaseViewHolder helper, LampSetting item) {
         if (item.getName() == null) {
             helper.setGone(R.id.ll_add, true);
+            helper.setGone(R.id.name, false);
+            helper.setGone(R.id.name, false);
+
         } else {
             helper.setGone(R.id.ll_add, false);
             helper.setText(R.id.name, item.getDeviceName());

@@ -140,7 +140,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
                     name.setText(lampModels.get(position).getName());
                     lampView.setMirror(lampModels.get(position).getMirror());
-                    lampView.setModel(lampModels.get(position).getModeArr(), true);
+                    lampView.setModel(lampModels.get(position).getModeArr(), lampModels.get(position).getLight(), true);
                 } else {
                    LogUtil.e("该模板已经选中");
                 }
@@ -219,7 +219,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                         Doodle doodle = new Doodle();
                         doodle.setColor("#000000");
                         doodle.setFlash(0);
-                        doodle.setLight(255);
                         doodlePattern.getLight_status().put(String.valueOf(k), doodle);
                     }
                 }

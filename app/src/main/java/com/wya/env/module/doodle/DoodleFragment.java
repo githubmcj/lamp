@@ -306,7 +306,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 break;
             case R.id.ll_save:
                 if (TextUtils.isEmpty(etName.getText().toString())) {
-                    showShort("请输入模式名称");
+                    showShort("please enter mode name");
                     return;
                 }
                 toSave();
@@ -354,6 +354,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         List<DoodlePattern> doodlePatterns = new ArrayList<>();
         doodlePatterns.add(doodlePattern);
         lampModel.setModeArr(doodlePatterns);
+        lampModel.setLight(chose_light);
         lampModel.setSize(lampView.getSize());
         lampModel.setLightRow(lampView.getSize() / lampView.getColumn());
         lampModel.setColumn(lampView.getColumn());

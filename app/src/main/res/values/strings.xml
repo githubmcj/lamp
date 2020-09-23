@@ -24,7 +24,7 @@
     <string name="email_address">Email</string>
     <string name="email_hint">please enter email</string>
     <string name="password">Password</string>
-    <string name="pass_setting_hint">please enter password</string>
+    <string name="pass_setting_hint">Password(min 8 chars)</string>
     <string name="pass_hint">请输入密码</string>
     <string name="forget_password">Forgot Password?</string>
     <string name="to_register">Join Free</string>
@@ -34,13 +34,13 @@
     <string name="user_name_hint">Full Name</string>
     <string name="email">Email</string>
     <string name="sure_password">Password</string>
-    <string name="sure_password_hint">Password(min 8 chars)</string>
+    <string name="sure_password_hint">Confirm Password</string>
     <string name="register_protocol">《注册协议》</string>
     <string name="register_protocol_title">注册协议</string>
     <string name="has_read">我已阅读</string>
     <string name="sure_register">SIGN UP</string>
     <string name="sure_forget">确认找回</string>
-    <string name="register">SIGN UP</string>
+    <string name="register">Registration</string>
     <string name="forget">Forgot Password</string>
     <string name="code">get code</string>
     <string name="code_hint">Code</string>

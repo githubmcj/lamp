@@ -46,7 +46,7 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
             helper.setGone(R.id.ll_add, false);
             helper.setText(R.id.tv_mode_name, item.getName());
             ((LampView) helper.getView(R.id.lamp_view)).setMirror(item.getMirror());
-            ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr(), false);
+            ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr(), item.getLight(),false);
             ((LampView) helper.getView(R.id.lamp_view)).setModelName(item.getName());
             if (item.isChose() == 1) {
                 MusicModel musicModel = new MusicModel();

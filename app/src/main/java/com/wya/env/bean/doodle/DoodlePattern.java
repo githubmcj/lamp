@@ -12,6 +12,7 @@ public class DoodlePattern {
 
     private int size = 300;
 
+
     private HashMap<String, Doodle> light_status;
 
     public int getSize() {
