@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
