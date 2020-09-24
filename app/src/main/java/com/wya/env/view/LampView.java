@@ -1146,5 +1146,13 @@ public class LampView extends View {
         modelExecutorService = null;
     }
 
+    public void setAllColor(String chose_color) {
+        for (int i = 0; i < data.size(); i++) {
+            data.get(String.valueOf(i)).setColor(chose_color);
+            data.get(String.valueOf(i)).setShowColor(chose_color);
+            data.get(String.valueOf(i)).setFlash(0);
+        }
+        postInvalidate();
+    }
 }
 

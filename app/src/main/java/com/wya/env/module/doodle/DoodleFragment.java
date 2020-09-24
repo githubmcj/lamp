@@ -1,8 +1,10 @@
 package com.wya.env.module.doodle;
 
-import android.graphics.Color;
+import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -28,9 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import colorpickerview.oden.com.colorpicker.ColorPickerView;
+import top.defaults.colorpicker.ColorObserver;
+import top.defaults.colorpicker.ColorPickerView;
 
 /**
  * @date: 2018/7/3 13:55
@@ -103,6 +107,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @BindView(R.id.tab_mirror)
     TableRow tabMirror;
     Unbinder unbinder;
+    @BindView(R.id.img_all)
+    ImageView imgAll;
+    @BindView(R.id.tab_all)
+    TableRow tabAll;
+    Unbinder unbinder1;
     private DoodleFragmentPresenter doodleFragmentPresenter = new DoodleFragmentPresenter();
 
     private int color_index;
@@ -173,7 +182,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         initData();//初始化数据
     }
 
-    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab_add, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.img_mirror, R.id.img_del})
+    @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab_add, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.img_mirror, R.id.img_del, R.id.img_all})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tab1:
@@ -215,8 +224,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                             public void customLayout(View v) {
                                 WYAButton sure = v.findViewById(R.id.sure);
                                 ColorPickerView colorPickerView = v.findViewById(R.id.picker_view);
-                                ImageView img_picker = v.findViewById(R.id.img_picker);
-                                colorPickerView.setImgPicker(getActivity(), img_picker, 20);
                                 TextView tvLight = v.findViewById(R.id.tv_light);
                                 Circle circle = v.findViewById(R.id.circle);
                                 if (picker_chose_color == null) {
@@ -225,17 +232,10 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 chose_color = circle.getColor(picker_chose_color, chose_light);
                                 tvLight.setText(chose_light + "");
                                 show_color = circle.getShowColor(picker_chose_color, chose_light);
-                                colorPickerView.setColorChangedListener(new ColorPickerView.onColorChangedListener() {
+                                colorPickerView.subscribe(new ColorObserver() {
                                     @Override
-                                    public void colorChanged(int red, int blue, int green) {
-                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & Color.argb(255, red, green, blue)));
-                                        chose_color = circle.getColor(picker_chose_color, chose_light);
-                                        show_color = circle.getShowColor(picker_chose_color, chose_light);
-                                    }
-
-                                    @Override
-                                    public void stopColorChanged(int red, int blue, int green) {
-                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & Color.argb(255, red, green, blue)));
+                                    public void onColor(int color, boolean fromUser, boolean shouldPropagate) {
+                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & color));
                                         chose_color = circle.getColor(picker_chose_color, chose_light);
                                         show_color = circle.getShowColor(picker_chose_color, chose_light);
                                     }
@@ -321,6 +321,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                     imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_lef));
                 }
                 lampView.setMirror(isMirror);
+                break;
+            case R.id.img_all:
+                lampView.setAllColor(chose_color);
                 break;
             case R.id.ll_save:
                 if (TextUtils.isEmpty(etName.getText().toString())) {
@@ -452,6 +455,15 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if(isVisible()){
+            lampView.startSendUpdData();
+            lampView.startTwinkle();
+        }
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         lampView.stopSendUdpData();
@@ -470,6 +482,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         }
     }
 
+
     @Override
     public void onSaveResult() {
         toCleanChose();
@@ -477,4 +490,17 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, true);
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // TODO: inflate a fragment view
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        unbinder1 = ButterKnife.bind(this, rootView);
+        return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder1.unbind();
+    }
 }

@@ -86,7 +86,9 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-        initSendData();
+        if (isVisible()) {
+            initSendData();
+        }
     }
 
     @Override
@@ -119,7 +121,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private void initSendData() {
         for (int i = 0; i < lampModels.size(); i++) {
-            if(lampModels.get(i).isChose() == 1){
+            if (lampModels.get(i).isChose() == 1) {
                 lampView.setMirror(lampModels.get(i).getMirror());
                 lampView.setModel(lampModels.get(i).getModeArr(), lampModels.get(i).getLight(), true);
             }
@@ -214,7 +216,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         super.onHiddenChanged(hidden);
         boolean toRefresh = SaveSharedPreferences.getBoolean(getActivity(), CommonValue.TO_REFRESH);
         if (!hidden) {
-            if(toRefresh){
+            if (toRefresh) {
                 SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, false);
                 getLocalData();
                 getNetData();
