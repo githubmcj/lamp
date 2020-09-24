@@ -97,7 +97,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     private void initLampInfo() {
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
-        if(lamps != null){
+        if (lamps != null) {
             lampSettings = lamps.getLampSettings();
             if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
                 lampSettings.add(new LampSetting());
@@ -266,6 +266,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
             super.handleMessage(msg);
             switch (msg.what) {
                 case 1://判断标志位
+                    if (lampSettings.get(lampSettings.size() - 1).getName() == null) {
+                        lampSettings.remove(lampSettings.size() - 1);
+                    }
                     if (lampSettings != null && lampSettings.size() > 0) {
                         boolean has = false;
                         for (int i = 0; i < lampSettings.size(); i++) {
@@ -388,17 +391,17 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MusicModel event) {
-        if(myLampAdapter != null){
+        if (myLampAdapter != null) {
             myLampAdapter.setMusicModel(event);
         }
 
     }
 
     public void toLinkTcp() {
-        if(!App.getInstance().isTcpConnected() && myLampAdapter != null){
+        if (!App.getInstance().isTcpConnected() && myLampAdapter != null) {
             myLampAdapter.toLinkTcp();
             LogUtil.e("toLinkTcp-----------------");
-        } else if(App.getInstance().isTcpConnected()){
+        } else if (App.getInstance().isTcpConnected()) {
             LogUtil.e("Tcp is Connected");
         } else {
             LogUtil.e("myLampAdapter is null");
