@@ -1,5 +1,6 @@
 package com.wya.env.module.doodle;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
+import com.wya.env.util.ColorUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.Circle;
 import com.wya.env.view.LampView;
@@ -231,6 +233,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 }
                                 chose_color = circle.getColor(picker_chose_color, chose_light);
                                 tvLight.setText(chose_light + "");
+                                colorPickerView.setInitialColor(Color.rgb(ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[0], ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[1], ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[2]));
                                 show_color = circle.getShowColor(picker_chose_color, chose_light);
                                 colorPickerView.subscribe(new ColorObserver() {
                                     @Override
@@ -457,7 +460,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Override
     public void onStart() {
         super.onStart();
-        if(isVisible()){
+        if (isVisible()) {
             lampView.startSendUpdData();
             lampView.startTwinkle();
         }
