@@ -1,5 +1,6 @@
 package com.wya.env.module.doodle;
 
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -16,10 +17,8 @@ import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
-import com.wya.env.listener.PickerViewListener;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.Circle;
-import com.wya.env.view.ColorPickerView;
 import com.wya.env.view.LampView;
 import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
@@ -31,6 +30,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import colorpickerview.oden.com.colorpicker.ColorPickerView;
 
 /**
  * @date: 2018/7/3 13:55
@@ -215,6 +215,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                             public void customLayout(View v) {
                                 WYAButton sure = v.findViewById(R.id.sure);
                                 ColorPickerView colorPickerView = v.findViewById(R.id.picker_view);
+                                ImageView img_picker = v.findViewById(R.id.img_picker);
+                                colorPickerView.setImgPicker(getActivity(), img_picker, 20);
                                 TextView tvLight = v.findViewById(R.id.tv_light);
                                 Circle circle = v.findViewById(R.id.circle);
                                 if (picker_chose_color == null) {
@@ -223,10 +225,17 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 chose_color = circle.getColor(picker_chose_color, chose_light);
                                 tvLight.setText(chose_light + "");
                                 show_color = circle.getShowColor(picker_chose_color, chose_light);
-                                colorPickerView.setOnColorPickListener(new PickerViewListener() {
+                                colorPickerView.setColorChangedListener(new ColorPickerView.onColorChangedListener() {
                                     @Override
-                                    public void onPickerColor(int color) {
-                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & color));
+                                    public void colorChanged(int red, int blue, int green) {
+                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & Color.argb(255, red, green, blue)));
+                                        chose_color = circle.getColor(picker_chose_color, chose_light);
+                                        show_color = circle.getShowColor(picker_chose_color, chose_light);
+                                    }
+
+                                    @Override
+                                    public void stopColorChanged(int red, int blue, int green) {
+                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & Color.argb(255, red, green, blue)));
                                         chose_color = circle.getColor(picker_chose_color, chose_light);
                                         show_color = circle.getShowColor(picker_chose_color, chose_light);
                                     }

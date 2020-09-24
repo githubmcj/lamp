@@ -20,12 +20,26 @@
             android:layout_width="@dimen/dp_300"
             android:layout_height="@dimen/dp_300">
 
-            <com.wya.env.view.ColorPickerView
-                android:id="@+id/picker_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:indicator_width="8dp"
-                app:picker_width="@dimen/dp_300" />
+            <RelativeLayout
+                android:id="@+id/rl_picker"
+                android:layout_centerHorizontal="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <colorpickerview.oden.com.colorpicker.ColorPickerView
+                    android:id="@+id/picker_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+
+                <ImageView
+                    android:id="@+id/img_picker"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/color_picker"
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20" />
+
+            </RelativeLayout>
 
             <com.wya.env.view.Circle
                 android:id="@+id/circle"

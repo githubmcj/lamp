@@ -86,13 +86,14 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        initSendData();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
-        lampView.toStopSendUdpModeData(true);
+        lampView.toStopSendUdpModeData(true, false);
     }
 
 
@@ -114,6 +115,15 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         getLocalData();
         getNetData();
         initRecyclerView();
+    }
+
+    private void initSendData() {
+        for (int i = 0; i < lampModels.size(); i++) {
+            if(lampModels.get(i).isChose() == 1){
+                lampView.setMirror(lampModels.get(i).getMirror());
+                lampView.setModel(lampModels.get(i).getModeArr(), lampModels.get(i).getLight(), true);
+            }
+        }
     }
 
     private void getNetData() {
@@ -203,12 +213,16 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         boolean toRefresh = SaveSharedPreferences.getBoolean(getActivity(), CommonValue.TO_REFRESH);
-        if (!hidden && toRefresh) {
-            SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, false);
-            getLocalData();
-            getNetData();
+        if (!hidden) {
+            if(toRefresh){
+                SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, false);
+                getLocalData();
+                getNetData();
+            } else {
+                initSendData();
+            }
         } else {
-            lampView.toStopSendUdpModeData(true);
+            lampView.toStopSendUdpModeData(true, true);
             lampView.stopSendUdpData();
         }
     }
@@ -263,7 +277,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         dialog.setYesClickListener(new WYACustomDialog.YesClickListener() {
             @Override
             public void onYesClick() {
-                lampView.toStopSendUdpModeData(true);
+                lampView.toStopSendUdpModeData(true, false);
                 lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
                 size = lamps.getSize();
                 initEasySocket(lamps.getChose_ip());
