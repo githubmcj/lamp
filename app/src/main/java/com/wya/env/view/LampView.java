@@ -498,7 +498,7 @@ public class LampView extends View {
 
 //        column = typedArray.getColor(R.styleable.LampView_column, 15);
         //TODO
-        column = 20;
+        column = 15;
         if (type == 1) {
             lamp_margin = typedArray.getColor(R.styleable.LampView_lamp_margin, 2);
         } else if (type == 2) {

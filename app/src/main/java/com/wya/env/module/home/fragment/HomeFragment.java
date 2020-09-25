@@ -135,6 +135,9 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private void getLocalData() {
         loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
         lampModels = loginInfo.getLampModels();
+        if (lampModels.get(lampModels.size() - 1).getName() != null) {
+            lampModels.add(new LampModel());
+        }
     }
 
 
@@ -247,8 +250,11 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             }
             netLampModels.add(lampModel);
         }
+        if(lampModels.get(lampModels.size() - 1).getName() == null){
+            lampModels.remove(lampModels.size() - 1);
+        }
         lampModels.addAll(netLampModels);
-        if (lampModels.get(lampModels.size() - 1) != null) {
+        if (lampModels.get(lampModels.size() - 1).getName() != null) {
             lampModels.add(new LampModel());
         }
         if (adapter != null) {

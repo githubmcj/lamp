@@ -91,9 +91,9 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         //设置Hello World前三个字符有点击事件
         SpannableStringBuilder textSpanned = new SpannableStringBuilder("I declare to have read,understood and agreed the Terms&Conditions of use of this app and the Privacy Police");
         textSpanned.setSpan(new ForegroundColorSpan(Color.RED),
-                47, 65, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                48, 65, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         textSpanned.setSpan(new ForegroundColorSpan(Color.RED),
-                91, 106, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                92, 107, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View view) {
@@ -107,9 +107,9 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
             }
         };
         textSpanned.setSpan(clickableSpan,
-                47, 65, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                48, 65, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         textSpanned.setSpan(clickableSpan2,
-                91, 106, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                92, 107, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         //注意：此时必须加这一句，不然点击事件不会生效
         tvRegisterProtocol.setMovementMethod(LinkMovementMethod.getInstance());
         tvRegisterProtocol.setText(textSpanned);
@@ -216,9 +216,9 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
     }
 
     // TODO 行列修改
-    int column = 20;
+    int column = 15;
     int size = 300;
-    int row = 15;
+    int row = 20;
 
     private List<LampModel> getModels() {
         List<LampModel> mLampModels = new ArrayList<>();

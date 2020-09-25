@@ -82,12 +82,10 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
      * 灯光模板
      */
     private List<LampModel> lampModels;
-
-    //    int column = 15;
     // TODO 行列修改
-    int column = 20;
+    int column = 15;
     int size = 300;
-    int row = 15;
+    int row = 20;
 
     @Override
     protected void initView() {
