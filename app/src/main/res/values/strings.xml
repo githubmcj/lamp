@@ -25,7 +25,7 @@
     <string name="email_hint">please enter email</string>
     <string name="password">Password</string>
     <string name="pass_setting_hint">Password(min 8 chars)</string>
-    <string name="pass_hint">请输入密码</string>
+    <string name="pass_hint">please enter password</string>
     <string name="forget_password">Forgot Password?</string>
     <string name="to_register">Join Free</string>
     <string name="no_account">还没账号？</string>
@@ -43,7 +43,7 @@
     <string name="register">Registration</string>
     <string name="forget">Forgot Password</string>
     <string name="code">get code</string>
-    <string name="code_hint">Code</string>
+    <string name="code_hint">code</string>
     <string name="get_code">get code</string>
     <string name="protocol">协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容协议内容</string>
     <string name="about_us_content">关于我们的内容读书卡大理石看得见啊，关于我们的内容读书卡大理石看得见啊，关于我们的内容读书卡大理石看得见啊，关于我们的内容读书卡大理石看得见啊，关于我们的内容读书卡大理石看得见啊，关于我们的内容读书卡大理石看得见啊，关于我们的内容读书卡大理石看得见啊，关于我们的内容读书卡大理石看得见啊，关于我们的内容读书卡大理石看得见啊，</string>
@@ -56,6 +56,7 @@
     <string name="cancel">cancel</string>
     <string name="sure">sure</string>
     <string name="welcome">欢迎来到灯饰软件</string>
+    <string name="next">NEXT STEP</string>
 
 
     <string name="facebook_app_id">Your App Id</string>

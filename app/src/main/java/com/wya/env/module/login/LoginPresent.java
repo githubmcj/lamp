@@ -44,11 +44,11 @@ public class LoginPresent extends BasePresent<LoginView> {
 
     public boolean checkInfo(String username, String password, Activity activity) {
         if (TextUtils.isEmpty(username) || "".equals(username) || username == null) {
-            Toast.makeText(activity, "请输入用户名", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "please enter email", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (TextUtils.isEmpty(password) || "".equals(password) || password == null) {
-            Toast.makeText(activity, "请输入密码", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "please enter password", Toast.LENGTH_SHORT).show();
             return false;
         }
 

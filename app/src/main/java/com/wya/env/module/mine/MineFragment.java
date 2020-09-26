@@ -360,10 +360,10 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         hideLoading();
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        myLampAdapter.stopTcp();
     }
 
 
@@ -387,6 +387,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+        myLampAdapter.stopTcp();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

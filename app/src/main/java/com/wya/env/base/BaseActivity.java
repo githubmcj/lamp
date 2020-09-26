@@ -37,6 +37,7 @@ public abstract class BaseActivity extends BaseToolBarActivity {
         initToolBar();
         unbinder = ButterKnife.bind(this);
         loadingDialog = new WYALoadingDialog(this, false, false);
+        loadingDialog.setText("loading...");
         initView();
 //        initGesture();
     }

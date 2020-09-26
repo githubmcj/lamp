@@ -20,7 +20,7 @@
         android:autoLink="all"
         android:gravity="center"
         android:padding="@dimen/dp_10"
-        android:text="SKIP SETUP"
+        android:text="@string/next"
         android:textColor="@color/app_blue"
         android:textSize="16sp"></TextView>
 
@@ -33,14 +33,13 @@
         android:textColor="@color/app_blue"
         android:padding="@dimen/dp_10"
         android:textSize="30sp"></TextView>
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_200"
         android:layout_below="@id/title"
-        android:gravity="center|left"
         android:padding="@dimen/dp_10"
-        android:text="It seems tht you are not connected to your xx device yewt\n\nTo doso,go to WIFI Settings of your phone and connect to theWIFI network namedDelightlux-xxxxx' as you can see in the Graphics below "
+        android:gravity="center|left"
+        android:text="It seems like that you are not connected to your device yet.\n\nTo keep going on, go to WiFi setting of your smart device and connect to the WiFi network named Delightlux-xxxxxxxx"
         android:textColor="@color/c666666"
         android:textSize="14sp"></TextView>
 

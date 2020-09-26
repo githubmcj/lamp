@@ -55,30 +55,35 @@ public class ForgetPasswordActivity extends BaseMvpActivity<ForgetPasswordPresen
         switch (view.getId()) {
             case R.id.btn_code:
                 if (TextUtils.isEmpty(email.getText().toString())) {
-                    showShort("请输入邮箱");
+                    showShort("please enter email");
                     return;
                 }
                 sendCode();
                 break;
             case R.id.but_forget_password:
                 if (TextUtils.isEmpty(email.getText().toString())) {
-                    showShort("请输入邮箱");
+                    showShort("please enter email");
                     return;
                 }
                 if (TextUtils.isEmpty(code.getText().toString())) {
-                    showShort("请输入验证码");
+                    showShort("please enter code");
                     return;
                 }
                 if (TextUtils.isEmpty(password.getText().toString())) {
-                    showShort("请输入密码");
+                    showShort("please enter password");
+                    return;
+                }
+                if(password.getText().toString().length() < 8){
+                    showShort("Password(min 8 chars)");
                     return;
                 }
                 if (TextUtils.isEmpty(surePassword.getText().toString())) {
-                    showShort("请再次输入密码");
+                    showShort("confirm password");
                     return;
                 }
+
                 if (!password.getText().toString().equals(surePassword.getText().toString())) {
-                    showShort("两次密码不一致");
+                    showShort("password is different");
                     return;
                 }
                 forgetPasswordPresent.changePassword(email.getText().toString(), password.getText().toString(), code.getText().toString());

@@ -12,7 +12,7 @@
         android:id="@+id/tv_searching"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Searching Devices ..."
+        android:text="Searching for devices..."
         android:padding="@dimen/dp_10"
         android:textSize="@dimen/sp_14"
         android:background="@color/white"

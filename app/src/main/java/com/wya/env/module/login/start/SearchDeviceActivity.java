@@ -71,28 +71,29 @@ public class SearchDeviceActivity extends BaseActivity {
 
     private void getDevices() {
         loc_ip = getIpAddressString();
+        addMode = 0;
         if (modelExecutorService == null) {
             modelExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("getDivice").daemon(true).build());
-            modelExecutorService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    LogUtil.e("addMode----------" + addMode);
-                    addMode++;
-                    if (addMode < 6) {
-                        sendData();
+        }
+        modelExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.e("addMode----------" + addMode);
+                addMode++;
+                if (addMode < 6) {
+                    sendData();
+                } else {
+                    stopSendUdpModeData();
+                    if (lampSettings != null && lampSettings.size() > 0) {
+                        LogUtil.e("搜到设备" + lampSettings.size() + "台");
                     } else {
-                        stopSendUdpModeData();
-                        if (lampSettings != null && lampSettings.size() > 0) {
-                            LogUtil.e("搜到设备" + lampSettings.size() + "台");
-                        } else {
-                            LogUtil.e("无设备");
-                            startActivity(new Intent(SearchDeviceActivity.this, NoFoundDeviceActivity.class));
-                        }
+                        LogUtil.e("无设备");
+                        startActivity(new Intent(SearchDeviceActivity.this, NoFoundDeviceActivity.class));
                     }
                 }
-            }, 0, 200, TimeUnit.MILLISECONDS);
-        }
+            }
+        }, 0, 200, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -110,7 +111,7 @@ public class SearchDeviceActivity extends BaseActivity {
             }
             lampSettings.get(position).setChose(true);
             saveInfoLamp(lampSettings);
-            startActivity(new Intent(SearchDeviceActivity.this, Start4Activity.class));
+            startActivity(new Intent(SearchDeviceActivity.this, Start4Activity.class).putExtra("name", lampSettings.get(position).getDeviceName()));
         });
     }
 

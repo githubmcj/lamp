@@ -22,10 +22,10 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp_10"
-                android:text="Account:"
+                android:text="Name:"
                 android:textColor="@color/color_33"
                 android:textSize="@dimen/sp_14">
 
@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
-                android:hint="Please enter account"
+                android:hint="Please enter your local WiFi name"
                 android:padding="@dimen/dp_10"
                 android:textColorHint="@color/c999999"
                 android:textSize="@dimen/sp_14">
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp_10"
                 android:text="Password:"
@@ -64,7 +64,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
-                android:hint="Please enter password"
+                android:hint="Please enter your local WiFi password"
                 android:padding="@dimen/dp_10"
                 android:textColorHint="@color/c999999"
                 android:textSize="@dimen/sp_14">
@@ -78,10 +78,10 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp_10"
-                android:text="Rename:"
+                android:text="Device name:"
                 android:textColor="@color/color_33"
                 android:textSize="@dimen/sp_14">
 
@@ -92,7 +92,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
-                android:hint="Please enter name"
+                android:hint="You can name your device now!"
                 android:padding="@dimen/dp_10"
                 android:textColorHint="@color/c999999"
                 android:textSize="@dimen/sp_14">

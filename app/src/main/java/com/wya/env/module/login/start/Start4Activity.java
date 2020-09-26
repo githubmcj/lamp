@@ -1,7 +1,7 @@
 package com.wya.env.module.login.start;
 
 import android.content.Intent;
-import android.graphics.Paint;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
@@ -12,6 +12,7 @@ import com.wya.env.manager.ActivityManager;
 import com.wya.uikit.button.WYAButton;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
@@ -23,10 +24,16 @@ public class Start4Activity extends BaseActivity {
     WYAButton use;
     @BindView(R.id.add)
     WYAButton add;
+    @BindView(R.id.tv_content)
+    TextView tvContent;
+
+    private String name;
 
     @Override
     protected void initView() {
         showToolBar(false);
+        name = getIntent().getStringExtra("name");
+        tvContent.setText("Now you can enjoy the full capabilities of your " + name + ".\\\nLet's start your wonderful journey!");
     }
 
     @Override

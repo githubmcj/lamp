@@ -11,19 +11,20 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_200"
         android:gravity="center"
-        android:text="We're done!"
+        android:text="Congratulation!"
         android:padding="@dimen/dp_10"
         android:textColor="@color/app_blue"
         android:textSize="30sp"></TextView>
 
 
     <TextView
+        android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_200"
         android:layout_below="@id/title"
         android:gravity="left"
         android:padding="@dimen/dp_10"
-        android:text="Now you can enjoy your xx lights at their full capabilities. GO ahead,try out some cool effects. "
+        android:text="Now you can enjoy the full capabilities of your (设备名称).\nLet's start your wonderful journey!"
         android:textColor="@color/c666666"
         android:textSize="14sp"></TextView>
 

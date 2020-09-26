@@ -475,7 +475,6 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             super.onSocketDisconnect(socketAddress, isNeedReconnect);
             LogUtil.d("socket断开连接，是否需要重连：" + isNeedReconnect);
             LogUtil.d("socket连接被断开");
-            Toast.makeText(context,  "Device is Disconnect", Toast.LENGTH_SHORT).show();
             App.getInstance().setTcpConnected(false);
             eventtDeviceName = new EventtDeviceName();
             eventtDeviceName.setDeviceName(null);

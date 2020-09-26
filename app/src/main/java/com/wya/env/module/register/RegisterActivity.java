@@ -168,15 +168,16 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                     showShort("please enter password");
                     return;
                 }
+                if(password.getText().toString().length() < 8){
+                    showShort("Password(min 8 chars)");
+                    return;
+                }
                 if (TextUtils.isEmpty(surePassword.getText().toString())) {
                     showShort("confirm password");
                     return;
                 }
 
-                if(password.getText().toString().length() < 8){
-                    showShort("Password(min 8 chars)");
-                    return;
-                }
+
 
                 if (!password.getText().toString().equals(surePassword.getText().toString())) {
                     showShort("password is different");

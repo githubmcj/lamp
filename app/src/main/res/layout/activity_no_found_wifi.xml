@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_200"
         android:gravity="center"
-        android:text="NO XX FOUND"
+        android:text="NO DEVICE FOUND"
         android:padding="@dimen/dp_10"
         android:textColor="@color/app_blue"
         android:textSize="30sp"></TextView>
@@ -24,7 +24,7 @@
         android:autoLink="all"
         android:gravity="center"
         android:padding="@dimen/dp_10"
-        android:text="SKIP SETUP"
+        android:text="@string/next"
         android:textColor="@color/app_blue"
         android:textSize="16sp"></TextView>
     <TextView
@@ -33,8 +33,7 @@
         android:layout_below="@id/title"
         android:gravity="left"
         android:padding="@dimen/dp_10"
-        android:text="Make sure that your xx device is close tohe mobile phone
-Press and hold the button until the status led is geenish Blue"
+        android:text="Sorry, your mobile phone is not able to find our device, please make sure you place your mobile phone close to the Delightlux device.\nPress and hold the button, the Status LED will turns to sparkling Orange."
         android:textColor="@color/c666666"
         android:textSize="14sp"></TextView>
 

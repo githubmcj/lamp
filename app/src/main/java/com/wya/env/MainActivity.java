@@ -47,7 +47,6 @@ public class MainActivity extends BaseActivity {
         initFragment();
         setToolBar();
         getSwipeBackLayout().setEnableGesture(false);
-        toLinkTcp();
     }
 
     private void toLinkTcp() {
@@ -58,6 +57,7 @@ public class MainActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        toLinkTcp();
     }
 
     @Override

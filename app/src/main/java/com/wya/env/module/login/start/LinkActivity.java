@@ -44,9 +44,23 @@ public class LinkActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        setTitle("Please enter your home WIFI");
+        setTitle("Please type your local WiFi information");
         initLampInfo();
         initEasySocket(lamps.getChose_ip());
+        setEnableButton(isConnected);
+    }
+
+    private void setEnableButton(boolean isConnected) {
+        if(butSubmit != null){
+            butSubmit.setEnabled(isConnected);
+            if(isConnected){
+                butSubmit.setBackGroundColor(getResources().getColor(R.color.app_blue));
+                butSubmit.setBackGroundColorPress(getResources().getColor(R.color.app_blue));
+            } else {
+                butSubmit.setBackGroundColor(getResources().getColor(R.color.c999999));
+                butSubmit.setBackGroundColorPress(getResources().getColor(R.color.c999999));
+            }
+        }
     }
 
     private void initLampInfo() {
@@ -189,6 +203,7 @@ public class LinkActivity extends BaseActivity {
 //            LogUtil.d("连接成功, 并发送数据：" + ByteUtil.byte2hex(bodyData));
 //            EasySocket.getInstance().upBytes(bodyData);
             isConnected = true;
+            setEnableButton(isConnected);
         }
 
         /**
@@ -201,6 +216,7 @@ public class LinkActivity extends BaseActivity {
             super.onSocketConnFail(socketAddress, isNeedReconnect);
             LogUtil.d("socket连接被断开");
             isConnected = false;
+            setEnableButton(isConnected);
         }
 
         /**
@@ -214,6 +230,7 @@ public class LinkActivity extends BaseActivity {
             LogUtil.d("socket断开连接，是否需要重连：" + isNeedReconnect);
             LogUtil.d("socket连接被断开");
             isConnected = false;
+            setEnableButton(isConnected);
         }
 
         /**
@@ -228,7 +245,7 @@ public class LinkActivity extends BaseActivity {
             if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
                 LogUtil.e("成功");
                 // 跳转到主界面
-                startActivity(new Intent(LinkActivity.this, Start4Activity.class));
+                startActivity(new Intent(LinkActivity.this, Start4Activity.class).putExtra("name", etRename.getText().toString()));
                 finish();
             } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
                 LogUtil.e("失败");
