@@ -1,7 +1,6 @@
 package com.wya.env.module.mine;
 
 import com.wya.env.base.BasePresent;
-import com.wya.env.module.home.fragment.HomeFragmentView;
 
 /**
  * @date: 2018/7/3 13:56

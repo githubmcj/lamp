@@ -95,6 +95,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         sendData();
     }
 
+    /**
+     * 初始化灯数据
+     */
     private void initLampInfo() {
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
         if (lamps != null) {
@@ -105,12 +108,18 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         }
     }
 
+    /**
+     * 初始化个人信息数据
+     */
     private void initUserInfo() {
         loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
         userName.setText(loginInfo.getUserName());
         email.setText(loginInfo.getUserEmail());
     }
 
+    /**
+     * 初始化设备列表
+     */
     private void initRecyclerView() {
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         myLampAdapter = new MyLampAdapter(getActivity(), R.layout.lamp_setting_item, lampSettings);
@@ -139,7 +148,10 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     }
 
 
-    public static String getIpAddressString() {
+    /**
+     * @return 本机ip地址
+     */
+    private String getIpAddressString() {
         try {
             for (Enumeration<NetworkInterface> enNetI = NetworkInterface
                     .getNetworkInterfaces(); enNetI.hasMoreElements(); ) {
@@ -182,6 +194,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     }
 
 
+    /**
+     * 发送UPD数据，搜搜灯设备
+     */
     private void sendData() {
         loc_ip = getIpAddressString();
         new Thread(() -> {
@@ -338,6 +353,11 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     };
 
 
+    /**
+     * 保存灯数据
+     *
+     * @param lampSettings
+     */
     private void saveInfoLamp(List<LampSetting> lampSettings) {
         Lamps lamps = new Lamps();
         lamps.setLampSettings(lampSettings);
@@ -351,6 +371,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         SaveSharedPreferences.save(getActivity(), CommonValue.LAMPS, new Gson().toJson(lamps));
     }
 
+    /**
+     * 退出
+     */
     private void toExit() {
         SaveSharedPreferences.save(getActivity(), CommonValue.IS_LOGIN, false);
         SaveSharedPreferences.save(getActivity(), CommonValue.TOKEN, "");
@@ -364,6 +387,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     @Override
     public void onDestroy() {
         super.onDestroy();
+        hideLoading();
     }
 
 
@@ -389,6 +413,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         EventBus.getDefault().unregister(this);
         myLampAdapter.stopTcp();
     }
+
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MusicModel event) {

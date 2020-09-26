@@ -24,17 +24,24 @@ import com.wya.utils.utils.LogUtil;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import static com.wya.env.module.mine.MineFragment.getIpAddressString;
-
+/**
+ * @date: 2020\9\26 0026 18:00
+ * @author: Chunjiang Mao
+ * @classname: SearchDeviceActivity
+ * @describe: 搜索设备
+ */
 public class SearchDeviceActivity extends BaseActivity {
 
     @BindView(R.id.rv_device)
@@ -94,6 +101,28 @@ public class SearchDeviceActivity extends BaseActivity {
                 }
             }
         }, 0, 200, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * @return 本机ip地址
+     */
+    private String getIpAddressString() {
+        try {
+            for (Enumeration<NetworkInterface> enNetI = NetworkInterface
+                    .getNetworkInterfaces(); enNetI.hasMoreElements(); ) {
+                NetworkInterface netI = enNetI.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = netI
+                        .getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return "0.0.0.0";
     }
 
     @Override

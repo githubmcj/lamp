@@ -12,12 +12,18 @@ import android.view.View;
  */
 public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
-    //列数
-    private int spanCount; 
-    //间隔
-    private int spacing; 
-    //是否包含边缘
-    private boolean includeEdge; 
+    /**
+     * 列数
+     */
+    private int spanCount;
+    /**
+     * 间隔
+     */
+    private int spacing;
+    /**
+     * 是否包含边缘
+     */
+    private boolean includeEdge;
 
     public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
         this.spanCount = spanCount;
@@ -28,7 +34,7 @@ public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
 
-        //这里是关键，需要根据你有几列来判断
+        // 这里是关键，需要根据你有几列来判断
         // item position
         int position = parent.getChildAdapterPosition(view);
         // item column
@@ -51,7 +57,7 @@ public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
             // spacing - (column + 1) * ((1f /    spanCount) * spacing)
             outRect.right = spacing - (column + 1) * spacing / spanCount;
             if (position >= spanCount) {
-                outRect.top = spacing; // item top
+                outRect.top = spacing;
             }
         }
     }
