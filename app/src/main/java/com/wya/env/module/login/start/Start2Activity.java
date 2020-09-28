@@ -10,6 +10,12 @@ import com.wya.env.base.BaseActivity;
 import butterknife.BindView;
 import butterknife.OnClick;
 
+/**
+ * @date: 2020\9\28 0028 14:16
+ * @author: Chunjiang Mao
+ * @classname: Start2Activity
+ * @describe: 
+ */
 public class Start2Activity extends BaseActivity {
 
     @BindView(R.id.next)

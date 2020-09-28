@@ -27,13 +27,9 @@ import com.wya.env.net.tpc.interfaces.conn.ISocketActionListener;
 import com.wya.env.net.tpc.interfaces.conn.SocketActionListener;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
-import com.wya.env.view.WheelView;
-import com.wya.uikit.button.WYAButton;
-import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.uikit.pickerview.CustomTimePicker;
 import com.wya.utils.utils.LogUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.wya.env.common.CommonValue.TCP_PORT;

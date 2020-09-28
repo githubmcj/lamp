@@ -1,27 +1,25 @@
 package com.wya.env.module.login.start;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.view.RxView;
-import com.wya.env.App;
 import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
 import com.wya.env.manager.ActivityManager;
-import com.wya.env.net.tpc.EasySocket;
 import com.wya.uikit.button.WYAButton;
 
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-
+/**
+ * @date: 2020\9\28 0028 14:16
+ * @author: Chunjiang Mao
+ * @classname: Start4Activity
+ * @describe: 
+ */
 public class Start4Activity extends BaseActivity {
 
     @BindView(R.id.title)

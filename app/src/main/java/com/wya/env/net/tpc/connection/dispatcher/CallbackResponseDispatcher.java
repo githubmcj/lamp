@@ -106,7 +106,6 @@ public class CallbackResponseDispatcher {
             timeoutExecutor.shutdownNow();
             timeoutExecutor = null;
         }
-
     }
 
     /**

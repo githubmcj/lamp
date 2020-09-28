@@ -18,7 +18,6 @@ import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
-import com.wya.env.bean.event.EventtDeviceName;
 import com.wya.env.bean.event.Hide;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.login.Lamps;
@@ -418,7 +417,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     }
 
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MusicModel event) {
         if (myLampAdapter != null) {
@@ -430,7 +428,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     public void onMessageEvent(Hide hide) {
         try {
             hideLoading();
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
     }
