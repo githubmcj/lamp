@@ -35,7 +35,7 @@ public class AboutUsActivity extends BaseActivity {
     TextView tvHone;
 
     private static final int REQUEST_CALL_PERMISSION = 100;
-    private String phone = "15858394228";
+    private String phone = "123456789";
 
     @Override
     protected void initView() {
@@ -106,7 +106,8 @@ public class AboutUsActivity extends BaseActivity {
         callDialog.setYesClickListener(new WYACustomDialog.YesClickListener() {
             @Override
             public void onYesClick() {
-                checkPermission();
+                callDialog.dismiss();
+//                checkPermission();
             }
         });
         callDialog.show();

@@ -13,10 +13,12 @@ import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.event.EventtDeviceName;
+import com.wya.env.bean.event.Hide;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.wya.env.common.CommonValue.TCP_PORT;
 
@@ -176,38 +179,35 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 helper.setVisible(R.id.time, false);
             }
 
-            helper.getView(R.id.img_open).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (App.getInstance().isTcpConnected()) {
-                        ip = item.getIp();
-                        position = helper.getAdapterPosition();
-                        bodyData = getOpenLamp(!item.isOpen());
-                        EasySocket.getInstance().upBytes(bodyData);
-                    } else {
-                        Toast.makeText(context, "Device is Disconnect", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-            });
-
-            helper.getView(R.id.img_time_open).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (App.getInstance().isTcpConnected()) {
-                        position = helper.getAdapterPosition();
-                        if (item.isHasTimer()) {
-                            bodyData = getTimerTime(false, item.getS_hour(), item.getS_min(), item.getE_hour(), item.getE_min());
+            RxView.clicks(helper.getView(R.id.img_open))
+                    .throttleFirst(500, TimeUnit.MILLISECONDS)
+                    .subscribe(Observable -> {
+                        if (App.getInstance().isTcpConnected()) {
+                            ip = item.getIp();
+                            position = helper.getAdapterPosition();
+                            bodyData = getOpenLamp(!item.isOpen());
                             EasySocket.getInstance().upBytes(bodyData);
                         } else {
-                            toSendTime();
-                            openChoseTime(item);
+                            Toast.makeText(context, "Device is Disconnect", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(context, "Device is Disconnect", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+                    });
+
+            RxView.clicks(helper.getView(R.id.img_time_open))
+                    .throttleFirst(500, TimeUnit.MILLISECONDS)
+                    .subscribe(Observable -> {
+                        if (App.getInstance().isTcpConnected()) {
+                            position = helper.getAdapterPosition();
+                            if (item.isHasTimer()) {
+                                bodyData = getTimerTime(false, item.getS_hour(), item.getS_min(), item.getE_hour(), item.getE_min());
+                                EasySocket.getInstance().upBytes(bodyData);
+                            } else {
+                                toSendTime();
+                                openChoseTime(item);
+                            }
+                        } else {
+                            Toast.makeText(context, "Device is Disconnect", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
             helper.getView(R.id.img_del).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -433,6 +433,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         options.setMessageProtocol(null);
         options.setMaxResponseDataMb(1000000);
         options.setHeartbeatFreq(4000);
+
         // 初始化EasySocket
         EasySocket.getInstance()
                 .options(options)
@@ -481,6 +482,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             eventtDeviceName.setDeviceName(deviceName);
             EventBus.getDefault().post(eventtDeviceName);
             MyLampAdapter.this.notifyDataSetChanged();
+            EventBus.getDefault().post(new Hide());
         }
 
         /**
@@ -497,6 +499,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             eventtDeviceName.setDeviceName(null);
             EventBus.getDefault().post(eventtDeviceName);
             MyLampAdapter.this.notifyDataSetChanged();
+            EventBus.getDefault().post(new Hide());
         }
 
         /**
@@ -514,6 +517,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             eventtDeviceName.setDeviceName(null);
             EventBus.getDefault().post(eventtDeviceName);
             MyLampAdapter.this.notifyDataSetChanged();
+            EventBus.getDefault().post(new Hide());
         }
 
         /**
@@ -525,6 +529,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
             super.onSocketResponse(socketAddress, originReadData);
             dealSocketResponseData(originReadData);
+            EventBus.getDefault().post(new Hide());
         }
     };
 

@@ -4,12 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.view.RxView;
+import com.wya.env.App;
 import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
 import com.wya.env.manager.ActivityManager;
+import com.wya.env.net.tpc.EasySocket;
 import com.wya.uikit.button.WYAButton;
+
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +40,22 @@ public class Start4Activity extends BaseActivity {
         showToolBar(false);
         name = getIntent().getStringExtra("name");
         tvContent.setText("Now you can enjoy the full capabilities of your " + name + ".\\\nLet's start your wonderful journey!");
+
+
+        RxView.clicks(use)
+                .throttleFirst(500, TimeUnit.MILLISECONDS)
+                .subscribe(Observable -> {
+                    // 跳转到主界面
+                    startActivity(new Intent(Start4Activity.this, MainActivity.class));
+                    ActivityManager.getInstance().exitApp();
+                });
+
+        RxView.clicks(add)
+                .throttleFirst(500, TimeUnit.MILLISECONDS)
+                .subscribe(Observable -> {
+                    startActivity(new Intent(Start4Activity.this, Start2Activity.class));
+                    finish();
+                });
     }
 
     @Override
@@ -41,20 +63,4 @@ public class Start4Activity extends BaseActivity {
         return R.layout.activity_start4;
     }
 
-    @OnClick({R.id.use, R.id.add})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.use:
-                startActivity(new Intent(Start4Activity.this, MainActivity.class));
-                ActivityManager.getInstance().exitApp();
-                break;
-            case R.id.add:
-                // 跳转到主界面
-                startActivity(new Intent(Start4Activity.this, Start2Activity.class));
-                finish();
-                break;
-            default:
-                break;
-        }
-    }
 }

@@ -17,6 +17,7 @@ import com.wya.env.util.SaveSharedPreferences;
  */
 
 public abstract class BaseMvpFragment<T extends BasePresent> extends BaseLazyFragment implements BaseView {
+
     /**
      * 显示加载对话框
      */

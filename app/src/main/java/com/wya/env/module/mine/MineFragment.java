@@ -18,6 +18,8 @@ import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.event.EventtDeviceName;
+import com.wya.env.bean.event.Hide;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
@@ -134,6 +136,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 }
                 lampSettings.get(position).setChose(true);
                 myLampAdapter.notifyDataSetChanged();
+                showLoading();
                 myLampAdapter.toLinkTcp();
                 saveInfoLamp(lampSettings);
             }
@@ -343,7 +346,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                     if (lampSettings != null && lampSettings.size() > 0) {
                         return;
                     }
-                    showShort("未搜索到设备");
+                    LogUtil.e("未搜索到设备");
                     break;
                 default:
                     hideLoading();
@@ -421,7 +424,15 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         if (myLampAdapter != null) {
             myLampAdapter.setMusicModel(event);
         }
+    }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(Hide hide) {
+        try {
+            hideLoading();
+        } catch (Exception e){
+
+        }
     }
 
     public void toLinkTcp() {
