@@ -28,7 +28,12 @@ import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
 import com.wya.uikit.dialog.WYACustomDialog;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import butterknife.BindView;
@@ -333,7 +338,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                     showShort("please enter mode name");
                     return;
                 }
-                toSave();
+                if(!getIpAddressString().contains("192.168.4.")){
+                    toSave();
+                } else {
+                    showShort("Network not available");
+                }
                 break;
             case R.id.img_del:
                 toCleanChose();
@@ -342,6 +351,29 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 break;
         }
     }
+
+    /**
+     * @return 本机ip地址
+     */
+    private String getIpAddressString() {
+        try {
+            for (Enumeration<NetworkInterface> enNetI = NetworkInterface
+                    .getNetworkInterfaces(); enNetI.hasMoreElements(); ) {
+                NetworkInterface netI = enNetI.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = netI
+                        .getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return "0.0.0.0";
+    }
+
 
     private void toCleanChose() {
         lampView.clean();
@@ -370,7 +402,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     }
 
     private void toSave() {
-//        getData();
         LampModel lampModel = new LampModel();
         lampModel.setName(etName.getText().toString());
         DoodlePattern doodlePattern = new DoodlePattern();

@@ -444,14 +444,21 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     }
 
     private void toStartHeart() {
-        EasySocket.getInstance().startHeartBeat(getBreathData(), originReadData -> {
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == -122) {
-                LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-                return true;
-            } else {
-                return false;
+        try {
+            start_count++;
+            EasySocket.getInstance().startHeartBeat(getBreathData(), originReadData -> {
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == -122) {
+                    LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        } catch (Exception e) {
+            if(start_count < 5){
+                toStartHeart();
             }
-        });
+        }
     }
 
     private byte[] getBreathData() {
@@ -461,6 +468,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         byte[] breathData = ByteUtil.byteMerger(send_head_data, bodyData);
         return breathData;
     }
+
+    private int start_count;
 
     /**
      * socket行为监听
@@ -474,6 +483,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         public void onSocketConnSuccess(SocketAddress socketAddress) {
             super.onSocketConnSuccess(socketAddress);
             LogUtil.d("连接成功");
+            start_count = 0;
             toStartHeart();
             getLampOpenState();
             getLampTimerState();

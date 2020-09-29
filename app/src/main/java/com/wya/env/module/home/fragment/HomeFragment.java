@@ -39,7 +39,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
@@ -129,7 +134,31 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     }
 
     private void getNetData() {
-        homeFragmentPresenter.getSaveModels();
+        if (!getIpAddressString().contains("192.168.4.")) {
+            homeFragmentPresenter.getSaveModels();
+        }
+    }
+
+    /**
+     * @return 本机ip地址
+     */
+    private String getIpAddressString() {
+        try {
+            for (Enumeration<NetworkInterface> enNetI = NetworkInterface
+                    .getNetworkInterfaces(); enNetI.hasMoreElements(); ) {
+                NetworkInterface netI = enNetI.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = netI
+                        .getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return "0.0.0.0";
     }
 
     private void getLocalData() {
@@ -250,7 +279,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             }
             netLampModels.add(lampModel);
         }
-        if(lampModels.get(lampModels.size() - 1).getName() == null){
+        if (lampModels.get(lampModels.size() - 1).getName() == null) {
             lampModels.remove(lampModels.size() - 1);
         }
         lampModels.addAll(netLampModels);

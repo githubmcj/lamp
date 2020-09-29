@@ -43,6 +43,7 @@ public class Start4Activity extends BaseActivity {
         RxView.clicks(use)
                 .throttleFirst(500, TimeUnit.MILLISECONDS)
                 .subscribe(Observable -> {
+                    use.setEnabled(false);
                     // 跳转到主界面
                     startActivity(new Intent(Start4Activity.this, MainActivity.class));
                     ActivityManager.getInstance().exitApp();
@@ -54,6 +55,12 @@ public class Start4Activity extends BaseActivity {
                     startActivity(new Intent(Start4Activity.this, Start2Activity.class));
                     finish();
                 });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        use.setEnabled(true);
     }
 
     @Override

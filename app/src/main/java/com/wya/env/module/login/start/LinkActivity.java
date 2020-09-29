@@ -6,6 +6,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
 import com.wya.env.bean.login.Lamps;
@@ -13,7 +14,6 @@ import com.wya.env.common.CommonValue;
 import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
 import com.wya.env.net.tpc.EasySocket;
 import com.wya.env.net.tpc.config.EasySocketOptions;
-import com.wya.env.net.tpc.connection.heartbeat.HeartManager;
 import com.wya.env.net.tpc.entity.OriginReadData;
 import com.wya.env.net.tpc.entity.SocketAddress;
 import com.wya.env.net.tpc.interfaces.conn.ISocketActionListener;
@@ -48,12 +48,14 @@ public class LinkActivity extends BaseActivity {
         initLampInfo();
         initEasySocket(lamps.getChose_ip());
         setEnableButton(isConnected);
+
+
     }
 
     private void setEnableButton(boolean isConnected) {
-        if(butSubmit != null){
+        if (butSubmit != null) {
             butSubmit.setEnabled(isConnected);
-            if(isConnected){
+            if (isConnected) {
                 butSubmit.setBackGroundColor(getResources().getColor(R.color.app_blue));
                 butSubmit.setBackGroundColorPress(getResources().getColor(R.color.app_blue));
             } else {
@@ -146,6 +148,10 @@ public class LinkActivity extends BaseActivity {
      * 初始化EasySocket
      */
     private void initEasySocket(String ip) {
+
+        start_count = 0;
+        toStartHeart();
+
         // socket配置
         EasySocketOptions options = new EasySocketOptions.Builder()
                 .setSocketAddress(new SocketAddress(ip, TCP_PORT)) // 主机地址
@@ -163,21 +169,28 @@ public class LinkActivity extends BaseActivity {
 
         // 监听socket行为
         EasySocket.getInstance().subscribeSocketAction(socketActionListener);
-        toStartHeart();
     }
 
+
+    private int start_count;
+
     private void toStartHeart() {
-        EasySocket.getInstance().startHeartBeat(getBreathData(), new HeartManager.HeartbeatListener() {
-            @Override
-            public boolean isServerHeartbeat(OriginReadData originReadData) {
+        try {
+            start_count++;
+            EasySocket.getInstance().startHeartBeat(getBreathData(), originReadData -> {
                 if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == -122) {
                     LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
                     return true;
                 } else {
                     return false;
                 }
+            });
+        } catch (Exception e) {
+            LogUtil.e("start_count:" + start_count);
+            if (start_count < 5) {
+                toStartHeart();
             }
-        });
+        }
     }
 
     private byte[] getBreathData() {
@@ -204,6 +217,7 @@ public class LinkActivity extends BaseActivity {
 //            EasySocket.getInstance().upBytes(bodyData);
             isConnected = true;
             setEnableButton(isConnected);
+            App.getInstance().setTcpConnected(true);
         }
 
         /**
@@ -217,6 +231,7 @@ public class LinkActivity extends BaseActivity {
             LogUtil.d("socket连接被断开");
             isConnected = false;
             setEnableButton(isConnected);
+            App.getInstance().setTcpConnected(false);
         }
 
         /**
@@ -231,6 +246,7 @@ public class LinkActivity extends BaseActivity {
             LogUtil.d("socket连接被断开");
             isConnected = false;
             setEnableButton(isConnected);
+            App.getInstance().setTcpConnected(false);
         }
 
         /**

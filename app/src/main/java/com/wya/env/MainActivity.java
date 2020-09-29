@@ -13,9 +13,7 @@ import com.wya.env.bean.home.AddModel;
 import com.wya.env.module.doodle.DoodleFragment;
 import com.wya.env.module.home.fragment.HomeFragment;
 import com.wya.env.module.mine.MineFragment;
-import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.uikit.tabbar.WYATabBar;
-import com.wya.utils.utils.ScreenUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -130,7 +128,7 @@ public class MainActivity extends BaseActivity {
     private void exit() {
         if (!isExit) {
             isExit = true;
-            showShort("再按一次退出程序");
+            showShort("Press again to exit");
             handler.sendEmptyMessageDelayed(0, 2000);
         } else {
             this.finish();
