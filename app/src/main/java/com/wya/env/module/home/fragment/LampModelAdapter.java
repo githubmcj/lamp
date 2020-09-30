@@ -5,6 +5,7 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -61,9 +62,9 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
             }
             if (item.isMusic() == 1) {
-                helper.getView(R.id.img_music).setBackground(context.getResources().getDrawable(R.drawable.yinyueshibie));
+                ((ImageView)helper.getView(R.id.img_music)).setImageDrawable(context.getResources().getDrawable(R.drawable.yinyueshibie));
             } else {
-                helper.getView(R.id.img_music).setBackground(context.getResources().getDrawable(R.drawable.yinyuemoren));
+                ((ImageView)helper.getView(R.id.img_music)).setImageDrawable(context.getResources().getDrawable(R.drawable.yinyuemoren));
             }
             helper.getView(R.id.img_music).setOnClickListener(new View.OnClickListener() {
                 @Override

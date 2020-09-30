@@ -56,8 +56,9 @@
                 android:id="@+id/img_music"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/dp_12"
-                android:background="@drawable/yinyueshibie"></ImageView>
+                android:layout_marginRight="@dimen/dp_2"
+                android:padding="@dimen/dp_10"
+                android:src="@drawable/yinyueshibie"></ImageView>
 
         </TableRow>
 

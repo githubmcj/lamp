@@ -2,6 +2,7 @@ package com.wya.env.module.mine;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +30,7 @@ import com.wya.env.bean.event.TcpFail;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.bean.tcp.DefaultMessageProtocol;
+import com.wya.env.module.login.start.Start1Activity;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.view.WheelView;
 import com.wya.uikit.button.WYAButton;
@@ -160,6 +162,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     protected void convert(BaseViewHolder helper, LampSetting item) {
         if (item.getName() == null) {
             helper.setGone(R.id.ll_add, true);
+            RxView.clicks(helper.getView(R.id.ll_add))
+                    .throttleFirst(500, TimeUnit.MILLISECONDS)
+                    .subscribe(Observable -> {
+                        context.startActivity(new Intent(context, Start1Activity.class));
+                    });
+
         } else {
             helper.setGone(R.id.ll_add, false);
             helper.setText(R.id.name, item.getDeviceName());

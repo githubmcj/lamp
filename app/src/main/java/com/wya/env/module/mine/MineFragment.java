@@ -130,7 +130,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         recyclerView.setAdapter(myLampAdapter);
         myLampAdapter.setOnItemClickListener((adapter, view, position) -> {
             if (position == lampSettings.size() - 1) {
-                startActivity(new Intent(getActivity(), Start1Activity.class));
+
             } else {
                 for (int i = 0; i < lampSettings.size(); i++) {
                     lampSettings.get(i).setChose(false);
