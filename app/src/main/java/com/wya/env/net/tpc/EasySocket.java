@@ -182,6 +182,17 @@ public class EasySocket {
         return this;
     }
 
+    /**
+     * 关闭心跳管理器
+     *
+     * @return
+     */
+    public EasySocket stopHeartBeat() {
+        getConnection().getHeartManager().stopHeartbeat();
+        return this;
+    }
+
+
 
     /**
      * 获取连接

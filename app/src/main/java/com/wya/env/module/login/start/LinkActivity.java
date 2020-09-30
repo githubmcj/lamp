@@ -148,10 +148,6 @@ public class LinkActivity extends BaseActivity {
      * 初始化EasySocket
      */
     private void initEasySocket(String ip) {
-
-        start_count = 0;
-        toStartHeart();
-
         // socket配置
         EasySocketOptions options = new EasySocketOptions.Builder()
                 .setSocketAddress(new SocketAddress(ip, TCP_PORT)) // 主机地址
@@ -215,6 +211,8 @@ public class LinkActivity extends BaseActivity {
             LogUtil.d("连接成功");
 //            LogUtil.d("连接成功, 并发送数据：" + ByteUtil.byte2hex(bodyData));
 //            EasySocket.getInstance().upBytes(bodyData);
+            start_count = 0;
+            toStartHeart();
             isConnected = true;
             setEnableButton(isConnected);
             App.getInstance().setTcpConnected(true);

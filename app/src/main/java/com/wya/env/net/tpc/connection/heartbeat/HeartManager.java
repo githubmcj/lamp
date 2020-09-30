@@ -113,7 +113,7 @@ public class HeartManager implements IOptions, ISocketActionListener, IHeartMana
     @Override
     public void stopHeartbeat() {
         isActivate=false;
-        startHeartThread();
+        stopHeartThread();
     }
 
     // 停止心跳线程
