@@ -5,19 +5,19 @@ import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.easysocket.EasySocket;
 import com.google.gson.Gson;
 import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
 import com.wya.env.bean.login.Lamps;
+import com.wya.env.bean.tcp.DefaultMessageProtocol;
 import com.wya.env.common.CommonValue;
-import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
-import com.wya.env.net.tpc.EasySocket;
-import com.wya.env.net.tpc.config.EasySocketOptions;
-import com.wya.env.net.tpc.entity.OriginReadData;
-import com.wya.env.net.tpc.entity.SocketAddress;
-import com.wya.env.net.tpc.interfaces.conn.ISocketActionListener;
-import com.wya.env.net.tpc.interfaces.conn.SocketActionListener;
+import com.easysocket.config.EasySocketOptions;
+import com.easysocket.entity.OriginReadData;
+import com.easysocket.entity.SocketAddress;
+import com.easysocket.interfaces.conn.ISocketActionListener;
+import com.easysocket.interfaces.conn.SocketActionListener;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
@@ -151,11 +151,10 @@ public class LinkActivity extends BaseActivity {
         // socket配置
         EasySocketOptions options = new EasySocketOptions.Builder()
                 .setSocketAddress(new SocketAddress(ip, TCP_PORT)) // 主机地址
-                .setCallbackIdKeyFactory(new CallbackIdKeyFactoryImpl())
-                .setReaderProtocol(null)
+                .setReaderProtocol(new DefaultMessageProtocol())
                 .build();
 
-        options.setMessageProtocol(null);
+        options.setMessageProtocol(new DefaultMessageProtocol());
         options.setMaxResponseDataMb(1000000);
         options.setHeartbeatFreq(4000);
         // 初始化EasySocket
@@ -173,6 +172,7 @@ public class LinkActivity extends BaseActivity {
     private void toStartHeart() {
         try {
             start_count++;
+            LogUtil.e("发送的心跳数据："+ByteUtil.byte2hex(getBreathData()));
             EasySocket.getInstance().startHeartBeat(getBreathData(), originReadData -> {
                 if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == -122) {
                     LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));

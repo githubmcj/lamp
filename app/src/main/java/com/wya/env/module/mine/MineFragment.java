@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -19,6 +20,7 @@ import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.event.Hide;
+import com.wya.env.bean.event.TcpFail;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
@@ -425,9 +427,23 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(TcpFail event) {
+        try {
+            Toast.makeText(getActivity(), "The mobile phone and device are not in the agreed network segment, please check and then reconnect", Toast.LENGTH_SHORT).show();
+            hideLoading();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(Hide hide) {
         try {
-            hideLoading();
+            if(hide.isHide()){
+                hideLoading();
+            } else {
+                showLoading();
+            }
         } catch (Exception e) {
 
         }

@@ -164,5 +164,4 @@ public class ByteUtil {
         int numb = bigint.intValue();
         return numb;
     }
-
 }

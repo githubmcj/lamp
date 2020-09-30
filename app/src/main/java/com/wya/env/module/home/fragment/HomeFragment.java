@@ -19,15 +19,15 @@ import com.wya.env.bean.home.AddModel;
 import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
+import com.wya.env.bean.tcp.DefaultMessageProtocol;
 import com.wya.env.common.CommonValue;
-import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
-import com.wya.env.net.tpc.EasySocket;
-import com.wya.env.net.tpc.config.EasySocketOptions;
-import com.wya.env.net.tpc.connection.heartbeat.HeartManager;
-import com.wya.env.net.tpc.entity.OriginReadData;
-import com.wya.env.net.tpc.entity.SocketAddress;
-import com.wya.env.net.tpc.interfaces.conn.ISocketActionListener;
-import com.wya.env.net.tpc.interfaces.conn.SocketActionListener;
+import com.easysocket.EasySocket;
+import com.easysocket.config.EasySocketOptions;
+import com.easysocket.connection.heartbeat.HeartManager;
+import com.easysocket.entity.OriginReadData;
+import com.easysocket.entity.SocketAddress;
+import com.easysocket.interfaces.conn.ISocketActionListener;
+import com.easysocket.interfaces.conn.SocketActionListener;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
@@ -336,11 +336,10 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         // socket配置
         EasySocketOptions options = new EasySocketOptions.Builder()
                 .setSocketAddress(new SocketAddress(ip, TCP_PORT)) // 主机地址
-                .setCallbackIdKeyFactory(new CallbackIdKeyFactoryImpl())
-                .setReaderProtocol(null)
+                .setReaderProtocol(new DefaultMessageProtocol())
                 .build();
 
-        options.setMessageProtocol(null);
+        options.setMessageProtocol(new DefaultMessageProtocol());
         options.setHeartbeatFreq(2000);
         // 初始化EasySocket
         EasySocket.getInstance()

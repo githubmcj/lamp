@@ -37,7 +37,7 @@ public class Start4Activity extends BaseActivity {
     protected void initView() {
         showToolBar(false);
         name = getIntent().getStringExtra("name");
-        tvContent.setText("Now you can enjoy the full capabilities of your " + name + ".\\\nLet's start your wonderful journey!");
+        tvContent.setText("Now you can enjoy the full capabilities of your " + name + ".\nLet's start your wonderful journey!");
 
 
         RxView.clicks(use)

@@ -38,7 +38,7 @@
         android:layout_marginRight="@dimen/dp_20"
         android:layout_marginBottom="@dimen/dp_20"
         android:padding="@dimen/dp_10"
-        android:text="STRT USING APP"
+        android:text="START USING APP"
         android:textSize="@dimen/sp_18"
         app:buttonBackGroundColor="@color/app_blue"
         app:buttonBackGroundColorPress="@color/app_blue_press"

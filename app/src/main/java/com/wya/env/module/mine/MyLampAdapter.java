@@ -13,21 +13,22 @@ import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.easysocket.EasySocket;
+import com.easysocket.config.EasySocketOptions;
+import com.easysocket.entity.OriginReadData;
+import com.easysocket.entity.SocketAddress;
+import com.easysocket.interfaces.conn.ISocketActionListener;
+import com.easysocket.interfaces.conn.SocketActionListener;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.event.EventtDeviceName;
 import com.wya.env.bean.event.Hide;
+import com.wya.env.bean.event.TcpFail;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.home.MusicSuccess;
-import com.wya.env.net.tpc.CallbackIdKeyFactoryImpl;
-import com.wya.env.net.tpc.EasySocket;
-import com.wya.env.net.tpc.config.EasySocketOptions;
-import com.wya.env.net.tpc.entity.OriginReadData;
-import com.wya.env.net.tpc.entity.SocketAddress;
-import com.wya.env.net.tpc.interfaces.conn.ISocketActionListener;
-import com.wya.env.net.tpc.interfaces.conn.SocketActionListener;
+import com.wya.env.bean.tcp.DefaultMessageProtocol;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.view.WheelView;
 import com.wya.uikit.button.WYAButton;
@@ -37,9 +38,14 @@ import com.wya.utils.utils.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -66,6 +72,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     private MusicModel musicModel;
     private String deviceName;
     private EventtDeviceName eventtDeviceName;
+
+    private Hide hide;
 
     /**
      * Sets music model.
@@ -183,6 +191,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     .throttleFirst(500, TimeUnit.MILLISECONDS)
                     .subscribe(Observable -> {
                         if (App.getInstance().isTcpConnected()) {
+                            hide = new Hide();
+                            hide.setHide(false);
+                            EventBus.getDefault().post(hide);
                             ip = item.getIp();
                             position = helper.getAdapterPosition();
                             bodyData = getOpenLamp(!item.isOpen());
@@ -198,6 +209,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                         if (App.getInstance().isTcpConnected()) {
                             position = helper.getAdapterPosition();
                             if (item.isHasTimer()) {
+                                hide = new Hide();
+                                hide.setHide(false);
+                                EventBus.getDefault().post(hide);
                                 bodyData = getTimerTime(false, item.getS_hour(), item.getS_min(), item.getE_hour(), item.getE_min());
                                 EasySocket.getInstance().upBytes(bodyData);
                             } else {
@@ -315,6 +329,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     sure.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            hide = new Hide();
+                            hide.setHide(false);
+                            EventBus.getDefault().post(hide);
                             item.setS_hour(s_hour);
                             item.setS_min(s_min);
                             item.setE_hour(e_hour);
@@ -423,31 +440,59 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      * @param ip
      */
     private void initEasySocket(String ip) {
-        // socket配置
-        EasySocketOptions options = new EasySocketOptions.Builder()
-                .setSocketAddress(new SocketAddress(ip, TCP_PORT))
-                .setCallbackIdKeyFactory(new CallbackIdKeyFactoryImpl())
-                .setReaderProtocol(null)
-                .build();
+        LogUtil.e(ip + "==================" + getIpAddressString());
+        if ((ip.split("\\.")[1].equals(getIpAddressString().split("\\.")[1])) && (ip.split("\\.")[0].equals(getIpAddressString().split("\\.")[0]))) {
+            // socket配置
+            EasySocketOptions options = new EasySocketOptions.Builder()
+                    .setSocketAddress(new SocketAddress(ip, TCP_PORT))
+                    .setReaderProtocol(new DefaultMessageProtocol())
+                    .build();
 
-        options.setMessageProtocol(null);
-        options.setMaxResponseDataMb(1000000);
-        options.setHeartbeatFreq(4000);
+            options.setMessageProtocol(new DefaultMessageProtocol());
+            options.setMaxResponseDataMb(1000000);
+            options.setHeartbeatFreq(4000);
 
-        // 初始化EasySocket
-        EasySocket.getInstance()
-                .options(options)
-                .createConnection();
+            // 初始化EasySocket
+            EasySocket.getInstance()
+                    .options(options)
+                    .createConnection();
 
-        // 监听socket行为
-        EasySocket.getInstance().subscribeSocketAction(socketActionListener);
+            // 监听socket行为
+            EasySocket.getInstance().subscribeSocketAction(socketActionListener);
+        } else {
+            EventBus.getDefault().post(new TcpFail());
+        }
     }
+
+    /**
+     * @return 本机ip地址
+     */
+    private String getIpAddressString() {
+        try {
+            for (Enumeration<NetworkInterface> enNetI = NetworkInterface
+                    .getNetworkInterfaces(); enNetI.hasMoreElements(); ) {
+                NetworkInterface netI = enNetI.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = netI
+                        .getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return "0.0.0.0";
+    }
+
 
     private void toStartHeart() {
         try {
             start_count++;
+            LogUtil.e("发送的心跳数据：" + ByteUtil.byte2hex(getBreathData()));
             EasySocket.getInstance().startHeartBeat(getBreathData(), originReadData -> {
-                if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == -122) {
+                if (originReadData.getBodyData()[0] == (byte) 0x86) {
                     LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
                     return true;
                 } else {
@@ -455,7 +500,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 }
             });
         } catch (Exception e) {
-            if(start_count < 5){
+            if (start_count < 5) {
                 toStartHeart();
             }
         }
@@ -492,7 +537,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             eventtDeviceName.setDeviceName(deviceName);
             EventBus.getDefault().post(eventtDeviceName);
             MyLampAdapter.this.notifyDataSetChanged();
-            EventBus.getDefault().post(new Hide());
+            hide = new Hide();
+            hide.setHide(true);
+            EventBus.getDefault().post(hide);
         }
 
         /**
@@ -509,7 +556,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             eventtDeviceName.setDeviceName(null);
             EventBus.getDefault().post(eventtDeviceName);
             MyLampAdapter.this.notifyDataSetChanged();
-            EventBus.getDefault().post(new Hide());
+            hide = new Hide();
+            hide.setHide(true);
+            EventBus.getDefault().post(hide);
         }
 
         /**
@@ -527,7 +576,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             eventtDeviceName.setDeviceName(null);
             EventBus.getDefault().post(eventtDeviceName);
             MyLampAdapter.this.notifyDataSetChanged();
-            EventBus.getDefault().post(new Hide());
+            hide = new Hide();
+            hide.setHide(true);
+            EventBus.getDefault().post(hide);
         }
 
         /**
@@ -539,7 +590,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
             super.onSocketResponse(socketAddress, originReadData);
             dealSocketResponseData(originReadData);
-            EventBus.getDefault().post(new Hide());
+            hide = new Hide();
+            hide.setHide(true);
+            EventBus.getDefault().post(hide);
         }
     };
 
@@ -550,117 +603,120 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      */
     private void dealSocketResponseData(OriginReadData originReadData) {
         LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-        if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == -116) {
-            LogUtil.e("时间同步");
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                LogUtil.e("成功");
-            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 3) {
-                LogUtil.e("以公网时间为准");
-            } else {
-                LogUtil.e("失败");
-            }
-        } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == -115) {
-            LogUtil.e("定时器设置");
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                LogUtil.e("成功");
-                Message msg = Message.obtain();
-                msg.what = 3;
-                msg.obj = position;
-                handler.sendMessage(msg);
-            } else {
-                LogUtil.e("失败");
-            }
-        } else if (originReadData.getBodyData().length > 3 && originReadData.getBodyData()[originReadData.getBodyData().length - 3] == (byte) 0x8e) {
-            LogUtil.e("获取灯状态");
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == (byte) 0x81) {
-                LogUtil.e("获取灯开关");
-                if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
-                    LogUtil.e("灯开着的");
-                    Message msg = Message.obtain();
-                    msg.what = 4;
-                    msg.obj = position;
-                    Bundle bundle = new Bundle();
-                    bundle.putBoolean("isOpen", true);
-                    msg.setData(bundle);
-                    handler.sendMessage(msg);
-                } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                    LogUtil.e("灯关着的");
-                    Message msg = Message.obtain();
-                    msg.what = 4;
-                    msg.obj = position;
-                    Bundle bundle = new Bundle();
-                    bundle.putBoolean("isOpen", false);
-                    msg.setData(bundle);
-                    handler.sendMessage(msg);
-                } else {
-                    LogUtil.e("无该功能");
-                }
-            }
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 2] == (byte) 0x00) {
-                if (musicModel.isClick()) {
-                    try {
-                        EasySocket.getInstance().upBytes(getMusicData(musicModel, musicModel.isClick()));
-                    } catch (Exception e) {
-                        LogUtil.e("打开灯光失败");
-                    }
-                } else {
-                    if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
-                        LogUtil.e("声控开着的");
-                        if (musicModel.getMusic() == 0) {
+        switch (originReadData.getBodyData()[0]) {
+            case (byte) 0x86:
+                LogUtil.e("心跳数据");
+                break;
+            case (byte) 0x8e:
+                LogUtil.e("获取灯状态数据");
+                switch (originReadData.getBodyData()[1]) {
+                    case (byte) 0x81:
+                        LogUtil.e("获取灯状态");
+                        if (originReadData.getBodyData()[2] == 1) {
+                            LogUtil.e("灯开着的");
+                            Message msg = Message.obtain();
+                            msg.what = 4;
+                            msg.obj = position;
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean("isOpen", true);
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+                        } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                            LogUtil.e("灯关着的");
+                            Message msg = Message.obtain();
+                            msg.what = 4;
+                            msg.obj = position;
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean("isOpen", false);
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+                        } else {
+                            LogUtil.e("无该功能");
+                        }
+                        break;
+
+                    case (byte) 0x00:
+                        LogUtil.e("获取灯状态");
+                        if (musicModel.isClick()) {
                             try {
+                                hide = new Hide();
+                                hide.setHide(false);
+                                EventBus.getDefault().post(hide);
                                 EasySocket.getInstance().upBytes(getMusicData(musicModel, musicModel.isClick()));
                             } catch (Exception e) {
-                                LogUtil.e("打开灯光失败");
+                                LogUtil.e("打开声控失败");
+                            }
+                        } else {
+                            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                                LogUtil.e("声控开着的");
+                                if (musicModel.getMusic() == 0) {
+                                    try {
+                                        hide = new Hide();
+                                        hide.setHide(false);
+                                        EventBus.getDefault().post(hide);
+                                        EasySocket.getInstance().upBytes(getMusicData(musicModel, musicModel.isClick()));
+                                    } catch (Exception e) {
+                                        LogUtil.e("打开声控失败");
+                                    }
+                                }
+                            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                                LogUtil.e("声控关着的");
+                                if (musicModel.getMusic() == 1) {
+                                    try {
+                                        hide = new Hide();
+                                        hide.setHide(false);
+                                        EventBus.getDefault().post(hide);
+                                        EasySocket.getInstance().upBytes(getMusicData(musicModel, musicModel.isClick()));
+                                    } catch (Exception e) {
+                                        LogUtil.e("打开声控失败");
+                                    }
+                                }
+                            } else {
+                                LogUtil.e("无该功能");
                             }
                         }
-                    } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                        LogUtil.e("声控关着的");
-                        if (musicModel.getMusic() == 1) {
-                            try {
-                                EasySocket.getInstance().upBytes(getMusicData(musicModel, musicModel.isClick()));
-                            } catch (Exception e) {
-                                LogUtil.e("打开灯光失败");
-                            }
-                        }
-                    } else {
-                        LogUtil.e("无该功能");
-                    }
+                        break;
+                    default:
+                        break;
                 }
-            }
-        } else if (originReadData.getBodyData().length > 28 && originReadData.getBodyData()[originReadData.getBodyData().length - 28] == (byte) 0x8f) {
-            LogUtil.e("获取灯定时状态");
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 26] == 1) {
-                LogUtil.e("灯定时开着的");
-                Message msg = Message.obtain();
-                msg.what = 5;
-                msg.obj = position;
-                Bundle bundle = new Bundle();
-                bundle.putBoolean("hasTime", true);
-                bundle.putString("s_hour", originReadData.getBodyData()[originReadData.getBodyData().length - 21] + "");
-                bundle.putString("s_min", originReadData.getBodyData()[originReadData.getBodyData().length - 20] + "");
-                bundle.putString("e_hour", originReadData.getBodyData()[originReadData.getBodyData().length - 13] + "");
-                bundle.putString("e_min", originReadData.getBodyData()[originReadData.getBodyData().length - 12] + "");
-                msg.setData(bundle);
-                handler.sendMessage(msg);
-            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 26] == 0) {
-                LogUtil.e("灯定时关着的");
-                Message msg = Message.obtain();
-                msg.what = 5;
-                msg.obj = position;
-                Bundle bundle = new Bundle();
-                bundle.putBoolean("hasTime", false);
-                bundle.putString("s_hour", originReadData.getBodyData()[originReadData.getBodyData().length - 21] + "");
-                bundle.putString("s_min", originReadData.getBodyData()[originReadData.getBodyData().length - 20] + "");
-                bundle.putString("e_hour", originReadData.getBodyData()[originReadData.getBodyData().length - 13] + "");
-                bundle.putString("e_min", originReadData.getBodyData()[originReadData.getBodyData().length - 12] + "");
-                msg.setData(bundle);
-                handler.sendMessage(msg);
-            }
-        } else {
-            switch (originReadData.getBodyData()[originReadData.getBodyData().length - 3]) {
-                case 0:
-                    LogUtil.e("开灯关灯");
-                    if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                break;
+            case (byte) 0x8f:
+                LogUtil.e("获取定时器状态");
+                if (originReadData.getBodyData()[2] == 1) {
+                    LogUtil.e("定时器开着的");
+                    Message msg = Message.obtain();
+                    msg.what = 5;
+                    msg.obj = position;
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("hasTime", true);
+                    bundle.putString("s_hour", originReadData.getBodyData()[7] + "");
+                    bundle.putString("s_min", originReadData.getBodyData()[8] + "");
+                    bundle.putString("e_hour", originReadData.getBodyData()[15] + "");
+                    bundle.putString("e_min", originReadData.getBodyData()[16] + "");
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
+                } else if (originReadData.getBodyData()[2] == 0) {
+                    LogUtil.e("定时器关着的");
+                    Message msg = Message.obtain();
+                    msg.what = 5;
+                    msg.obj = position;
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("hasTime", false);
+                    bundle.putString("s_hour", originReadData.getBodyData()[7] + "");
+                    bundle.putString("s_min", originReadData.getBodyData()[8] + "");
+                    bundle.putString("e_hour", originReadData.getBodyData()[15] + "");
+                    bundle.putString("e_min", originReadData.getBodyData()[16] + "");
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
+                }
+                break;
+            case (byte) 0x81:
+                if (originReadData.getBodyData()[1] == 0) {
+                    LogUtil.e("灯光开关灯");
+                    hide = new Hide();
+                    hide.setHide(true);
+                    EventBus.getDefault().post(hide);
+                    if (originReadData.getBodyData()[3] == 0) {
                         LogUtil.e("成功");
                         Message msg = Message.obtain();
                         msg.what = 1;
@@ -669,21 +725,47 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
                         LogUtil.e("失败");
                     }
-                    break;
-                case 1:
-                    LogUtil.e("音乐关灯");
-                    if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                } else if (originReadData.getBodyData()[1] == 1) {
+                    LogUtil.e("灯光声控开关灯");
+                    hide = new Hide();
+                    hide.setHide(true);
+                    EventBus.getDefault().post(hide);
+                    if (originReadData.getBodyData()[3] == 0) {
                         LogUtil.e("成功");
                         Message msg = Message.obtain();
                         msg.what = 2;
                         handler.sendMessage(msg);
-                    } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                    } else if (originReadData.getBodyData()[3] == 1) {
                         LogUtil.e("失败");
                     }
-                    break;
-                default:
-                    break;
-            }
+                }
+                break;
+            case (byte) 0x8d:
+                LogUtil.e("定时器设置");
+                hide = new Hide();
+                hide.setHide(true);
+                EventBus.getDefault().post(hide);
+                if (originReadData.getBodyData()[1] == 0) {
+                    LogUtil.e("成功");
+                    Message msg = Message.obtain();
+                    msg.what = 3;
+                    msg.obj = position;
+                    handler.sendMessage(msg);
+                } else {
+                    LogUtil.e("失败");
+                }
+                break;
+            case (byte) 0x8c:
+                if (originReadData.getBodyData()[1] == 0) {
+                    LogUtil.e("成功");
+                } else if (originReadData.getBodyData()[1] == 3) {
+                    LogUtil.e("以公网时间为准");
+                } else {
+                    LogUtil.e("失败");
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -823,7 +905,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         try {
             EasySocket.getInstance().destroyConnection();
         } catch (Exception e) {
-
+            LogUtil.e("停止TCP失败");
         }
     }
 }
