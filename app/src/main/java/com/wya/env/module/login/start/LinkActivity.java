@@ -6,6 +6,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.easysocket.EasySocket;
+import com.easysocket.config.EasySocketOptions;
+import com.easysocket.entity.OriginReadData;
+import com.easysocket.entity.SocketAddress;
+import com.easysocket.interfaces.conn.ISocketActionListener;
+import com.easysocket.interfaces.conn.SocketActionListener;
 import com.google.gson.Gson;
 import com.wya.env.App;
 import com.wya.env.R;
@@ -13,11 +18,6 @@ import com.wya.env.base.BaseActivity;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.tcp.DefaultMessageProtocol;
 import com.wya.env.common.CommonValue;
-import com.easysocket.config.EasySocketOptions;
-import com.easysocket.entity.OriginReadData;
-import com.easysocket.entity.SocketAddress;
-import com.easysocket.interfaces.conn.ISocketActionListener;
-import com.easysocket.interfaces.conn.SocketActionListener;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
@@ -172,7 +172,7 @@ public class LinkActivity extends BaseActivity {
     private void toStartHeart() {
         try {
             start_count++;
-            LogUtil.e("发送的心跳数据："+ByteUtil.byte2hex(getBreathData()));
+            LogUtil.e("发送的心跳数据：" + ByteUtil.byte2hex(getBreathData()));
             EasySocket.getInstance().startHeartBeat(getBreathData(), originReadData -> {
                 if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == -122) {
                     LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
@@ -209,8 +209,7 @@ public class LinkActivity extends BaseActivity {
         public void onSocketConnSuccess(SocketAddress socketAddress) {
             super.onSocketConnSuccess(socketAddress);
             LogUtil.d("连接成功");
-//            LogUtil.d("连接成功, 并发送数据：" + ByteUtil.byte2hex(bodyData));
-//            EasySocket.getInstance().upBytes(bodyData);
+            getWifiInfo();
             start_count = 0;
             toStartHeart();
             isConnected = true;
@@ -256,16 +255,84 @@ public class LinkActivity extends BaseActivity {
         public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
             super.onSocketResponse(socketAddress, originReadData);
             LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                LogUtil.e("成功");
-                // 跳转到主界面
-                startActivity(new Intent(LinkActivity.this, Start4Activity.class).putExtra("name", etRename.getText().toString()));
-                finish();
-            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
-                LogUtil.e("失败");
-            }
+            dealSocketResponseData(originReadData);
         }
     };
+
+    /**
+     * 获取的数据处理
+     *
+     * @param originReadData TCP 接收的原始数据
+     */
+    private void dealSocketResponseData(OriginReadData originReadData) {
+        LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+        switch (originReadData.getBodyData()[0]) {
+            case (byte) 0x8a:
+                LogUtil.e("配置路由器");
+                if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+                    LogUtil.e("成功");
+                    // 跳转到主界面
+                    startActivity(new Intent(LinkActivity.this, Start4Activity.class).putExtra("name", etRename.getText().toString()));
+                    finish();
+                } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+                    LogUtil.e("失败");
+                }
+                break;
+            case (byte) 0x86:
+                LogUtil.e("心跳数据");
+                break;
+            case (byte) 0x89:
+                LogUtil.e("获取控制器wifi数据");
+                String wifi = new String(getWifiData(originReadData.getBodyData()));
+                String password = new String(getPasswordData(originReadData.getBodyData()));
+                String name = new String(getNameData(originReadData.getBodyData()));
+                if(!TextUtils.isEmpty(wifi)){
+                    etAccount.setText(wifi);
+                }
+                if(!TextUtils.isEmpty(password)){
+                    etPassword.setText(password);
+                }
+                if(!TextUtils.isEmpty(name)){
+                    etRename.setText(name);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private byte[] getWifiData(byte[] data) {
+        byte[] name = new byte[31];
+        for (int i = 0; i < 31; i++) {
+            name[i] = data[i + 1];
+        }
+        return name;
+    }
+
+    private byte[] getPasswordData(byte[] data) {
+        byte[] name = new byte[31];
+        for (int i = 0; i < 31; i++) {
+            name[i] = data[i + 32];
+        }
+        return name;
+    }
+    private byte[] getNameData(byte[] data) {
+        byte[] name = new byte[31];
+        for (int i = 0; i < 31; i++) {
+            name[i] = data[i + 63];
+        }
+        return name;
+    }
+
+
+
+    private void getWifiInfo() {
+        byte[] bodyData = new byte[1];
+        bodyData[0] = 0x09;
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
+        EasySocket.getInstance().upBytes(openFileData);
+    }
 
 
     @Override

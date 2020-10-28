@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,6 +25,9 @@ import com.wya.utils.utils.LogUtil;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -88,7 +92,7 @@ public class SearchDeviceActivity extends BaseActivity {
             public void run() {
                 LogUtil.e("addMode----------" + addMode);
                 addMode++;
-                if (addMode < 6) {
+                if (addMode < 15) {
                     sendData();
                 } else {
                     stopSendUdpModeData();
@@ -157,6 +161,26 @@ public class SearchDeviceActivity extends BaseActivity {
         SaveSharedPreferences.save(this, CommonValue.LAMPS, new Gson().toJson(lamps));
     }
 
+
+//    private void sendData() throws IOException {
+//
+//        InetAddress address = InetAddress.getByName(loc_ip);
+//        byte[] bytes = new byte[1];
+//        bytes[0] = 0x00;
+//        byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
+//        byte[] send_data = ByteUtil.byteMerger(send_head_data, bytes);
+//        // 2.创建数据报，包含发送的数据信息
+//        DatagramPacket packet = new DatagramPacket(send_data, send_data.length, address, port);
+//        // 3.创建DatagramSocket对象
+//        DatagramSocket socket = new DatagramSocket();
+//        // 4.向服务器端发送数据报
+//        socket.send(packet);
+//        // 5.关闭资源
+//        socket.close();
+//        LogUtil.e("发送搜索广播数据成功");
+//    }
+
+
     private void sendData() {
         LogUtil.e("发送广播");
         byte[] bytes = new byte[1];
@@ -221,7 +245,6 @@ public class SearchDeviceActivity extends BaseActivity {
             super.handleMessage(msg);
             switch (msg.what) {      //判断标志位
                 case 1:
-                    tvSearching.setVisibility(View.GONE);
                     if (lampSettings != null && lampSettings.size() > 0) {
                         boolean has = false;
                         for (int i = 0; i < lampSettings.size(); i++) {
@@ -229,7 +252,8 @@ public class SearchDeviceActivity extends BaseActivity {
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
-                            if (lampSettings.get(i).getName().equals(name)) {
+                            if (lampSettings.get(i).getName().equals(name) && !TextUtils.isEmpty(deviceName) && size > 0) {
+                                tvSearching.setVisibility(View.GONE);
                                 has = true;
                                 lampSettings.get(i).setName(name);
                                 lampSettings.get(i).setIp(ip);
@@ -244,6 +268,24 @@ public class SearchDeviceActivity extends BaseActivity {
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
+                            if(!TextUtils.isEmpty(deviceName) && size > 0){
+                                tvSearching.setVisibility(View.GONE);
+                                LampSetting lampSetting = new LampSetting();
+                                lampSetting.setName(name);
+                                lampSetting.setIp(ip);
+                                lampSetting.setSize(size);
+                                lampSetting.setDeviceName(deviceName);
+                                lampSettings.add(lampSetting);
+                                deviceAdapter.setNewData(lampSettings);
+                            }
+                        }
+                    } else {
+                        String ip = msg.getData().getString("ip");
+                        String name = msg.getData().getString("name");
+                        int size = msg.getData().getInt("size");
+                        String deviceName = msg.getData().getString("deviceName");
+                        if(!TextUtils.isEmpty(deviceName) && size > 0){
+                            tvSearching.setVisibility(View.GONE);
                             LampSetting lampSetting = new LampSetting();
                             lampSetting.setName(name);
                             lampSetting.setIp(ip);
@@ -252,18 +294,6 @@ public class SearchDeviceActivity extends BaseActivity {
                             lampSettings.add(lampSetting);
                             deviceAdapter.setNewData(lampSettings);
                         }
-                    } else {
-                        String ip = msg.getData().getString("ip");
-                        String name = msg.getData().getString("name");
-                        int size = msg.getData().getInt("size");
-                        String deviceName = msg.getData().getString("deviceName");
-                        LampSetting lampSetting = new LampSetting();
-                        lampSetting.setName(name);
-                        lampSetting.setIp(ip);
-                        lampSetting.setDeviceName(deviceName);
-                        lampSetting.setSize(size);
-                        lampSettings.add(lampSetting);
-                        deviceAdapter.setNewData(lampSettings);
                     }
                     break;
                 default:

@@ -53,7 +53,7 @@ public class UdpUtil {
                 byte[] container = new byte[1024];
                 // 封装成包
                 DatagramPacket packet2 = new DatagramPacket(container, container.length);
-                client.setSoTimeout(5000);
+                client.setSoTimeout(2000);
                 // 接收数据,使用 DatagramSocket的实例的 receive( DatagramPacket ) 方法进行接收
                 client.receive(packet2);
                 InetAddress ip = packet2.getAddress();

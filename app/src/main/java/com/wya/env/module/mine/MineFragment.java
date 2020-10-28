@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -108,6 +109,10 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
             if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
                 lampSettings.add(new LampSetting());
             }
+        } else {
+            lampSettings = new ArrayList<>();
+            lampSettings.add(new LampSetting());
+            saveInfoLamp(lampSettings);
         }
     }
 
@@ -295,7 +300,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
-                            if (lampSettings.get(i).getName().equals(name)) {
+                            if (lampSettings.get(i).getName().equals(name) && !TextUtils.isEmpty(deviceName) && size > 0) {
                                 has = true;
                                 lampSettings.get(i).setName(name);
                                 lampSettings.get(i).setIp(ip);
@@ -306,6 +311,11 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                                 }
                                 myLampAdapter.setNewData(lampSettings);
                                 break;
+                            } else {
+                                if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                                    lampSettings.add(new LampSetting());
+                                }
+                                myLampAdapter.setNewData(lampSettings);
                             }
                         }
                         if (!has) {
@@ -313,6 +323,30 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
+                            if(!TextUtils.isEmpty(deviceName) && size > 0){
+                                LampSetting lampSetting = new LampSetting();
+                                lampSetting.setName(name);
+                                lampSetting.setIp(ip);
+                                lampSetting.setSize(size);
+                                lampSetting.setDeviceName(deviceName);
+                                lampSettings.add(lampSetting);
+                                if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                                    lampSettings.add(new LampSetting());
+                                }
+                                myLampAdapter.setNewData(lampSettings);
+                            } else {
+                                if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                                    lampSettings.add(new LampSetting());
+                                }
+                                myLampAdapter.setNewData(lampSettings);
+                            }
+                        }
+                    } else {
+                        String ip = msg.getData().getString("ip");
+                        String name = msg.getData().getString("name");
+                        int size = msg.getData().getInt("size");
+                        String deviceName = msg.getData().getString("deviceName");
+                        if(!TextUtils.isEmpty(deviceName) && size > 0){
                             LampSetting lampSetting = new LampSetting();
                             lampSetting.setName(name);
                             lampSetting.setIp(ip);
@@ -323,22 +357,12 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                                 lampSettings.add(new LampSetting());
                             }
                             myLampAdapter.setNewData(lampSettings);
+                        } else {
+                            if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                                lampSettings.add(new LampSetting());
+                            }
+                            myLampAdapter.setNewData(lampSettings);
                         }
-                    } else {
-                        String ip = msg.getData().getString("ip");
-                        String name = msg.getData().getString("name");
-                        int size = msg.getData().getInt("size");
-                        String deviceName = msg.getData().getString("deviceName");
-                        LampSetting lampSetting = new LampSetting();
-                        lampSetting.setName(name);
-                        lampSetting.setIp(ip);
-                        lampSetting.setSize(size);
-                        lampSetting.setDeviceName(deviceName);
-                        lampSettings.add(lampSetting);
-                        if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
-                            lampSettings.add(new LampSetting());
-                        }
-                        myLampAdapter.setNewData(lampSettings);
                     }
                     hideLoading();
                     break;
