@@ -17,8 +17,6 @@ public interface CommonValue {
      */
     String SHARE_PREFERENCES_NAME = "share_preferences_name";
 
-    int COLUMN = 20;
-
     /**
      * 登录信息
      */
@@ -34,4 +32,10 @@ public interface CommonValue {
 
      int UDP_PORT = 6000;
      int TCP_PORT = 6600;
+
+
+
+    int column = 15;
+    int size = 300;
+    int row = 20;
 }
