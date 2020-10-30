@@ -12,6 +12,24 @@ public class LampSetting {
     private String e_min = "0";
     private String ip;
     private int size;
+    private int column;
+    private int row;
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
 
     public String getS_hour() {
         return s_hour;

@@ -19,9 +19,11 @@ public class UdpUtil {
      * 连接的方法
      *
      * @param data     发送指令
+     * @param loc_ip
+     * @param type
      * @param iCallUdp 返回的接口数据
      */
-    public static void send(byte[] data, String loc_ip, ICallUdp iCallUdp) {
+    public static void send(byte[] data, String loc_ip, int type, ICallUdp iCallUdp) {
         iCallUdp.start();
         try {
 
@@ -71,7 +73,7 @@ public class UdpUtil {
                 byte[] data2 = packet2.getData();
                 System.out.println("回调传接收的数据-----------" + bytesToHex(data2));
                 //回调传接收的数据
-                iCallUdp.success(data2, ipStr);
+                iCallUdp.success(data2, ipStr, type);
                 // 5,关闭资源
                 client.close();
                 client = null;

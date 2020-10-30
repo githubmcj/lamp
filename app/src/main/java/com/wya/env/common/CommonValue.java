@@ -35,7 +35,7 @@ public interface CommonValue {
 
 
 
-    int column = 15;
-    int size = 300;
-    int row = 20;
+    String COLUMN = "column";
+    String SIZE = "size";
+    String ROW = "row";
 }

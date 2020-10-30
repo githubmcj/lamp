@@ -25,9 +25,6 @@ import com.wya.utils.utils.LogUtil;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -40,6 +37,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
+
 /**
  * @date: 2020\9\26 0026 18:00
  * @author: Chunjiang Mao
@@ -93,7 +91,8 @@ public class SearchDeviceActivity extends BaseActivity {
                 LogUtil.e("addMode----------" + addMode);
                 addMode++;
                 if (addMode < 15) {
-                    sendData();
+                    sendData(1);
+                    sendData(2);
                 } else {
                     stopSendUdpModeData();
                     if (lampSettings != null && lampSettings.size() > 0) {
@@ -155,6 +154,8 @@ public class SearchDeviceActivity extends BaseActivity {
             if (lampSettings.get(i).isChose()) {
                 lamps.setChose_ip(lampSettings.get(i).getIp());
                 lamps.setSize(lampSettings.get(i).getSize());
+                lamps.setColumn(lampSettings.get(i).getColumn());
+                lamps.setRow(lampSettings.get(i).getRow());
                 lamps.setName(lampSettings.get(i).getName());
             }
         }
@@ -181,29 +182,51 @@ public class SearchDeviceActivity extends BaseActivity {
 //    }
 
 
-    private void sendData() {
+    private void sendData(int type) {
         LogUtil.e("发送广播");
-        byte[] bytes = new byte[1];
-        bytes[0] = 0x00;
-        byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
-        byte[] send_data = ByteUtil.byteMerger(send_head_data, bytes);
-        UdpUtil.send(send_data, loc_ip, new ICallUdp() {
+        byte[] send_data;
+        if (type == 1) {
+            byte[] bytes = new byte[1];
+            bytes[0] = 0x00;
+            byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
+            send_data = ByteUtil.byteMerger(send_head_data, bytes);
+        } else {
+            byte[] bytes = new byte[1];
+            bytes[0] = 0x03;
+            byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
+            send_data = ByteUtil.byteMerger(send_head_data, bytes);
+        }
+        UdpUtil.send(send_data, loc_ip, type, new ICallUdp() {
             @Override
             public void start() {
                 LogUtil.e("start-----------");
             }
 
             @Override
-            public void success(byte[] data, String ip) {
+            public void success(byte[] data, String ip, int type) {
                 Message msg = Message.obtain();
-                msg.what = 1;
                 Bundle bundle = new Bundle();
-                bundle.putString("ip", ip);
-                bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
-                bundle.putString("name", new String(getNameData(data)));
-                bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
-                msg.setData(bundle);
-                handler.sendMessage(msg);
+                switch (data[8]) {
+                    case (byte) 0x80:
+                        msg.what = 1;
+                        bundle.putString("ip", ip);
+                        bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
+                        bundle.putString("name", new String(getNameData(data)));
+                        bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
+                        msg.setData(bundle);
+                        handler.sendMessage(msg);
+                        break;
+                    case (byte) 0x83:
+                        msg.what = 2;
+                        bundle.putString("ip", ip);
+                        bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(20, 22) + bytesToHex(data).substring(18, 20), 16));
+                        bundle.putInt("column", Integer.parseInt(bytesToHex(data).substring(24, 26) + bytesToHex(data).substring(22, 24), 16));
+                        bundle.putInt("row", Integer.parseInt(bytesToHex(data).substring(28, 30) + bytesToHex(data).substring(26, 28), 16));
+                        msg.setData(bundle);
+                        handler.sendMessage(msg);
+                        break;
+                }
+
             }
 
 
@@ -268,7 +291,7 @@ public class SearchDeviceActivity extends BaseActivity {
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
-                            if(!TextUtils.isEmpty(deviceName) && size > 0){
+                            if (!TextUtils.isEmpty(deviceName) && size > 0) {
                                 tvSearching.setVisibility(View.GONE);
                                 LampSetting lampSetting = new LampSetting();
                                 lampSetting.setName(name);
@@ -284,7 +307,7 @@ public class SearchDeviceActivity extends BaseActivity {
                         String name = msg.getData().getString("name");
                         int size = msg.getData().getInt("size");
                         String deviceName = msg.getData().getString("deviceName");
-                        if(!TextUtils.isEmpty(deviceName) && size > 0){
+                        if (!TextUtils.isEmpty(deviceName) && size > 0) {
                             tvSearching.setVisibility(View.GONE);
                             LampSetting lampSetting = new LampSetting();
                             lampSetting.setName(name);
@@ -293,6 +316,24 @@ public class SearchDeviceActivity extends BaseActivity {
                             lampSetting.setDeviceName(deviceName);
                             lampSettings.add(lampSetting);
                             deviceAdapter.setNewData(lampSettings);
+                        }
+                    }
+                    break;
+                case 2:
+                    if (lampSettings != null && lampSettings.size() > 0) {
+                        String ip = msg.getData().getString("ip");
+                        int column = msg.getData().getInt("column");
+                        int row = msg.getData().getInt("row");
+                        int size = msg.getData().getInt("size");
+                        LogUtil.e(size + "---" + column + "-----" + row);
+                        for (int i = 0; i < lampSettings.size(); i++) {
+                            if (lampSettings.get(i).getIp().equals(ip)) {
+                                lampSettings.get(i).setRow(row);
+                                lampSettings.get(i).setSize(size);
+                                lampSettings.get(i).setColumn(column);
+                                deviceAdapter.setNewData(lampSettings);
+                                break;
+                            }
                         }
                     }
                     break;

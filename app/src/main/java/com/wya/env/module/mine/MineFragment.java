@@ -28,7 +28,6 @@ import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
 import com.wya.env.module.login.LoginActivity;
-import com.wya.env.module.login.start.Start1Activity;
 import com.wya.env.net.udp.ICallUdp;
 import com.wya.env.net.udp.UdpUtil;
 import com.wya.env.util.ByteUtil;
@@ -96,7 +95,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         initLampInfo();
         initRecyclerView();
         showLoading();
-        sendData();
+        sendData(1);
+        sendData(2);
     }
 
     /**
@@ -143,7 +143,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 lampSettings.get(position).setChose(true);
                 myLampAdapter.notifyDataSetChanged();
                 showLoading();
-                myLampAdapter.toLinkTcp();
+                myLampAdapter.toLinkTcp(true);
                 saveInfoLamp(lampSettings);
             }
         });
@@ -185,7 +185,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         switch (view.getId()) {
             case R.id.tab_refresh:
                 showLoading();
-                sendData();
+                sendData(1);
+                sendData(2);
                 break;
             case R.id.tab_exit:
                 showLoading();
@@ -206,30 +207,51 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     /**
      * 发送UPD数据，搜搜灯设备
      */
-    private void sendData() {
+    private void sendData(int type) {
         loc_ip = getIpAddressString();
         new Thread(() -> {
-            byte[] bytes = new byte[1];
-            bytes[0] = 0x00;
-            byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
-            byte[] send_data = ByteUtil.byteMerger(send_head_data, bytes);
-            UdpUtil.send(send_data, loc_ip, new ICallUdp() {
+            byte[] send_data;
+            if (type == 1) {
+                byte[] bytes = new byte[1];
+                bytes[0] = 0x00;
+                byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
+                send_data = ByteUtil.byteMerger(send_head_data, bytes);
+            } else {
+                byte[] bytes = new byte[1];
+                bytes[0] = 0x03;
+                byte[] send_head_data = ByteUtil.getHeadByteData(bytes);
+                send_data = ByteUtil.byteMerger(send_head_data, bytes);
+            }
+            UdpUtil.send(send_data, loc_ip, type, new ICallUdp() {
                 @Override
                 public void start() {
                     LogUtil.e("start-----------");
                 }
 
                 @Override
-                public void success(byte[] data, String ip) {
+                public void success(byte[] data, String ip, int type) {
                     Message msg = Message.obtain();
-                    msg.what = 1;
                     Bundle bundle = new Bundle();
-                    bundle.putString("ip", ip);
-                    bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
-                    bundle.putString("name", new String(getNameData(data)));
-                    bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
-                    msg.setData(bundle);
-                    handler.sendMessage(msg);
+                    switch (data[8]) {
+                        case (byte) 0x80:
+                            msg.what = 1;
+                            bundle.putString("ip", ip);
+                            bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
+                            bundle.putString("name", new String(getNameData(data)));
+                            bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+                            break;
+                        case (byte) 0x83:
+                            msg.what = 2;
+                            bundle.putString("ip", ip);
+                            bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(20, 22) + bytesToHex(data).substring(18, 20), 16));
+                            bundle.putInt("column", Integer.parseInt(bytesToHex(data).substring(24, 26) + bytesToHex(data).substring(22, 24), 16));
+                            bundle.putInt("row", Integer.parseInt(bytesToHex(data).substring(28, 30) + bytesToHex(data).substring(26, 28), 16));
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+                            break;
+                    }
                 }
 
 
@@ -290,8 +312,11 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
             super.handleMessage(msg);
             switch (msg.what) {
                 case 1://判断标志位
-                    if (lampSettings.get(lampSettings.size() - 1).getName() == null) {
-                        lampSettings.remove(lampSettings.size() - 1);
+                    for (int i = 0; i < lampSettings.size(); i++) {
+                        if (lampSettings.get(i).getName() == null) {
+                            lampSettings.remove(i);
+                            i--;
+                        }
                     }
                     if (lampSettings != null && lampSettings.size() > 0) {
                         boolean has = false;
@@ -300,19 +325,19 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
-                            if (lampSettings.get(i).getName().equals(name) && !TextUtils.isEmpty(deviceName) && size > 0) {
+                            LogUtil.e(lampSettings.size() + "---------size-----");
+                            if (lampSettings.get(i).getName() != null && lampSettings.get(i).getName().equals(name) && !TextUtils.isEmpty(deviceName) && size > 0) {
                                 has = true;
                                 lampSettings.get(i).setName(name);
                                 lampSettings.get(i).setIp(ip);
                                 lampSettings.get(i).setSize(size);
                                 lampSettings.get(i).setDeviceName(deviceName);
-                                if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                                if (i == (lampSettings.size() - 1) && lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                     lampSettings.add(new LampSetting());
                                 }
                                 myLampAdapter.setNewData(lampSettings);
-                                break;
                             } else {
-                                if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
+                                if (i == (lampSettings.size() - 1) && lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                     lampSettings.add(new LampSetting());
                                 }
                                 myLampAdapter.setNewData(lampSettings);
@@ -323,7 +348,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
-                            if(!TextUtils.isEmpty(deviceName) && size > 0){
+                            if (!TextUtils.isEmpty(deviceName) && size > 0) {
                                 LampSetting lampSetting = new LampSetting();
                                 lampSetting.setName(name);
                                 lampSetting.setIp(ip);
@@ -346,7 +371,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         String name = msg.getData().getString("name");
                         int size = msg.getData().getInt("size");
                         String deviceName = msg.getData().getString("deviceName");
-                        if(!TextUtils.isEmpty(deviceName) && size > 0){
+                        if (!TextUtils.isEmpty(deviceName) && size > 0) {
                             LampSetting lampSetting = new LampSetting();
                             lampSetting.setName(name);
                             lampSetting.setIp(ip);
@@ -365,6 +390,24 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         }
                     }
                     hideLoading();
+                    break;
+                case 2:
+                    if (lampSettings != null && lampSettings.size() > 0) {
+                        String ip = msg.getData().getString("ip");
+                        int column = msg.getData().getInt("column");
+                        int row = msg.getData().getInt("row");
+                        int size = msg.getData().getInt("size");
+                        LogUtil.e(size + "---" + column + "-----" + row);
+                        for (int i = 0; i < lampSettings.size(); i++) {
+                            if (lampSettings.get(i).getIp() != null && lampSettings.get(i).getIp().equals(ip)) {
+                                lampSettings.get(i).setRow(row);
+                                lampSettings.get(i).setSize(size);
+                                lampSettings.get(i).setColumn(column);
+                                myLampAdapter.setNewData(lampSettings);
+                                break;
+                            }
+                        }
+                    }
                     break;
                 case 0:
                     hideLoading();
@@ -393,6 +436,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
             if (lampSettings.get(i).isChose()) {
                 lamps.setChose_ip(lampSettings.get(i).getIp());
                 lamps.setSize(lampSettings.get(i).getSize());
+                lamps.setColumn(lampSettings.get(i).getColumn());
+                lamps.setRow(lampSettings.get(i).getRow());
                 lamps.setName(lampSettings.get(i).getName());
             }
         }
@@ -463,7 +508,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(Hide hide) {
         try {
-            if(hide.isHide()){
+            if (hide.isHide()) {
                 hideLoading();
             } else {
                 showLoading();
@@ -475,7 +520,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     public void toLinkTcp() {
         if (!App.getInstance().isTcpConnected() && myLampAdapter != null) {
-            myLampAdapter.toLinkTcp();
+            myLampAdapter.toLinkTcp(false);
             LogUtil.e("toLinkTcp-----------------");
         } else if (App.getInstance().isTcpConnected()) {
             LogUtil.e("Tcp is Connected");

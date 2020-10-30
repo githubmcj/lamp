@@ -62,6 +62,8 @@ public class DeviceAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             if (lampSettings.get(i).isChose()) {
                 lamps.setChose_ip(lampSettings.get(i).getIp());
                 lamps.setSize(lampSettings.get(i).getSize());
+                lamps.setColumn(lampSettings.get(i).getColumn());
+                lamps.setRow(lampSettings.get(i).getRow());
                 lamps.setName(lampSettings.get(i).getName());
             }
         }

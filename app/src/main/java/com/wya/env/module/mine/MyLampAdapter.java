@@ -73,9 +73,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
     private MusicModel musicModel;
     private String deviceName;
+    private LampSetting lampSetting;
     private EventtDeviceName eventtDeviceName;
 
     private Hide hide;
+    private boolean isClick = false;
 
     /**
      * Sets music model.
@@ -138,19 +140,21 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         super(layoutResId, data);
         this.context = context;
         this.data = data;
-        toLinkTcp();
+        toLinkTcp(false);
     }
 
 
     /**
      * 连接tcp
      */
-    public void toLinkTcp() {
+    public void toLinkTcp(boolean isClick) {
+        this.isClick = isClick;
         for (int i = 0; i < data.size(); i++) {
             if (data.get(i).isChose()) {
                 ip = data.get(i).getIp();
                 position = i;
                 deviceName = data.get(i).getDeviceName();
+                lampSetting = data.get(i);
                 initEasySocket(ip);
             }
         }
@@ -170,11 +174,15 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
         } else {
             helper.setGone(R.id.ll_add, false);
-            helper.setText(R.id.name, item.getDeviceName());
+            helper.setText(R.id.name, item.getDeviceName() + "\n" + item.getRow() + "*" + item.getColumn());
             if (item.isChose() && App.getInstance().isTcpConnected()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
                 helper.getView(R.id.img_open).setEnabled(true);
                 helper.getView(R.id.img_time_open).setEnabled(true);
+                if(isClick){
+                    EventBus.getDefault().post(lampSetting);
+                    isClick = false;
+                }
             } else {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
                 helper.getView(R.id.img_open).setEnabled(false);

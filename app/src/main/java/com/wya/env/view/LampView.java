@@ -259,6 +259,9 @@ public class LampView extends View {
         return size;
     }
 
+    public void setSize(int size) {
+        this.size = size;
+    }
 
     public int getColumn() {
         return column;
@@ -266,6 +269,9 @@ public class LampView extends View {
 
     public void setColumn(int column) {
         this.column = column;
+        // 灯的直径
+        lamp_size = mWidth / column - 2 * lamp_margin;
+        mHeight = (size / column) * (lamp_size + 2 * lamp_margin);
     }
 
     public void setTwinkle(boolean twinkle) {

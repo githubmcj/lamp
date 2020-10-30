@@ -18,6 +18,7 @@ import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.util.ColorUtil;
@@ -27,6 +28,10 @@ import com.wya.env.view.LampView;
 import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
 import com.wya.uikit.dialog.WYACustomDialog;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -146,6 +151,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     private LoginInfo loginInfo;
     private List<LampModel> lampModels = new ArrayList<>();
 
+    int column;
+    int size;
+    int row;
 
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
@@ -338,7 +346,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                     showShort("please enter mode name");
                     return;
                 }
-                if(!getIpAddressString().contains("192.168.4.")){
+                if (!getIpAddressString().contains("192.168.4.")) {
                     toSave();
                 } else {
                     showShort("Network not available");
@@ -491,6 +499,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Override
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
         if (isVisible()) {
             lampView.startSendUpdData();
             lampView.startTwinkle();
@@ -500,8 +509,17 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Override
     public void onStop() {
         super.onStop();
+        EventBus.getDefault().unregister(this);
         lampView.stopSendUdpData();
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(LampSetting lampSetting) {
+        lampView.setSize(size);
+        lampView.setColumn(column);
+        lampView.requestLayout();
+    }
+
 
     @Override
     public void onHiddenChanged(boolean hidden) {

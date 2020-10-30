@@ -18,7 +18,8 @@ public class DefaultMessageProtocol implements IMessageProtocol {
         if (header == null || header.length < getHeaderLength()) {
             return 0;
         }
-        return  ByteUtil.decodeHEX(ByteUtil.byte2hex(header).substring(15, 17) + ByteUtil.byte2hex(header).substring(12, 14)); // body的长度
+        LogUtil.e("Dsadsa-----" + ByteUtil.byte2hex(header));
+        return ByteUtil.decodeHEX(ByteUtil.byte2hex(header).substring(15, 17) + ByteUtil.byte2hex(header).substring(12, 14)); // body的长度
     }
 
     @Override

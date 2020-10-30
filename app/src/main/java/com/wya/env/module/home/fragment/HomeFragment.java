@@ -1,8 +1,5 @@
 package com.wya.env.module.home.fragment;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
@@ -13,27 +10,17 @@ import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.doodle.SaveModel;
 import com.wya.env.bean.event.EventtDeviceName;
 import com.wya.env.bean.home.AddModel;
 import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
-import com.wya.env.bean.tcp.DefaultMessageProtocol;
 import com.wya.env.common.CommonValue;
-import com.easysocket.EasySocket;
-import com.easysocket.config.EasySocketOptions;
-import com.easysocket.connection.heartbeat.HeartManager;
-import com.easysocket.entity.OriginReadData;
-import com.easysocket.entity.SocketAddress;
-import com.easysocket.interfaces.conn.ISocketActionListener;
-import com.easysocket.interfaces.conn.SocketActionListener;
-import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
-import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.utils.utils.LogUtil;
-import com.wya.utils.utils.ScreenUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,7 +37,7 @@ import java.util.List;
 
 import butterknife.BindView;
 
-import static com.wya.env.common.CommonValue.TCP_PORT;
+import static java.lang.Math.tan;
 
 /**
  * @date: 2018/7/3 13:55
@@ -71,13 +58,23 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private LoginInfo loginInfo;
     private List<DoodlePattern> doodlePatterns = new ArrayList<>();
-    private List<LampModel> lampModels = new ArrayList<>();
+
     private List<LampModel> netLampModels = new ArrayList<>();
     private List<DoodlePattern> choseModel;
-    private int size;
 
 
     private HomeFragmentPresenter homeFragmentPresenter = new HomeFragmentPresenter();
+
+    private String[] snow_colors = {"#ffffff", "#B04F9C", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"};
+    private String[] fifth_colors = {"#FA0000", "#FAA500", "#00FF00"};
+
+    private Lamps lamps;
+    private List<LampModel> lampModels = new ArrayList<>();
+
+    int column;
+    int size;
+    int row;
+
 
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
@@ -117,9 +114,16 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         name.setText(eventtDeviceName.getDeviceName() == null ? "device name" : eventtDeviceName.getDeviceName());
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(LampSetting lampSetting) {
+        getLocalData(true);
+        getNetData();
+        initRecyclerView();
+    }
+
 
     private void initData() {
-        getLocalData();
+        getLocalData(false);
         getNetData();
         initRecyclerView();
     }
@@ -161,9 +165,29 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         return "0.0.0.0";
     }
 
-    private void getLocalData() {
+    private void getLocalData(boolean refresh) {
         loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
         lampModels = loginInfo.getLampModels();
+        lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
+        if (lamps != null) {
+            column = lamps.getColumn();
+            row = lamps.getRow();
+            size = lamps.getSize();
+        }
+        if (refresh) {
+            lampModels = getModels();
+            loginInfo.setLampModels(lampModels);
+            SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+            hideLoading();
+        } else {
+            if (lampModels == null || lampModels.size() == 0) {
+                showLoading();
+                lampModels = getModels();
+                loginInfo.setLampModels(lampModels);
+                SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+                hideLoading();
+            }
+        }
         if (lampModels.get(lampModels.size() - 1).getName() != null) {
             lampModels.add(new LampModel());
         }
@@ -250,7 +274,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         if (!hidden) {
             if (toRefresh) {
                 SaveSharedPreferences.save(getActivity(), CommonValue.TO_REFRESH, false);
-                getLocalData();
+                getLocalData(false);
                 getNetData();
             } else {
                 initSendData();
@@ -291,237 +315,895 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         }
     }
 
+//
+//    /**
+//     * 发送tcp动画数据
+//     */
+//    private Lamps lamps;
+//    private WYACustomDialog dialog;
+//
+//    public void toSendTcpData() {
+//        dialog = new WYACustomDialog.Builder(getActivity())
+//                .title("提示")
+//                .message("是否继续播放窗帘灯？")
+//                .width(ScreenUtil.getScreenWidth(getActivity()) * 3 / 4)
+//                .build();
+//        dialog.setNoClickListener(new WYACustomDialog.NoClickListener() {
+//            @Override
+//            public void onNoClick() {
+//                getActivity().finish();
+//                dialog.dismiss();
+//            }
+//        });
+//        dialog.setYesClickListener(new WYACustomDialog.YesClickListener() {
+//            @Override
+//            public void onYesClick() {
+//                lampView.toStopSendUdpModeData(true, false);
+//                lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
+//                size = lamps.getSize();
+//                initEasySocket(lamps.getChose_ip());
+//            }
+//        });
+//        dialog.show();
+//    }
+//
+//
+//    private boolean isConnected;
+//
+//    /**
+//     * 初始化EasySocket
+//     */
+//    private void initEasySocket(String ip) {
+//        if (isConnected) {
+//            EasySocket.getInstance().disconnect(false);
+//        }
+//        // socket配置
+//        EasySocketOptions options = new EasySocketOptions.Builder()
+//                .setSocketAddress(new SocketAddress(ip, TCP_PORT)) // 主机地址
+//                .setReaderProtocol(new DefaultMessageProtocol())
+//                .build();
+//
+//        options.setMessageProtocol(new DefaultMessageProtocol());
+//        options.setHeartbeatFreq(2000);
+//        // 初始化EasySocket
+//        EasySocket.getInstance()
+//                .options(options) // 项目配置
+//                .createConnection();// 创建一个socket连接
+//
+//        // 监听socket行为
+//        EasySocket.getInstance().subscribeSocketAction(socketActionListener);
+//    }
+//
+//
+//    private ISocketActionListener socketActionListener = new SocketActionListener() {
+//        /**
+//         * socket连接成功
+//         * @param socketAddress
+//         */
+//        @Override
+//        public void onSocketConnSuccess(SocketAddress socketAddress) {
+//            super.onSocketConnSuccess(socketAddress);
+//            LogUtil.d("连接成功, 并发送数据：");
+//            if (step == 0) {
+//                toStartHeart();
+////                EasySocket.getInstance().upBytes(getOpenFileData(true));
+//            } else if (step == 1) {
+//
+//            }
+//
+//            isConnected = true;
+//        }
+//
+//        /**
+//         * socket连接失败
+//         * @param socketAddress
+//         * @param isNeedReconnect 是否需要重连
+//         */
+//        @Override
+//        public void onSocketConnFail(SocketAddress socketAddress, Boolean isNeedReconnect) {
+//            super.onSocketConnFail(socketAddress, isNeedReconnect);
+//            LogUtil.d("socket连接被断开");
+//            isConnected = false;
+//        }
+//
+//        /**
+//         * socket断开连接
+//         * @param socketAddress
+//         * @param isNeedReconnect 是否需要重连
+//         */
+//        @Override
+//        public void onSocketDisconnect(SocketAddress socketAddress, Boolean isNeedReconnect) {
+//            super.onSocketDisconnect(socketAddress, isNeedReconnect);
+//            LogUtil.d("socket断开连接，是否需要重连：" + isNeedReconnect);
+//            LogUtil.d("socket连接被断开");
+//            isConnected = false;
+//        }
+//
+//        /**
+//         * socket接收的数据
+//         * @param socketAddress
+//         * @param originReadData
+//         */
+//        @Override
+//        public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
+//            super.onSocketResponse(socketAddress, originReadData);
+//            LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+//            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
+//                LogUtil.e("成功");
+//                Message msg = Message.obtain();
+//                msg.what = 1;
+//                handler.sendMessage(msg);
+//            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
+//                LogUtil.e("失败");
+//            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0x86) {
+//                LogUtil.e("心跳数据");
+//            } else {
+//                LogUtil.e("其他数据");
+//            }
+//        }
+//    };
+//
+//    private void toStartHeart() {
+//        EasySocket.getInstance().startHeartBeat(getBreathData(), new HeartManager.HeartbeatListener() {
+//            @Override
+//            public boolean isServerHeartbeat(OriginReadData originReadData) {
+//                LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
+//                return false;
+//            }
+//        });
+//    }
+//
+//    private byte[] getBreathData() {
+//        byte[] bodyData = new byte[1];
+//        bodyData[0] = 0x06;
+//        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+//        byte[] breathData = ByteUtil.byteMerger(send_head_data, bodyData);
+//        return breathData;
+//    }
+//
+//
+//    /**
+//     * 打开文件
+//     */
+//
+//    int step = 0;
+//    int modelIndex = 0;
+//    int fileIndex = 3;
+//
+//    private byte[] getOpenFileData(boolean isOpen) {
+//        byte[] bodyData = new byte[4];
+//        bodyData[0] = 0x01;
+//        bodyData[1] = (byte) (0xff & step);
+//        bodyData[2] = (byte) (0xff & fileIndex);
+//        if (isOpen) {
+//            bodyData[3] = 0x01;
+//        } else {
+//            bodyData[3] = 0x02;
+//        }
+//        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+//        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
+//        LogUtil.e("openFileData:" + ByteUtil.byte2hex(openFileData));
+//        return openFileData;
+//    }
+//
+//
+//    @SuppressLint("HandlerLeak")
+//    private Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            switch (msg.what) {      //判断标志位
+//                case 1:
+//                    switch (step) {
+//                        case 0:
+//                            step = 1;// 送模板数据
+//                            modelIndex = 0;
+//                            byte[] body_data = getTcpByteData(choseModel.get(modelIndex).getLight_status());
+//                            byte[] send_head_data = ByteUtil.getHeadByteData(body_data);
+//                            byte[] send_data = ByteUtil.byteMerger(send_head_data, body_data);
+//                            EasySocket.getInstance().upBytes(send_data);
+//                            break;
+//                        case 1:
+//                            modelIndex++;
+//                            if (modelIndex == choseModel.size()) {
+//                                step = 2;
+//                                EasySocket.getInstance().upBytes(getOpenFileData(false));
+//                            } else {
+//                                byte[] body_data2 = getTcpByteData(choseModel.get(modelIndex).getLight_status());
+//                                byte[] send_head_data2 = ByteUtil.getHeadByteData(body_data2);
+//                                byte[] send_data2 = ByteUtil.byteMerger(send_head_data2, body_data2);
+//                                EasySocket.getInstance().upBytes(send_data2);
+//                            }
+//                            break;
+//                        case 2:
+//                            dialog.dismiss();
+//                            LogUtil.e("传输完成");
+//                            break;
+//
+//                        default:
+//                            break;
+//                    }
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//    };
+//
+//    public byte[] getTcpByteData(HashMap<String, Doodle> data) {
+//        byte[] tcp_data = new byte[1 + 2 + 2 + 3 * size];
+//        tcp_data[0] = 0x01;
+//        tcp_data[1] = 0x00;
+//        tcp_data[2] = 0x00;
+//        tcp_data[3] = ByteUtil.intToByteArray(size)[0];
+//        tcp_data[4] = ByteUtil.intToByteArray(size)[1];
+//        for (int i = 0; i < size; i++) {
+//            String color = data.get(String.valueOf(i)).getColor();
+//            tcp_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+//            tcp_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+//            tcp_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+//
+//        }
+//        return tcp_data;
+//    }
 
-    /**
-     * 发送tcp动画数据
-     */
-    private Lamps lamps;
-    private WYACustomDialog dialog;
 
-    public void toSendTcpData() {
-        dialog = new WYACustomDialog.Builder(getActivity())
-                .title("提示")
-                .message("是否继续播放窗帘灯？")
-                .width(ScreenUtil.getScreenWidth(getActivity()) * 3 / 4)
-                .build();
-        dialog.setNoClickListener(new WYACustomDialog.NoClickListener() {
-            @Override
-            public void onNoClick() {
-                getActivity().finish();
-                dialog.dismiss();
-            }
-        });
-        dialog.setYesClickListener(new WYACustomDialog.YesClickListener() {
-            @Override
-            public void onYesClick() {
-                lampView.toStopSendUdpModeData(true, false);
-                lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
-                size = lamps.getSize();
-                initEasySocket(lamps.getChose_ip());
-            }
-        });
-        dialog.show();
+    private List<LampModel> getModels() {
+        List<LampModel> mLampModels = new ArrayList<>();
+        mLampModels.add(getModel1());
+        mLampModels.add(getModel2());
+        mLampModels.add(getModel3());
+        mLampModels.add(getModel4());
+        mLampModels.add(getModel5());
+        mLampModels.add(getModel6());
+        mLampModels.add(getModel7());
+        mLampModels.add(getModel8());
+        mLampModels.add(getModel9());
+        mLampModels.add(getModel10());
+        return mLampModels;
     }
 
-
-    private boolean isConnected;
-
-    /**
-     * 初始化EasySocket
-     */
-    private void initEasySocket(String ip) {
-        if (isConnected) {
-            EasySocket.getInstance().disconnect(false);
-        }
-        // socket配置
-        EasySocketOptions options = new EasySocketOptions.Builder()
-                .setSocketAddress(new SocketAddress(ip, TCP_PORT)) // 主机地址
-                .setReaderProtocol(new DefaultMessageProtocol())
-                .build();
-
-        options.setMessageProtocol(new DefaultMessageProtocol());
-        options.setHeartbeatFreq(2000);
-        // 初始化EasySocket
-        EasySocket.getInstance()
-                .options(options) // 项目配置
-                .createConnection();// 创建一个socket连接
-
-        // 监听socket行为
-        EasySocket.getInstance().subscribeSocketAction(socketActionListener);
-    }
+    private LampModel getModel10() {
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Bright Delightlux");
+        List<DoodlePattern> modeArr = new ArrayList<>();
 
 
-    private ISocketActionListener socketActionListener = new SocketActionListener() {
-        /**
-         * socket连接成功
-         * @param socketAddress
-         */
-        @Override
-        public void onSocketConnSuccess(SocketAddress socketAddress) {
-            super.onSocketConnSuccess(socketAddress);
-            LogUtil.d("连接成功, 并发送数据：");
-            if (step == 0) {
-                toStartHeart();
-//                EasySocket.getInstance().upBytes(getOpenFileData(true));
-            } else if (step == 1) {
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                Doodle doodle = new Doodle();
 
+                int w = (int) (Math.random() * 10);
+                if (w == 6) {
+                    doodle.setColor("#FF00FF");
+                } else if (w == 3) {
+                    doodle.setColor("#FFFFFF");
+                } else {
+                    doodle.setColor("#000000");
+                }
+
+                doodle.setFlash(0);
+                light_status.put(String.valueOf(i), doodle);
             }
-
-            isConnected = true;
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
         }
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+    }
 
-        /**
-         * socket连接失败
-         * @param socketAddress
-         * @param isNeedReconnect 是否需要重连
-         */
-        @Override
-        public void onSocketConnFail(SocketAddress socketAddress, Boolean isNeedReconnect) {
-            super.onSocketConnFail(socketAddress, isNeedReconnect);
-            LogUtil.d("socket连接被断开");
-            isConnected = false;
-        }
+    private LampModel getModel9() {
+        String[] colorHexArr = {"#FF0000", "#00FF00", "#FFFFFF", "#000000", "#007FFF", "#0000FF", "#8B00FF"};
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Glow");
+        List<DoodlePattern> modeArr = new ArrayList<>();
 
-        /**
-         * socket断开连接
-         * @param socketAddress
-         * @param isNeedReconnect 是否需要重连
-         */
-        @Override
-        public void onSocketDisconnect(SocketAddress socketAddress, Boolean isNeedReconnect) {
-            super.onSocketDisconnect(socketAddress, isNeedReconnect);
-            LogUtil.d("socket断开连接，是否需要重连：" + isNeedReconnect);
-            LogUtil.d("socket连接被断开");
-            isConnected = false;
-        }
-
-        /**
-         * socket接收的数据
-         * @param socketAddress
-         * @param originReadData
-         */
-        @Override
-        public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
-            super.onSocketResponse(socketAddress, originReadData);
-            LogUtil.d("socket监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-            if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0) {
-                LogUtil.e("成功");
-                Message msg = Message.obtain();
-                msg.what = 1;
-                handler.sendMessage(msg);
-            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 1) {
-                LogUtil.e("失败");
-            } else if (originReadData.getBodyData()[originReadData.getBodyData().length - 1] == 0x86) {
-                LogUtil.e("心跳数据");
-            } else {
-                LogUtil.e("其他数据");
+        for (int k = 0; k < 2; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                Doodle doodle = new Doodle();
+                doodle.setColor(colorHexArr[(i % row - 0 + row + 1) / 1 % 4]);
+                doodle.setFlash(0);
+                int x = (int) (Math.random() * 2);
+                if (x == 1) {
+                    doodle.setColor("#000000");
+                }
+                light_status.put(String.valueOf(i), doodle);
             }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
         }
-    };
 
-    private void toStartHeart() {
-        EasySocket.getInstance().startHeartBeat(getBreathData(), new HeartManager.HeartbeatListener() {
-            @Override
-            public boolean isServerHeartbeat(OriginReadData originReadData) {
-                LogUtil.d("心跳监听器收到数据=" + ByteUtil.byte2hex(originReadData.getBodyData()));
-                return false;
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+    }
+
+    private LampModel getModel8() {
+
+        String[] colorHexArr = {"#FA0000", "#FAA500", "#FAFF00", "#00FF00", "#007FFF", "#0000FF", "#8B00FF"};
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Vertical");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+
+        for (int k = 0; k < column; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                Doodle doodle = new Doodle();
+                doodle.setColor(colorHexArr[(i / row - k + column + 1) / 3 % 7]);
+
+                doodle.setFlash(0);
+                light_status.put(String.valueOf(i), doodle);
             }
-        });
-    }
-
-    private byte[] getBreathData() {
-        byte[] bodyData = new byte[1];
-        bodyData[0] = 0x06;
-        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
-        byte[] breathData = ByteUtil.byteMerger(send_head_data, bodyData);
-        return breathData;
-    }
-
-
-    /**
-     * 打开文件
-     */
-
-    int step = 0;
-    int modelIndex = 0;
-    int fileIndex = 3;
-
-    private byte[] getOpenFileData(boolean isOpen) {
-        byte[] bodyData = new byte[4];
-        bodyData[0] = 0x01;
-        bodyData[1] = (byte) (0xff & step);
-        bodyData[2] = (byte) (0xff & fileIndex);
-        if (isOpen) {
-            bodyData[3] = 0x01;
-        } else {
-            bodyData[3] = 0x02;
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
         }
-        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
-        byte[] openFileData = ByteUtil.byteMerger(send_head_data, bodyData);
-        LogUtil.e("openFileData:" + ByteUtil.byte2hex(openFileData));
-        return openFileData;
+
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+
     }
 
+    private LampModel getModel7() {
+        String[] colors = {"#FA0000", "#FAA500", "#00FF00"};
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Sunset");
+        List<DoodlePattern> modeArr = new ArrayList<>();
 
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {      //判断标志位
-                case 1:
-                    switch (step) {
-                        case 0:
-                            step = 1;// 送模板数据
-                            modelIndex = 0;
-                            byte[] body_data = getTcpByteData(choseModel.get(modelIndex).getLight_status());
-                            byte[] send_head_data = ByteUtil.getHeadByteData(body_data);
-                            byte[] send_data = ByteUtil.byteMerger(send_head_data, body_data);
-                            EasySocket.getInstance().upBytes(send_data);
-                            break;
-                        case 1:
-                            modelIndex++;
-                            if (modelIndex == choseModel.size()) {
-                                step = 2;
-                                EasySocket.getInstance().upBytes(getOpenFileData(false));
-                            } else {
-                                byte[] body_data2 = getTcpByteData(choseModel.get(modelIndex).getLight_status());
-                                byte[] send_head_data2 = ByteUtil.getHeadByteData(body_data2);
-                                byte[] send_data2 = ByteUtil.byteMerger(send_head_data2, body_data2);
-                                EasySocket.getInstance().upBytes(send_data2);
-                            }
-                            break;
-                        case 2:
-                            dialog.dismiss();
-                            LogUtil.e("传输完成");
-                            break;
+        int alpha = 14;
+        int beta = 7;
+        int gama = 0;
+        for (int i = 0; i < 21; i++) {
+            double a = tan((alpha + i) % 21 * Math.PI / 42);
+            double b = tan((beta + i) % 21 * Math.PI / 42);
+            double c = tan((gama + i) % 21 * Math.PI / 42);
 
-                        default:
-                            break;
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int j = 0; j < size; j++) {
+                Doodle doodle = new Doodle();
+                doodle.setColor("#000000");
+
+                doodle.setFlash(0);
+                light_status.put(String.valueOf(j), doodle);
+
+                double l = j;
+
+                if (a > b && b > c) {
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
+                        doodle.setColor(colors[0]);
+                        doodle.setFlash(0);
+
+                        light_status.put(String.valueOf(j), doodle);
                     }
-                    break;
-                default:
-                    break;
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a && (double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
+                        doodle.setColor(colors[1]);
+                        doodle.setFlash(0);
+
+                        light_status.put(String.valueOf(j), doodle);
+
+                    }
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
+                        doodle.setColor(colors[2]);
+                        doodle.setFlash(2);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c) {
+                        doodle.setColor(colors[0]);
+                        doodle.setFlash(0);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                }
+
+                if (a < c && b > c) {
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
+                        doodle.setColor(colors[1]);
+                        doodle.setFlash(1);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
+                        doodle.setColor(colors[2]);
+                        doodle.setFlash(2);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= a && (double) (row - 1 - j % row) / (double) (j / row + 1) < c) {
+                        doodle.setColor(colors[0]);
+                        doodle.setFlash(0);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
+                        doodle.setColor(colors[1]);
+                        doodle.setFlash(2);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                }
+
+                if (a > b && b < c) {
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
+                        doodle.setColor(colors[2]);
+                        doodle.setFlash(2);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c && (double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
+                        doodle.setColor(colors[0]);
+                        doodle.setFlash(2);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b && (double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
+                        doodle.setColor(colors[1]);
+                        doodle.setFlash(2);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                    if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b) {
+                        doodle.setColor(colors[2]);
+                        doodle.setFlash(2);
+
+                        light_status.put(String.valueOf(j), doodle);
+                    }
+                }
+
             }
-        }
-    };
-
-    public byte[] getTcpByteData(HashMap<String, Doodle> data) {
-        byte[] tcp_data = new byte[1 + 2 + 2 + 3 * size];
-        tcp_data[0] = 0x01;
-        tcp_data[1] = 0x00;
-        tcp_data[2] = 0x00;
-        tcp_data[3] = ByteUtil.intToByteArray(size)[0];
-        tcp_data[4] = ByteUtil.intToByteArray(size)[1];
-        for (int i = 0; i < size; i++) {
-            String color = data.get(String.valueOf(i)).getColor();
-            tcp_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-            tcp_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-            tcp_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
 
         }
-        return tcp_data;
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
     }
 
+
+    private LampModel getModel6() {
+        String[] colorHexArr = {"#FA0000", "#FAA500", "#000000", "#00FF00", "#007FFF", "#000000", "#8B00FF"};
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Updown");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                Doodle doodle = new Doodle();
+                doodle.setColor(colorHexArr[(i % row - k + row + 1) / 3 % 7]);
+
+                doodle.setFlash(0);
+                light_status.put(String.valueOf(i), doodle);
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+    }
+
+    private LampModel getModel5() {
+        String[] colorHexArr = {"#FA0000", "#FAA500", "#FAFF00", "#00FF00", "#007FFF", "#0000FF", "#8B00FF"};
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Horizontal Flag");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                Doodle doodle = new Doodle();
+                doodle.setColor(colorHexArr[(i % row - k + row + 1) / 3 % 7]);
+
+                doodle.setFlash(0);
+                light_status.put(String.valueOf(i), doodle);
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+    }
+
+
+    private LampModel getModel4() {
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Sparkles");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    if ((i * row + j) % row >= (row - 1 - k)) {
+                        doodle.setColor("#F99601");
+                    } else {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    doodle.setColor("#000000");
+                    if (k != 0) {
+                        int x = (int) (Math.random() * 2);
+                        if (x == 1) {
+                            doodle.setColor("#000000");
+                        }
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+    }
+
+    private LampModel getModel1() {
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Diagonal");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int k = 0; k < size / column; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    if (j % (size / column) == (i + k) % (size / column) || j % (size / column) == (i + k + 1) % (size / column) || j % (size / column) == (i + k + 2) % (size / column) || j % (size / column) == (i + k + 3) % (size / column)) {
+                        doodle.setColor("#ff0000");
+                    } else if (j % (size / column) == (i + k + 8) % (size / column) || j % (size / column) == (i + k + 9) % (size / column) || j % (size / column) == (i + k + 10) % (size / column) || j % (size / column) == (i + k + 11) % (size / column)) {
+                        doodle.setColor("#ffffff");
+                    } else {
+                        doodle.setColor("#F2E93F");
+                    }
+
+                    doodle.setFlash(0);
+                    light_status.put(String.valueOf(i * size / column + j), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+    }
+
+    private LampModel getModel2() {
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Fireworks");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+
+                    if ((i * row + j) % row >= (row - 1 - k)) {
+                        doodle.setColor("#ff0000");
+                    } else {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+
+
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+
+                    if ((i * row + j) % row <= k) {
+                        doodle.setColor("#00ff00");
+                    } else {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+
+        }
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    if ((i * row + j) % row >= (row - 1 - k)) {
+                        doodle.setColor("#0000ff");
+                    } else {
+                        doodle.setColor("#000000");
+                    }
+
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+
+                    if ((i * row + j) % row <= k) {
+                        doodle.setColor("#ffffff");
+                    } else {
+                        doodle.setColor("#000000");
+                    }
+
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+    }
+
+
+    private LampModel getModel3() {
+        LampModel lampModel = new LampModel();
+        lampModel.setName("Waves");
+        List<DoodlePattern> modeArr = new ArrayList<>();
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    if ((i * row + j) % row >= (row - 1 - k)) {
+                        doodle.setColor("#ff0000");
+                    } else {
+                        doodle.setColor("#000000");
+                    }
+                    int x = (int) (Math.random() * 2);
+                    if (x == 1) {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+
+                    if ((i * row + j) % row <= k) {
+                        doodle.setColor("#000000");
+                    } else {
+                        doodle.setColor("#ff0000");
+                    }
+                    int x = (int) (Math.random() * 2);
+                    if (x == 1) {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    if ((i * row + j) % row >= (row - 1 - k)) {
+                        doodle.setColor("#00ff00");
+                    } else {
+                        doodle.setColor("#000000");
+                    }
+                    int x = (int) (Math.random() * 2);
+                    if (x == 1) {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+
+                    if ((i * row + j) % row <= k) {
+                        doodle.setColor("#000000");
+                    } else {
+                        doodle.setColor("#00ff00");
+                    }
+                    int x = (int) (Math.random() * 2);
+                    if (x == 1) {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    if ((i * row + j) % row >= (row - 1 - k)) {
+                        doodle.setColor("#0000ff");
+                    } else {
+                        doodle.setColor("#000000");
+                    }
+                    int x = (int) (Math.random() * 2);
+                    if (x == 1) {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+        for (int k = 0; k < row; k++) {
+            DoodlePattern doodlePattern = new DoodlePattern();
+            HashMap<String, Doodle> light_status = new HashMap<>();
+            for (int i = 0; i < column; i++) {
+                for (int j = 0; j < size / column; j++) {
+                    Doodle doodle = new Doodle();
+                    if ((i * row + j) % row <= k) {
+                        doodle.setColor("#000000");
+                    } else {
+                        doodle.setColor("#0000ff");
+                    }
+                    int x = (int) (Math.random() * 2);
+                    if (x == 1) {
+                        doodle.setColor("#000000");
+                    }
+
+                    doodle.setFlash(0);
+                    int key = (i * size / column + j);
+                    light_status.put(String.valueOf(key), doodle);
+                }
+            }
+            doodlePattern.setLight_status(light_status);
+            doodlePattern.setSize(size);
+            modeArr.add(doodlePattern);
+        }
+        lampModel.setModeArr(modeArr);
+        lampModel.setLight(100);
+        lampModel.setSize(size);
+        lampModel.setLightRow(size / column);
+        lampModel.setColumn(column);
+        return lampModel;
+    }
 
 }
