@@ -48,6 +48,7 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
             helper.setText(R.id.tv_mode_name, item.getName());
             ((LampView) helper.getView(R.id.lamp_view)).setSize(item.getSize());
             ((LampView) helper.getView(R.id.lamp_view)).setColumn(item.getColumn());
+            ((LampView) helper.getView(R.id.lamp_view)).setShape(1);
             ((LampView) helper.getView(R.id.lamp_view)).requestLayout();
             ((LampView) helper.getView(R.id.lamp_view)).setMirror(item.getMirror());
             ((LampView) helper.getView(R.id.lamp_view)).setModel(item.getModeArr(), item.getLight(),false);

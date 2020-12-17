@@ -1,5 +1,6 @@
 package com.wya.env.module.home.fragment;
 
+import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
@@ -18,9 +19,9 @@ import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
+import com.wya.env.module.home.detail.DetailActivity;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
-import com.wya.utils.utils.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -61,6 +62,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private List<LampModel> netLampModels = new ArrayList<>();
     private List<DoodlePattern> choseModel;
+    private String deviceName;
 
 
     private HomeFragmentPresenter homeFragmentPresenter = new HomeFragmentPresenter();
@@ -87,7 +89,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
         if (isVisible()) {
             initSendData();
         }
@@ -96,29 +97,36 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
         lampView.toStopSendUdpModeData(true, false);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MusicSuccess event) {
         if (adapter != null) {
             lampModels.get(event.getPosition()).setMusic(1 - lampModels.get(event.getPosition()).isMusic());
             adapter.setNewData(lampModels);
+            loginInfo.setLampModels(lampModels);
+            SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventtDeviceName eventtDeviceName) {
-        name.setText(eventtDeviceName.getDeviceName() == null ? "device name" : eventtDeviceName.getDeviceName());
+        deviceName = eventtDeviceName.getDeviceName() == null ? "device name" : eventtDeviceName.getDeviceName();
+        name.setText(deviceName);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(LampSetting lampSetting) {
-        getLocalData(true);
-        getNetData();
-        initRecyclerView();
+//        getLocalData(true);
+//        getNetData();
+//        initRecyclerView();
     }
 
 
@@ -169,12 +177,16 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
         lampModels = loginInfo.getLampModels();
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
-        if (lamps != null) {
-            column = lamps.getColumn();
-            row = lamps.getRow();
-            size = lamps.getSize();
-        }
+//        if (lamps != null) {
+//            column = lamps.getColumn();
+//            row = lamps.getRow();
+//            size = lamps.getSize();
+//        }
+        column = 15;
+        row = 15;
+        size = 225;
         if (refresh) {
+            showLoading();
             lampModels = getModels();
             loginInfo.setLampModels(lampModels);
             SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
@@ -205,19 +217,25 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             if (position == lampModels.size() - 1) {
                 EventBus.getDefault().post(new AddModel());
             } else {
-                if (lampModels.get(position).isChose() != 1) {
-                    choseModel = lampModels.get(position).getModeArr();
-                    for (int i = 0; i < lampModels.size(); i++) {
-                        lampModels.get(i).setChose(0);
-                    }
-                    lampModels.get(position).setChose(1);
-                    adapter.notifyDataSetChanged();
+                startActivity(new Intent(getActivity(), DetailActivity.class)
+                        .putExtra("type", 0)
+                        .putExtra("position", position)
+                        .putExtra("title", deviceName)
+                        .putExtra("music", lampModels.get(position).isMusic()));
 
-                    lampView.setMirror(lampModels.get(position).getMirror());
-                    lampView.setModel(lampModels.get(position).getModeArr(), lampModels.get(position).getLight(), true);
-                } else {
-                    LogUtil.e("该模板已经选中");
-                }
+//                if (lampModels.get(position).isChose() != 1) {
+//                    choseModel = lampModels.get(position).getModeArr();
+//                    for (int i = 0; i < lampModels.size(); i++) {
+//                        lampModels.get(i).setChose(0);
+//                    }
+//                    lampModels.get(position).setChose(1);
+//                    adapter.notifyDataSetChanged();
+//
+//                    lampView.setMirror(lampModels.get(position).getMirror());
+//                    lampView.setModel(lampModels.get(position).getModeArr(), lampModels.get(position).getLight(), true);
+//                } else {
+//                    LogUtil.e("该模板已经选中");
+//                }
 
             }
 //            setTcpData(lampModels.get(position).getModeArr());
@@ -263,6 +281,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     protected void initView() {
         homeFragmentPresenter.mView = this;
         lampView.setFocusable(false);
+        EventBus.getDefault().register(this);
         initData();//初始化数据
     }
 

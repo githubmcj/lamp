@@ -58,6 +58,9 @@
     <string name="welcome">欢迎来到灯饰软件</string>
     <string name="next">NEXT STEP</string>
 
+    <string name="edit">Edit</string>
+    <string name="apply">Apply</string>
+
 
     <string name="facebook_app_id">Your App Id</string>
     <string name="fb_login_protocol_scheme">Your App Scheme</string>

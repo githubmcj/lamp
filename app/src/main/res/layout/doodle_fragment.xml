@@ -36,26 +36,41 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-
-            <com.wya.env.view.LampView
+            <com.wya.env.view.TreeView
                 android:id="@+id/lamp_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                app:bg_color="@color/cF7F7F7"
                 android:layout_centerHorizontal="true"
+                app:online="true"
                 android:layout_marginTop="@dimen/dp_30"
                 android:layout_marginBottom="@dimen/dp_30"
-                app:bg_color="@color/app_blue"
-                app:margin_left="@dimen/dp_60"
-                app:margin_right="@dimen/dp_60"
-                app:online="true"
-                app:size="300">
+                app:margin_left="@dimen/dp_30"
+                app:margin_right="@dimen/dp_30">
 
-            </com.wya.env.view.LampView>
+            </com.wya.env.view.TreeView>
+
+
+<!--            <com.wya.env.view.LampView-->
+<!--                android:id="@+id/lamp_view"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_centerHorizontal="true"-->
+<!--                android:layout_marginTop="@dimen/dp_30"-->
+<!--                android:layout_marginBottom="@dimen/dp_30"-->
+<!--                app:bg_color="@color/app_blue"-->
+<!--                app:margin_left="@dimen/dp_60"-->
+<!--                app:margin_right="@dimen/dp_60"-->
+<!--                app:online="true"-->
+<!--                app:size="300"-->
+<!--                android:visibility="gone">-->
+
+<!--            </com.wya.env.view.LampView>-->
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/app_blue">
+                android:background="@drawable/lamp_view_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"

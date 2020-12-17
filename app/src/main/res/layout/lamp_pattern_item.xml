@@ -58,7 +58,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/dp_2"
                 android:padding="@dimen/dp_10"
-                android:src="@drawable/yinyueshibie"></ImageView>
+                android:src="@drawable/yinyueshibie"
+                android:visibility="gone"></ImageView>
 
         </TableRow>
 

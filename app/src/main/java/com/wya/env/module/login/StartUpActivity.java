@@ -43,18 +43,20 @@ public class StartUpActivity extends BaseActivity {
         if (isLogin) {
             // 保存数据
             lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
-            if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
-                if(lamps.getLampSettings().size() == 1 && lamps.getLampSettings().get(0).getName() == null){
-                    startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
-                    finish();
-                } else {
-                    startActivity(new Intent(StartUpActivity.this, MainActivity.class));
-                    ActivityManager.getInstance().exitApp();
-                }
-            } else {
-                startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
-                finish();
-            }
+//            if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
+//                if(lamps.getLampSettings().size() == 1 && lamps.getLampSettings().get(0).getName() == null){
+//                    startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
+//                    finish();
+//                } else {
+//                    startActivity(new Intent(StartUpActivity.this, MainActivity.class));
+//                    ActivityManager.getInstance().exitApp();
+//                }
+//            } else {
+//                startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
+//                finish();
+//            }
+            startActivity(new Intent(StartUpActivity.this, MainActivity.class));
+            ActivityManager.getInstance().exitApp();
         }
     }
 

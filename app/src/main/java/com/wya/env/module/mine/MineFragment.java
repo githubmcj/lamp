@@ -152,6 +152,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 
     @Override
     protected void initView() {
+        EventBus.getDefault().register(this);
         Glide.with(getActivity()).load("").apply(new RequestOptions().placeholder(R.drawable.avatar).error(R.drawable.avatar)).into(avatar);
         initData();
     }
@@ -460,6 +461,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     @Override
     public void onDestroy() {
         super.onDestroy();
+        myLampAdapter.stopTcp();
         hideLoading();
     }
 
@@ -474,19 +476,16 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     }
 
 
+
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
-        myLampAdapter.stopTcp();
     }
-
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MusicModel event) {

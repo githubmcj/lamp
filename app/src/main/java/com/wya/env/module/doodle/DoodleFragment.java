@@ -25,6 +25,7 @@ import com.wya.env.util.ColorUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.Circle;
 import com.wya.env.view.LampView;
+import com.wya.env.view.TreeView;
 import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
 import com.wya.uikit.dialog.WYACustomDialog;
@@ -91,7 +92,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @BindView(R.id.et_name)
     EditText etName;
     @BindView(R.id.lamp_view)
-    LampView lampView;
+    TreeView lampView;
     @BindView(R.id.ll_bold_paint)
     LinearLayout llBoldPaint;
     @BindView(R.id.ll_thin_paint)

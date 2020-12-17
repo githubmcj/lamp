@@ -15,6 +15,47 @@ public class Doodle implements Cloneable {
      */
     private int isFlash;
 
+
+    private int addr;
+
+    private float X;
+
+    private float Y;
+
+    private float Z;
+
+    public int getAddr() {
+        return addr;
+    }
+
+    public void setAddr(int addr) {
+        this.addr = addr;
+    }
+
+    public float getX() {
+        return X;
+    }
+
+    public void setX(float x) {
+        X = x;
+    }
+
+    public float getY() {
+        return Y;
+    }
+
+    public void setY(float y) {
+        Y = y;
+    }
+
+    public float getZ() {
+        return Z;
+    }
+
+    public void setZ(float z) {
+        Z = z;
+    }
+
     public String getShowColor() {
         return showColor;
     }
