@@ -919,6 +919,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel1() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Diagonal");
+        lampModel.setCopyModeColor("#ff0000,#ffffff,#F2E93F");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < size / column; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -927,13 +928,12 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
                     if (j % (size / column) == (i + k) % (size / column) || j % (size / column) == (i + k + 1) % (size / column) || j % (size / column) == (i + k + 2) % (size / column) || j % (size / column) == (i + k + 3) % (size / column)) {
-                        doodle.setColor("#ff0000");
+                        doodle.setColor(lampModel.getCopyModeColorList().get(0));
                     } else if (j % (size / column) == (i + k + 8) % (size / column) || j % (size / column) == (i + k + 9) % (size / column) || j % (size / column) == (i + k + 10) % (size / column) || j % (size / column) == (i + k + 11) % (size / column)) {
-                        doodle.setColor("#ffffff");
+                        doodle.setColor(lampModel.getCopyModeColorList().get(1));
                     } else {
-                        doodle.setColor("#F2E93F");
+                        doodle.setColor(lampModel.getCopyModeColorList().get(2));
                     }
-
                     doodle.setFlash(0);
                     light_status.put(String.valueOf(i * size / column + j), doodle);
                 }

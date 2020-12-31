@@ -279,7 +279,7 @@ public class TreeView extends View {
 
     public void setTwinkle(boolean twinkle) {
         isTwinkle = twinkle;
-        if (hasTwinkle()) {
+        if (hasTwinkle() || isTwinkle) {
             toTwinkle();
         }
     }
@@ -335,6 +335,7 @@ public class TreeView extends View {
                                 light = light - 5;
                             }
                         }
+                        LogUtil.e("light:"+light);
                         add = 0;
                         postInvalidate();
                     }
@@ -681,8 +682,8 @@ public class TreeView extends View {
     private void setColor(float old_x, float old_y) {
         for (int i = 0; i < data.size(); i++) {
             if (Math.abs(old_x - data.get(String.valueOf(i)).getX() * (mWidth - lamp_size)) < lamp_size && Math.abs(old_y - data.get(String.valueOf(i)).getY() * mHeight) < lamp_size) {
-                LogUtil.e(old_x + "-----" + old_y + "---" + data.get(String.valueOf(i)).getX() * (mWidth - lamp_size) + "---" + data.get(String.valueOf(i)).getY() * mHeight);
-                LogUtil.e(data.get(String.valueOf(i)).getColor() + "------------" + choseColor);
+//                LogUtil.e(old_x + "-----" + old_y + "---" + data.get(String.valueOf(i)).getX() * (mWidth - lamp_size) + "---" + data.get(String.valueOf(i)).getY() * mHeight);
+//                LogUtil.e(data.get(String.valueOf(i)).getColor() + "------------" + choseColor);
                 if (!data.get(String.valueOf(i)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(i)).isFlash() == 1) != isTwinkle) {
                     data.get(String.valueOf(i)).setColor(choseColor);
                     data.get(String.valueOf(i)).setShowColor(showColor);

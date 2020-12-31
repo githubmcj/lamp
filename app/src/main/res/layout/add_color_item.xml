@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/dp_2">
+
+    <com.wya.env.view.Circle
+        android:id="@+id/circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:circle_color="@color/cF69218"
+        app:circle_width="@dimen/dp_30"></com.wya.env.view.Circle>
+
+    <ImageView
+        android:id="@+id/add"
+        android:layout_width="@dimen/dp_30"
+        android:layout_height="@dimen/dp_30"
+        android:background="@drawable/add_color"
+        android:visibility="gone">
+
+    </ImageView>
+
+</RelativeLayout>

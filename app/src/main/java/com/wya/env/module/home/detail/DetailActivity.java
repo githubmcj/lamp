@@ -1,13 +1,19 @@
 package com.wya.env.module.home.detail;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpActivity;
@@ -21,7 +27,13 @@ import com.wya.env.bean.tree.TreeData;
 import com.wya.env.common.CommonValue;
 import com.wya.env.module.home.detail.fragment.CurtainFragment;
 import com.wya.env.module.home.detail.fragment.TreeFragment;
+import com.wya.env.util.ColorUtil;
 import com.wya.env.util.SaveSharedPreferences;
+import com.wya.env.view.ColorPickerView;
+import com.wya.uikit.button.WYAButton;
+import com.wya.uikit.dialog.CustomListener;
+import com.wya.uikit.dialog.WYACustomDialog;
+import com.wya.utils.utils.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -76,6 +88,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
     private TreeData treeData;
     private List<Doodle> treeDoodles;
+    private int chose_speed;
 
     @Override
     protected void initView() {
@@ -139,10 +152,211 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             case R.id.img_like:
                 break;
             case R.id.ll_edit:
+                showEditDialog();
                 break;
             case R.id.ll_save:
                 break;
         }
+    }
+
+    private WYACustomDialog editDialog;
+    private LampColorAdapter lampColorAdapter;
+
+    private void showEditDialog() {
+        editDialog = new WYACustomDialog.Builder(this)
+                .setLayoutId(R.layout.lamp_edit_layout, new CustomListener() {
+                    @Override
+                    public void customLayout(View v) {
+
+                        SeekBar seekbar = v.findViewById(R.id.seekbar);
+                        LogUtil.e(lampModel.getSpeed() + "--------");
+                        seekbar.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                seekbar.setProgress(6 - lampModel.getSpeed());
+                            }
+                        });
+
+                        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                lampModel.setSpeed(6 - progress);
+                            }
+
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar) {
+
+                            }
+
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar) {
+
+                            }
+                        });
+                        if (data_colors.size() == 0) {
+                            data_colors.add(colors);
+                            data_colors.add(new ArrayList<>());
+                        }
+                        RecyclerView rv_colors = v.findViewById(R.id.rv_colors);
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(DetailActivity.this);
+                        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+                        rv_colors.setLayoutManager(linearLayoutManager);
+                        lampColorAdapter = new LampColorAdapter(DetailActivity.this, R.layout.lamp_color_item, data_colors);
+                        rv_colors.setAdapter(lampColorAdapter);
+
+                        lampColorAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                                if (position == data_colors.size() - 1) {
+                                    showAddColorDialog();
+                                } else {
+                                    lampColorAdapter.setChoseColors(position);
+                                }
+                            }
+                        });
+
+                        WYAButton cancel = v.findViewById(R.id.cancel);
+                        cancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                editDialog.dismiss();
+                            }
+                        });
+                        WYAButton sure = v.findViewById(R.id.create);
+                        sure.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                editDialog.dismiss();
+                            }
+                        });
+
+                        SeekBar mSeekBar = (SeekBar) v.findViewById(R.id.seekbar);
+                        mSeekBar.setProgress(chose_speed);
+                        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                chose_speed = progress;
+                            }
+
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar) {
+                            }
+
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar) {
+
+                            }
+                        });
+                    }
+                })
+                .build();
+        editDialog.show();
+    }
+
+
+    private WYACustomDialog addColorDialog;
+    private AddColorAdapter addColorAdapter;
+    private List<String> add_colors = new ArrayList<>();
+    private int index = 0;
+
+    private void showAddColorDialog() {
+        addColorDialog = new WYACustomDialog.Builder(this)
+                .setLayoutId(R.layout.add_color_layout, new CustomListener() {
+                    @Override
+                    public void customLayout(View v) {
+
+
+                        ColorPickerView picker1 = v.findViewById(R.id.picker1);
+                        ColorPickerView picker2 = v.findViewById(R.id.picker2);
+
+                        picker1.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
+                            @Override
+                            public void onColorChanged(ColorPickerView picker, int color) {
+                                add_colors.set(index, ColorUtil.int2Hex2(color));
+                                addColorAdapter.setNewData(add_colors);
+                            }
+
+                            @Override
+                            public void onStartTrackingTouch(ColorPickerView picker) {
+
+                            }
+
+                            @Override
+                            public void onStopTrackingTouch(ColorPickerView picker) {
+
+                            }
+                        });
+                        picker2.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
+                            @Override
+                            public void onColorChanged(ColorPickerView picker, int color) {
+                                picker1.setColors(Color.TRANSPARENT, color, Color.WHITE);
+                                add_colors.set(index, ColorUtil.int2Hex2(picker1.getColor()));
+                                addColorAdapter.setNewData(add_colors);
+                            }
+
+                            @Override
+                            public void onStartTrackingTouch(ColorPickerView picker) {
+
+                            }
+
+                            @Override
+                            public void onStopTrackingTouch(ColorPickerView picker) {
+
+                            }
+                        });
+                        picker1.setColors(Color.TRANSPARENT, Color.GREEN, Color.WHITE);
+                        add_colors.clear();
+                        index = 0;
+                        add_colors.add(ColorUtil.int2Hex2(Color.GREEN));
+                        add_colors.add("");
+                        RecyclerView rv_colors = v.findViewById(R.id.rv_colors);
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(DetailActivity.this);
+                        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+                        rv_colors.setLayoutManager(linearLayoutManager);
+                        addColorAdapter = new AddColorAdapter(DetailActivity.this, R.layout.add_color_item, add_colors);
+                        rv_colors.setAdapter(addColorAdapter);
+                        addColorAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                                if (position == add_colors.size() - 1) {
+                                    if (position != data_colors.get(0).size() - 1) {
+                                        index++;
+                                        add_colors.add(index, ColorUtil.int2Hex2(picker1.getColor()));
+                                    } else {
+                                        if (TextUtils.isEmpty(add_colors.get(add_colors.size() - 1))) {
+                                            index++;
+                                            add_colors.set(index, ColorUtil.int2Hex2(picker1.getColor()));
+                                        }
+                                    }
+                                    addColorAdapter.setNewData(add_colors);
+                                }
+                            }
+                        });
+
+                        WYAButton cancel = v.findViewById(R.id.cancel);
+                        cancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                addColorDialog.dismiss();
+                            }
+                        });
+                        WYAButton sure = v.findViewById(R.id.create);
+                        sure.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                addColorDialog.dismiss();
+                                if (TextUtils.isEmpty(add_colors.get(add_colors.size() - 1))) {
+                                    add_colors.remove(add_colors.size() - 1);
+                                }
+                                data_colors.add(data_colors.size() - 1, add_colors);
+                                lampColorAdapter.setNewData(data_colors);
+                            }
+                        });
+                    }
+                })
+                .build();
+        addColorDialog.show();
+
     }
 
 
@@ -151,6 +365,13 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     int row;
     private LampModel lampModel;
     private Lamps lamps;
+
+    /**
+     * 选取的颜色
+     */
+    private List<String> colors = new ArrayList<>();
+
+    private List<List<String>> data_colors = new ArrayList<>();
 
     private LampModel getModels(int position, int type) {
         lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
@@ -163,6 +384,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             row = 15;
             size = 225;
         }
+        data_colors.clear();
         switch (position) {
             case 0:
                 lampModel = getModel1(type);
@@ -553,6 +775,9 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel1(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Diagonal");
+        lampModel.setCopyModeColor("#ff0000,#ffffff,#F2E93F");
+        colors = lampModel.getCopyModeColorList();
+        lampModel.setSpeed(1);
         if (type == 1) {
             List<DoodlePattern> modeArr = new ArrayList<>();
             for (int k = 0; k < size / column; k++) {
@@ -562,11 +787,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     for (int j = 0; j < size / column; j++) {
                         Doodle doodle = new Doodle();
                         if (j % (size / column) == (i + k) % (size / column) || j % (size / column) == (i + k + 1) % (size / column) || j % (size / column) == (i + k + 2) % (size / column) || j % (size / column) == (i + k + 3) % (size / column)) {
-                            doodle.setColor("#ff0000");
+                            doodle.setColor(colors.get(0));
                         } else if (j % (size / column) == (i + k + 8) % (size / column) || j % (size / column) == (i + k + 9) % (size / column) || j % (size / column) == (i + k + 10) % (size / column) || j % (size / column) == (i + k + 11) % (size / column)) {
-                            doodle.setColor("#ffffff");
+                            doodle.setColor(colors.get(1));
                         } else {
-                            doodle.setColor("#F2E93F");
+                            doodle.setColor(colors.get(2));
                         }
                         doodle.setFlash(0);
                         light_status.put(String.valueOf(i * size / column + j), doodle);
@@ -594,11 +819,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     for (int j = 0; j < size / column; j++) {
                         Doodle doodle = new Doodle();
                         if (j % (size / column) == (i + k) % (size / column) || j % (size / column) == (i + k + 1) % (size / column) || j % (size / column) == (i + k + 2) % (size / column) || j % (size / column) == (i + k + 3) % (size / column)) {
-                            doodle.setColor("#ff0000");
+                            doodle.setColor(colors.get(0));
                         } else if (j % (size / column) == (i + k + 8) % (size / column) || j % (size / column) == (i + k + 9) % (size / column) || j % (size / column) == (i + k + 10) % (size / column) || j % (size / column) == (i + k + 11) % (size / column)) {
-                            doodle.setColor("#ffffff");
+                            doodle.setColor(colors.get(1));
                         } else {
-                            doodle.setColor("#F2E93F");
+                            doodle.setColor(colors.get(2));
                         }
                         light_status.put(String.valueOf(i * size / column + j), doodle);
                     }
@@ -619,6 +844,9 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel2(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Fireworks");
+        lampModel.setCopyModeColor("#ff0000,#ffffff,#F2E93F");
+        colors = lampModel.getCopyModeColorList();
+        lampModel.setSpeed(1);
         if (type == 0) {
             treeData = new Gson().fromJson(data_str, TreeData.class);
             treeDoodles = treeData.getAddrTab();
@@ -647,7 +875,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
                 }
             }
-            if(type == 0){
+            if (type == 0) {
                 doodlePattern.setLight_status(getLightStatus(light_status));
             } else {
                 doodlePattern.setLight_status(light_status);
@@ -675,7 +903,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     light_status.put(String.valueOf(key), doodle);
                 }
             }
-            if(type == 0){
+            if (type == 0) {
                 doodlePattern.setLight_status(getLightStatus(light_status));
             } else {
                 doodlePattern.setLight_status(light_status);
@@ -702,7 +930,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     light_status.put(String.valueOf(key), doodle);
                 }
             }
-            if(type == 0){
+            if (type == 0) {
                 doodlePattern.setLight_status(getLightStatus(light_status));
             } else {
                 doodlePattern.setLight_status(light_status);
@@ -727,7 +955,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     light_status.put(String.valueOf(key), doodle);
                 }
             }
-            if(type == 0){
+            if (type == 0) {
                 doodlePattern.setLight_status(getLightStatus(light_status));
             } else {
                 doodlePattern.setLight_status(light_status);

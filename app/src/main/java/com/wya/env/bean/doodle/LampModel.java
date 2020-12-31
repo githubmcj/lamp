@@ -1,5 +1,7 @@
 package com.wya.env.bean.doodle;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,6 +20,74 @@ public class LampModel {
     int lightRow;
     int size;
     int light = 100;
+    /**
+     * 模式类型  0：固定模式  1:自定义模式  2:拷贝固定模式
+     */
+    int modeType;
+
+    /**
+     * 如果是拷贝，这个值为被copy的模式的下标
+     */
+    int copyModeIndex;
+
+    /**
+     *  如果是拷贝，存储的颜色 以,隔开  例#333333,#666666,#999999
+     */
+    String copyModeColor;
+
+    /**
+     * 0为窗帘灯 1为圣诞树
+     */
+    int lightType;
+
+    /**
+     * 速度
+     */
+    int speed;
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    public int getModeType() {
+        return modeType;
+    }
+
+    public void setModeType(int modeType) {
+        this.modeType = modeType;
+    }
+
+    public int getCopyModeIndex() {
+        return copyModeIndex;
+    }
+
+    public void setCopyModeIndex(int copyModeIndex) {
+        this.copyModeIndex = copyModeIndex;
+    }
+
+    public String getCopyModeColor() {
+        return copyModeColor;
+    }
+
+    public void setCopyModeColor(String copyModeColor) {
+        this.copyModeColor = copyModeColor;
+    }
+
+    public List<String> getCopyModeColorList() {
+        return Arrays.asList(this.copyModeColor.split(","));
+    }
+
+    public int getLightType() {
+        return lightType;
+    }
+
+    public void setLightType(int lightType) {
+        this.lightType = lightType;
+    }
 
     public int getLight() {
         return light;

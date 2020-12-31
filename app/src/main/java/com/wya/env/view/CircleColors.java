@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -14,20 +15,32 @@ import android.view.View;
 import com.wya.env.R;
 import com.wya.env.util.ColorUtil;
 
+import java.util.List;
+
 /**
  * @date: 2020/7/18 17:21
  * @author: Chunjiang Mao
- * @classname: Circle
- * @describe: 原型色块
+ * @classname: CircleColors
+ * @describe: 圆型多色块
  */
-public class Circle extends View {
+public class CircleColors extends View {
 
     private Context mContext;
 
     private int mWidth;
     private int mHeight;
     private int mColor;
+    private List<String> mColors;
     private Paint mPaint;
+
+    public List<String> getmColors() {
+        return mColors;
+    }
+
+    public void setmColors(List<String> mColors) {
+        this.mColors = mColors;
+        postInvalidate();
+    }
 
     public boolean isCircle_chose() {
         return circle_chose;
@@ -38,33 +51,25 @@ public class Circle extends View {
         postInvalidate();
     }
 
-    public int getmColor() {
-        return mColor;
-    }
-
-    public void setmColor(int mColor) {
-        this.mColor = mColor;
-        invalidate();
-    }
 
     private boolean circle_chose;
 
-    public Circle(Context context) {
+    public CircleColors(Context context) {
         super(context);
     }
 
-    public Circle(Context context, @Nullable AttributeSet attrs) {
+    public CircleColors(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public Circle(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public CircleColors(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.mContext = context;
         initAttr(attrs);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public Circle(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public CircleColors(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
@@ -102,20 +107,20 @@ public class Circle extends View {
 
         mPaint.setStrokeWidth(1);
 
+        RectF ova = new RectF(2, 2, mWidth + 6, mWidth + 6);
         if (circle_chose) {
-            mPaint.setColor(mContext.getResources().getColor(R.color.c9396B7));
-            canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 4, mPaint);
-            mPaint.setColor(mContext.getResources().getColor(R.color.white));
-            canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 2, mPaint);
+            mPaint.setColor(mContext.getResources().getColor(R.color.black));
+            canvas.drawArc(ova, -135, 360, false, mPaint);
         }
 
-        mPaint.setColor(mContext.getResources().getColor(R.color.cEDEDED));
-        canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 1, mPaint);
-        mPaint.setColor(mColor);
-        canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2, mPaint);
-
-
+        int add = 180 / mColors.size();
+        RectF oval = new RectF(4, 4, mWidth + 4, mWidth + 4);
+        for (int i = 0; i < mColors.size(); i++) {
+            mPaint.setColor(ColorUtil.hex2Int(mColors.get(i)));
+            canvas.drawArc(oval, -135 + add * i, 360 - add * i * 2, false, mPaint);
+        }
     }
+
 
     public String getColor(String chose_color, int chose_light) {
         mColor = Color.rgb((ColorUtil.int2Rgb(Color.parseColor(chose_color))[0]) * chose_light / 100, (ColorUtil.int2Rgb(Color.parseColor(chose_color))[1]) * chose_light / 100, (ColorUtil.int2Rgb(Color.parseColor(chose_color))[2]) * chose_light / 100);

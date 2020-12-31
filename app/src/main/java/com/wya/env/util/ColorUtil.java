@@ -2,6 +2,9 @@ package com.wya.env.util;
 
 import android.graphics.Color;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by HaiyuKing
  * Used Color工具类（color整型、rgb数组、16进制互相转换）
@@ -103,5 +106,14 @@ public class ColorUtil {
         colorInt = Color.rgb(rgb[0], rgb[1], rgb[2]);
         return colorInt;
     }
+
+
+//    public List<String> getCopyModeColorList(String copyModeColor) {
+//        List<String> colors = new ArrayList<>();
+//        for (int i = 0; i < copyModeColor.split(",").length; i++) {
+//            colors.add(copyModeColor.split(","));
+//        }
+//        return ;
+//    }
 
 }
