@@ -72,7 +72,6 @@ public class FaceBookLogin {
      * 登录
      */
     public void login() {
-
         getLoginManager().logInWithReadPermissions(
                 activity, permissions);
     }

@@ -30,9 +30,13 @@ public interface CommonValue {
      */
     String LAMPS = "lamps";
 
-     int UDP_PORT = 6000;
-     int TCP_PORT = 6600;
+    /**
+     * 圣诞树数据
+     */
+    String CONFIGFILE = "config_file";
 
+    int UDP_PORT = 6000;
+    int TCP_PORT = 6600;
 
 
     String COLUMN = "column";

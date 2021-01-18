@@ -144,9 +144,9 @@ public class TreeView extends View {
             } else {
                 lampPaint.setColor(Color.argb(0, 0, 0, 0));
             }
-            canvas.drawCircle(data.get(String.valueOf(i)).getX() * (mWidth - lamp_size - 2) + lamp_size / 2 + 1, data.get(String.valueOf(i)).getY() * mHeight, lamp_size / 2, framePaint);
+            canvas.drawCircle(data.get(String.valueOf(i)).getX() * (mWidth - lamp_size - 2) + lamp_size / 2 + 1, data.get(String.valueOf(i)).getY() * (mHeight - lamp_size - 2) + lamp_size / 2 + 1, lamp_size / 2, framePaint);
 //            canvas.drawCircle(data.get(String.valueOf(i)).getX() * (mWidth - lamp_size) + lamp_size / 2, data.get(String.valueOf(i)).getY() * mHeight, lamp_size / 2, whitePaint);
-            canvas.drawCircle(data.get(String.valueOf(i)).getX() * (mWidth - lamp_size) + lamp_size / 2, data.get(String.valueOf(i)).getY() * mHeight, lamp_size / 2, lampPaint);
+            canvas.drawCircle(data.get(String.valueOf(i)).getX() * (mWidth - lamp_size) + lamp_size / 2, data.get(String.valueOf(i)).getY() * (mHeight - lamp_size) + lamp_size / 2, lamp_size / 2, lampPaint);
         }
     }
 
@@ -335,7 +335,7 @@ public class TreeView extends View {
                                 light = light - 5;
                             }
                         }
-                        LogUtil.e("light:"+light);
+                        LogUtil.e("light:" + light);
                         add = 0;
                         postInvalidate();
                     }
@@ -1206,6 +1206,11 @@ public class TreeView extends View {
             data.get(String.valueOf(i)).setFlash(0);
         }
         postInvalidate();
+    }
+
+    public void setConfigData(String config_str) {
+        this.data_str = config_str;
+        init();
     }
 }
 

@@ -13,6 +13,13 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_LOGS" />
 
+    <!--管理蓝牙需要-->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!--搜索蓝牙需要，因为蓝牙可以被用来定位，所以需要定位权限-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -43,6 +50,7 @@
 
         <activity android:name=".module.login.start.LinkActivity"></activity>
         <activity android:name=".module.login.start.SearchDeviceActivity" />
+        <activity android:name=".module.login.start.SearchDeviceByBleActivity" />
         <activity android:name=".module.login.start.NoFoundDeviceActivity" />
         <activity android:name=".module.home.detail.DetailActivity" />
         <activity
@@ -51,6 +59,7 @@
         <activity android:name=".module.login.start.Start2Activity" />
         <activity android:name=".module.login.start.Start3Activity" />
         <activity android:name=".module.login.start.Start4Activity" />
+        <activity android:name=".module.login.start.Start5Activity" />
         <activity android:name=".module.mine.AboutUsActivity" />
         <activity android:name=".module.register.RegisterProtocolActivity" />
         <activity android:name=".module.register.RegisterActivity" />
@@ -58,7 +67,6 @@
         <activity android:name=".module.login.StartUpActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

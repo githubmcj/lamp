@@ -53,6 +53,7 @@ public class DeviceAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 context.startActivity(new Intent(context, LinkActivity.class));
             }
         });
+        helper.getView(R.id.edit).setVisibility(View.GONE);
     }
 
     private void saveInfoLamp(List<LampSetting> lampSettings) {

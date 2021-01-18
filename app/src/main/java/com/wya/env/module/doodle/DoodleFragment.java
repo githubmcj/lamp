@@ -19,6 +19,7 @@ import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
 import com.wya.env.util.ColorUtil;
@@ -92,7 +93,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @BindView(R.id.et_name)
     EditText etName;
     @BindView(R.id.lamp_view)
-    TreeView lampView;
+    LampView lampView;
+    @BindView(R.id.lamp_tree_view)
+    TreeView lampTreeView;
     @BindView(R.id.ll_bold_paint)
     LinearLayout llBoldPaint;
     @BindView(R.id.ll_thin_paint)
@@ -166,8 +169,19 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
 
     private void initData() {
         chose_light = 100;
-        lampView.setChoseColor(chose_color);
-        lampView.setShowColor(show_color);
+        switch (lightType) {
+            case 0:
+                lampView.setChoseColor(chose_color);
+                lampView.setShowColor(show_color);
+                break;
+            case 1:
+                lampTreeView.setChoseColor(chose_color);
+                lampTreeView.setShowColor(show_color);
+                break;
+            default:
+                break;
+        }
+        setType();
         //        if (!isFirst) {
 //        initListData();
 //        getData();
@@ -260,8 +274,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 sure.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        lampView.setChoseColor(chose_color);
-                                        lampView.setShowColor(show_color);
+                                        switch (lightType) {
+                                            case 0:
+                                                lampView.setChoseColor(chose_color);
+                                                lampView.setShowColor(show_color);
+                                                break;
+                                            case 1:
+                                                lampTreeView.setChoseColor(chose_color);
+                                                lampTreeView.setShowColor(show_color);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         color_index = 0;
                                         getColorIndex(color_index);
                                         choseColorDialog.dismiss();
@@ -285,8 +309,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
 
                                     @Override
                                     public void onStopTrackingTouch(SeekBar seekBar) {
-                                        lampView.setChoseColor(chose_color);
-                                        lampView.setShowColor(show_color);
+                                        switch (lightType) {
+                                            case 0:
+                                                lampView.setChoseColor(chose_color);
+                                                lampView.setShowColor(show_color);
+                                                break;
+                                            case 1:
+                                                lampTreeView.setChoseColor(chose_color);
+                                                lampTreeView.setShowColor(show_color);
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                     }
                                 });
                             }
@@ -300,11 +334,29 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 } else {
                     painter_type = 1;
                 }
-                lampView.setPaintBold(true);
+                switch (lightType) {
+                    case 0:
+                        lampView.setPaintBold(false);
+                        break;
+                    case 1:
+                        lampTreeView.setPaintBold(false);
+                        break;
+                    default:
+                        break;
+                }
                 setPainter(painter_type);
                 break;
             case R.id.ll_thin_paint:
-                lampView.setPaintBold(false);
+                switch (lightType) {
+                    case 0:
+                        lampView.setPaintBold(false);
+                        break;
+                    case 1:
+                        lampTreeView.setPaintBold(false);
+                        break;
+                    default:
+                        break;
+                }
                 if (painter_type == 2) {
                     painter_type = 0;
                 } else {
@@ -318,12 +370,30 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 } else {
                     painter_type = 3;
                 }
-                lampView.setPaintBold(false);
+                switch (lightType) {
+                    case 0:
+                        lampView.setPaintBold(false);
+                        break;
+                    case 1:
+                        lampTreeView.setPaintBold(false);
+                        break;
+                    default:
+                        break;
+                }
                 setPainter(painter_type);
                 break;
             case R.id.ll_twinkle:
                 isTwinkle = !isTwinkle;
-                lampView.setTwinkle(isTwinkle);
+                switch (lightType) {
+                    case 0:
+                        lampView.setTwinkle(isTwinkle);
+                        break;
+                    case 1:
+                        lampTreeView.setTwinkle(isTwinkle);
+                        break;
+                    default:
+                        break;
+                }
                 if (isTwinkle) {
                     imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
                 } else {
@@ -337,10 +407,28 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 } else {
                     imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_lef));
                 }
-                lampView.setMirror(isMirror);
+                switch (lightType) {
+                    case 0:
+                        lampView.setMirror(isMirror);
+                        break;
+                    case 1:
+                        lampTreeView.setMirror(isMirror);
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case R.id.img_all:
-                lampView.setAllColor(chose_color);
+                switch (lightType) {
+                    case 0:
+                        lampView.setAllColor(chose_color);
+                        break;
+                    case 1:
+                        lampTreeView.setAllColor(chose_color);
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case R.id.ll_save:
                 if (TextUtils.isEmpty(etName.getText().toString())) {
@@ -385,21 +473,44 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
 
 
     private void toCleanChose() {
-        lampView.clean();
+
         color_index = 0;
         chose_color = null;
-        lampView.setChoseColor(chose_color);
-        lampView.setShowColor(chose_color);
-        getColorIndex(color_index);
         isTwinkle = false;
-        lampView.setTwinkle(isTwinkle);
+        switch (lightType) {
+            case 0:
+                lampView.clean();
+                lampView.setChoseColor(chose_color);
+                lampView.setShowColor(chose_color);
+                lampView.setTwinkle(isTwinkle);
+                break;
+            case 1:
+                lampTreeView.clean();
+                lampTreeView.setChoseColor(chose_color);
+                lampTreeView.setShowColor(chose_color);
+                lampTreeView.setTwinkle(isTwinkle);
+                break;
+            default:
+                break;
+        }
+
+        getColorIndex(color_index);
         if (isTwinkle) {
             imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
         } else {
             imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
         }
         isMirror = 0;
-        lampView.setMirror(isMirror);
+        switch (lightType) {
+            case 0:
+                lampView.setMirror(isMirror);
+                break;
+            case 1:
+                lampTreeView.setMirror(isMirror);
+                break;
+            default:
+                break;
+        }
         if (isMirror == 1) {
             imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
         } else {
@@ -410,6 +521,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         etName.setText("");
     }
 
+
+    // TODO 模板上传区分灯类型
     private void toSave() {
         LampModel lampModel = new LampModel();
         lampModel.setName(etName.getText().toString());
@@ -432,18 +545,57 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachumoren));
         if (painter_type == 1) {
             imgBoldPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.cubidianji));
-            lampView.setChoseColor(chose_color);
-            lampView.setShowColor(chose_color);
+            switch (lightType) {
+                case 0:
+                    lampView.setChoseColor(chose_color);
+                    lampView.setShowColor(chose_color);
+                    break;
+                case 1:
+                    lampTreeView.setChoseColor(chose_color);
+                    lampTreeView.setShowColor(chose_color);
+                    break;
+                default:
+                    break;
+            }
         } else if (painter_type == 2) {
             imgThinPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.xibidianji));
-            lampView.setChoseColor(chose_color);
-            lampView.setShowColor(chose_color);
+            switch (lightType) {
+                case 0:
+                    lampView.setChoseColor(chose_color);
+                    lampView.setShowColor(chose_color);
+                    break;
+                case 1:
+                    lampTreeView.setChoseColor(chose_color);
+                    lampTreeView.setShowColor(chose_color);
+                    break;
+                default:
+                    break;
+            }
         } else if (painter_type == 3) {
             imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachudianji));
-            lampView.setChoseColor("#000000");
-            lampView.setShowColor("#000000");
+            switch (lightType) {
+                case 0:
+                    lampView.setChoseColor("#000000");
+                    lampView.setShowColor("#000000");
+                    break;
+                case 1:
+                    lampTreeView.setChoseColor("#000000");
+                    lampTreeView.setShowColor("#000000");
+                    break;
+                default:
+                    break;
+            }
         } else {
-            lampView.setPaintBold(false);
+            switch (lightType) {
+                case 0:
+                    lampView.setPaintBold(false);
+                    break;
+                case 1:
+                    lampTreeView.setPaintBold(false);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -488,19 +640,34 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             default:
                 break;
         }
-        lampView.setChoseColor(chose_color);
-        lampView.setShowColor(chose_color);
-        if (painter_type == 0 || painter_type == 3) {
-            lampView.setPaintBold(false);
-            painter_type = 2;
-            setPainter(painter_type);
+        switch (lightType) {
+            case 0:
+                lampView.setChoseColor(chose_color);
+                lampView.setShowColor(chose_color);
+                if (painter_type == 0 || painter_type == 3) {
+                    lampView.setPaintBold(false);
+                    painter_type = 2;
+                    setPainter(painter_type);
+                }
+                break;
+            case 1:
+                lampTreeView.setChoseColor(chose_color);
+                lampTreeView.setShowColor(chose_color);
+                if (painter_type == 0 || painter_type == 3) {
+                    lampTreeView.setPaintBold(false);
+                    painter_type = 2;
+                    setPainter(painter_type);
+                }
+                break;
+            default:
+                break;
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
         if (isVisible()) {
             lampView.startSendUpdData();
             lampView.startTwinkle();
@@ -510,30 +677,116 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
         lampView.stopSendUdpData();
     }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(LampSetting lampSetting) {
-        lampView.setSize(size);
-        lampView.setColumn(column);
-        lampView.requestLayout();
-    }
+//
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onMessageEvent(LampSetting lampSetting) {
+//        lampView.setSize(size);
+//        lampView.setColumn(column);
+//        lampView.requestLayout();
+//    }
 
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
-            lampView.startSendUpdData();
-            lampView.startTwinkle();
+            setType();
+            switch (lightType) {
+                case 0:
+                    lampView.startSendUpdData();
+                    lampView.startTwinkle();
+                    break;
+                case 1:
+                    lampTreeView.startSendUpdData();
+                    lampTreeView.startTwinkle();
+                    break;
+                default:
+                    break;
+            }
         } else {
-            lampView.toStopSendUdpData(true);
-            lampView.stopTwinkle();
+            switch (lightType) {
+                case 0:
+                    lampView.toStopSendUdpData(true);
+                    lampView.stopTwinkle();
+                    break;
+                case 1:
+                    lampTreeView.toStopSendUdpData(true);
+                    lampTreeView.stopTwinkle();
+                    break;
+                default:
+                    break;
+            }
             toCleanChose();
         }
     }
+
+    /**
+     * 0为窗帘灯 1为圣诞树
+     */
+    private int lightType;
+    private Lamps lamps;
+    private String choseDeviceName;
+    private boolean isChangeDevice;
+
+    private void setType() {
+        lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
+        isChangeDevice = false;
+        for (int i = 0; i < lamps.getLampSettings().size(); i++) {
+            if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null) {
+                if (choseDeviceName == null || !choseDeviceName.equals(lamps.getLampSettings().get(i).getName())) {
+                    isChangeDevice = true;
+                    choseDeviceName = lamps.getLampSettings().get(i).getName();
+                }
+                if(isChangeDevice){
+                    switch (lamps.getLampSettings().get(i).getName().substring(5, 6)) {
+                        case "C":
+                            lightType = 0;
+                            lampTreeView.setVisibility(View.GONE);
+                            lampView.setVisibility(View.VISIBLE);
+                            size = lamps.getLampSettings().get(i).getSize();
+                            column = lamps.getLampSettings().get(i).getColumn();
+                            lampView.setSize(size);
+                            lampView.setColumn(column);
+                            lampView.requestLayout();
+                            break;
+                        case "T":
+                            lightType = 1;
+                            lampTreeView.setVisibility(View.VISIBLE);
+                            lampView.setVisibility(View.GONE);
+                            if(!TextUtils.isEmpty(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE))){
+                                lampTreeView.setConfigData(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE));
+                                lampTreeView.requestLayout();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+//
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onMessageEvent(EventtDeviceName eventtDeviceName) {
+//        if(eventtDeviceName != null && eventtDeviceName.getName() != null){
+//            switch (eventtDeviceName.getName().substring(5,6)){
+//                case "c":
+//                    lampTreeView.setVisibility(View.GONE);
+//                    lampView.setVisibility(View.VISIBLE);
+//                    break;
+//                case "t":
+//                    lampTreeView.setVisibility(View.VISIBLE);
+//                    lampView.setVisibility(View.GONE);
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//    }
 
 
     @Override

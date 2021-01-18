@@ -401,9 +401,15 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         LogUtil.e(size + "---" + column + "-----" + row);
                         for (int i = 0; i < lampSettings.size(); i++) {
                             if (lampSettings.get(i).getIp() != null && lampSettings.get(i).getIp().equals(ip)) {
-                                lampSettings.get(i).setRow(row);
-                                lampSettings.get(i).setSize(size);
-                                lampSettings.get(i).setColumn(column);
+                                if(row > 0){
+                                    lampSettings.get(i).setRow(row);
+                                }
+                                if(column > 0){
+                                    lampSettings.get(i).setColumn(column);
+                                }
+                                if(size > 0){
+                                    lampSettings.get(i).setSize(size);
+                                }
                                 myLampAdapter.setNewData(lampSettings);
                                 break;
                             }

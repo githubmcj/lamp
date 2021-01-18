@@ -14,6 +14,15 @@ public class LampSetting {
     private int size;
     private int column;
     private int row;
+    private String address;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public int getColumn() {
         return column;

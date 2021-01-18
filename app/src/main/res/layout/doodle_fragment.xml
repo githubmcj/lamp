@@ -37,35 +37,35 @@
             android:orientation="vertical">
 
             <com.wya.env.view.TreeView
-                android:id="@+id/lamp_view"
+                android:id="@+id/lamp_tree_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:bg_color="@color/cF7F7F7"
                 android:layout_centerHorizontal="true"
-                app:online="true"
                 android:layout_marginTop="@dimen/dp_30"
                 android:layout_marginBottom="@dimen/dp_30"
+                android:visibility="gone"
+                app:bg_color="@color/cF7F7F7"
                 app:margin_left="@dimen/dp_30"
-                app:margin_right="@dimen/dp_30">
+                app:margin_right="@dimen/dp_30"
+                app:online="true">
 
             </com.wya.env.view.TreeView>
 
 
-<!--            <com.wya.env.view.LampView-->
-<!--                android:id="@+id/lamp_view"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_centerHorizontal="true"-->
-<!--                android:layout_marginTop="@dimen/dp_30"-->
-<!--                android:layout_marginBottom="@dimen/dp_30"-->
-<!--                app:bg_color="@color/app_blue"-->
-<!--                app:margin_left="@dimen/dp_60"-->
-<!--                app:margin_right="@dimen/dp_60"-->
-<!--                app:online="true"-->
-<!--                app:size="300"-->
-<!--                android:visibility="gone">-->
+            <com.wya.env.view.LampView
+                android:id="@+id/lamp_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/dp_30"
+                android:layout_marginBottom="@dimen/dp_30"
+                app:bg_color="@color/cF7F7F7"
+                app:margin_left="@dimen/dp_60"
+                app:margin_right="@dimen/dp_60"
+                app:online="true"
+                app:size="300">
 
-<!--            </com.wya.env.view.LampView>-->
+            </com.wya.env.view.LampView>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -189,8 +189,6 @@
                             </TableRow>
 
 
-
-
                             <TableRow
                                 android:id="@+id/tab3"
                                 android:layout_width="0dp"
@@ -280,9 +278,9 @@
                                 android:id="@+id/tab_all"
                                 android:layout_width="wrap_content"
                                 android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginRight="@dimen/dp_30"
                                 android:layout_marginBottom="@dimen/dp_10"
-                                android:gravity="center"
-                                android:layout_marginRight="@dimen/dp_30">
+                                android:gravity="center">
 
                                 <ImageView
                                     android:id="@+id/img_all"
@@ -296,11 +294,11 @@
                             <TableRow
                                 android:id="@+id/tab_del"
                                 android:layout_width="wrap_content"
-                                android:layout_marginTop="@dimen/dp_10"
-                                android:layout_marginBottom="@dimen/dp_10"
                                 android:layout_marginLeft="@dimen/dp_30"
-                                android:gravity="center"
-                                android:layout_marginRight="@dimen/dp_30">
+                                android:layout_marginTop="@dimen/dp_10"
+                                android:layout_marginRight="@dimen/dp_30"
+                                android:layout_marginBottom="@dimen/dp_10"
+                                android:gravity="center">
 
                                 <ImageView
                                     android:id="@+id/img_del"
@@ -314,10 +312,10 @@
                             <TableRow
                                 android:id="@+id/tab_mirror"
                                 android:layout_width="wrap_content"
+                                android:layout_marginLeft="@dimen/dp_30"
                                 android:layout_marginTop="@dimen/dp_10"
                                 android:layout_marginBottom="@dimen/dp_10"
-                                android:gravity="center"
-                                android:layout_marginLeft="@dimen/dp_30">
+                                android:gravity="center">
 
                                 <ImageView
                                     android:id="@+id/img_mirror"

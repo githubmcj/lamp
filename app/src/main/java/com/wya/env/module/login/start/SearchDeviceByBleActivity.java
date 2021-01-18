@@ -1,6 +1,7 @@
 package com.wya.env.module.login.start;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothGatt;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,8 +26,6 @@ import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.utils.utils.LogUtil;
 
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -35,18 +34,20 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
+import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
 /**
  * @date: 2020\9\26 0026 18:00
  * @author: Chunjiang Mao
  * @classname: SearchDeviceActivity
- * @describe: 搜索设备
+ * @describe: 搜索蓝牙设备
  */
-public class SearchDeviceActivity extends BaseActivity {
+public class SearchDeviceByBleActivity extends BaseActivity {
 
     @BindView(R.id.rv_device)
     RecyclerView recyclerView;
@@ -60,53 +61,163 @@ public class SearchDeviceActivity extends BaseActivity {
     @Override
     protected void initView() {
         setTitle("Devices List");
-        initRecyclerView();
     }
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        getDevices();
-        tvSearching.setVisibility(View.VISIBLE);
+        //断开所有设备
+        Ble.getInstance().disconnectAll();
+        lampSettings.clear();
+        Ble.getInstance().startScan(scanCallback);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        stopSendUdpModeData();
+        Ble.getInstance().cancelCallback(scanCallback);
     }
 
     ScheduledExecutorService modelExecutorService;
     private int addMode = 0;
 
     private void getDevices() {
-        loc_ip = getIpAddressString();
-        addMode = 0;
-        if (modelExecutorService == null) {
-            modelExecutorService = new ScheduledThreadPoolExecutor(1,
-                    new BasicThreadFactory.Builder().namingPattern("getDivice").daemon(true).build());
-        }
-        modelExecutorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.e("addMode----------" + addMode);
-                addMode++;
-                if (addMode < 15) {
-                    sendData(1);
-                    sendData(2);
-                } else {
-                    stopSendUdpModeData();
-                    if (lampSettings != null && lampSettings.size() > 0) {
-                        LogUtil.e("搜到设备" + lampSettings.size() + "台");
-                    } else {
-                        LogUtil.e("无设备");
-                        startActivity(new Intent(SearchDeviceActivity.this, NoFoundDeviceActivity.class));
+//        loc_ip = getIpAddressString();
+//        addMode = 0;
+//        if (modelExecutorService == null) {
+//            modelExecutorService = new ScheduledThreadPoolExecutor(1,
+//                    new BasicThreadFactory.Builder().namingPattern("getDivice").daemon(true).build());
+//        }
+//        modelExecutorService.scheduleAtFixedRate(new Runnable() {
+//            @Override
+//            public void run() {
+//                LogUtil.e("addMode----------" + addMode);
+//                addMode++;
+//                if (addMode < 15) {
+//                    sendData(1);
+//                    sendData(2);
+//                } else {
+//                    stopSendUdpModeData();
+//                    if (lampSettings != null && lampSettings.size() > 0) {
+//                        LogUtil.e("搜到设备" + lampSettings.size() + "台");
+//                    } else {
+//                        LogUtil.e("无设备");
+//                        startActivity(new Intent(SearchDeviceActivity.this, NoFoundDeviceActivity.class));
+//                    }
+//                }
+//            }
+//        }, 0, 200, TimeUnit.MILLISECONDS);
+
+
+    }
+
+
+    private BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
+        @Override
+        public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+            LogUtil.e("onLeScan");
+            if (device.getBleName() != null && device.getBleName().contains("Delight")) {
+//                    synchronized (Ble.getInstance().getLocker()) {
+                LogUtil.e(device.getBleAddress() + "------" + device.getBleName() + "--" + device.getBleAlias());
+                boolean add = true;
+                for (int i = 0; i < lampSettings.size(); i++) {
+                    if (TextUtils.equals(lampSettings.get(i).getAddress(), device.getBleAddress())) {
+                        add = false;
+                        break;
                     }
                 }
+                LogUtil.e(lampSettings.size() + "-------------" + add);
+                if (add) {
+                    //连接设备
+                    LampSetting lampSetting = new LampSetting();
+                    lampSetting.setAddress(device.getBleAddress());
+                    lampSetting.setName(device.getBleName());
+                    lampSetting.setDeviceName(device.getBleName());
+                    lampSettings.add(lampSetting);
+                    Ble<BleDevice> ble = Ble.getInstance();
+                    if (ble.isScanning()) {
+                        ble.stopScan();
+                    }
+                    startActivity(new Intent(SearchDeviceByBleActivity.this, Start5Activity.class).putExtra("device", device));
+//                        deviceAdapter.notifyDataSetChanged();
+                }
+//                    }
             }
-        }, 0, 200, TimeUnit.MILLISECONDS);
-    }
+
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            tvSearching.setVisibility(View.VISIBLE);
+            LogUtil.e("onStart");
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            tvSearching.setVisibility(View.GONE);
+            if (lampSettings != null && lampSettings.size() > 0) {
+                LogUtil.e("搜到设备" + lampSettings.size() + "台");
+            } else {
+                LogUtil.e("无设备");
+                startActivity(new Intent(SearchDeviceByBleActivity.this, NoFoundDeviceActivity.class));
+            }
+            LogUtil.e("onStop");
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+            LogUtil.e("onScanFailed: " + errorCode);
+        }
+    };
+
+    private BleConnectCallback<BleDevice> connectCallback = new BleConnectCallback<BleDevice>() {
+        @Override
+        public void onConnectionChanged(BleDevice device) {
+            LogUtil.e("onConnectionChanged: " + device.getConnectionState());
+            if (device.isConnected()) {
+                LogUtil.e("连接成功");
+                // 连接成功
+                startActivity(new Intent(SearchDeviceByBleActivity.this, Start5Activity.class));
+            } else if (device.isConnecting()) {
+                LogUtil.e("连接中...");
+            } else if (device.isDisconnected()) {
+                LogUtil.e("未连接...");
+            }
+        }
+
+        @Override
+        public void onConnectException(BleDevice device, int errorCode) {
+            super.onConnectException(device, errorCode);
+        }
+
+        //        @Override
+//        public void onConnectFailed(BleDevice device, int errorCode) {
+//            super.onConnectFailed(device, errorCode);
+//            showShort("连接异常，异常状态码:" + errorCode);
+//        }
+
+        @Override
+        public void onConnectCancel(BleDevice device) {
+            super.onConnectCancel(device);
+            LogUtil.e("onConnectCancel: " + device.getBleName());
+        }
+
+        @Override
+        public void onServicesDiscovered(BleDevice device, BluetoothGatt gatt) {
+            super.onServicesDiscovered(device, gatt);
+
+        }
+
+        @Override
+        public void onReady(BleDevice device) {
+            super.onReady(device);
+        }
+    };
+
 
     /**
      * @return 本机ip地址
@@ -145,9 +256,7 @@ public class SearchDeviceActivity extends BaseActivity {
             }
             lampSettings.get(position).setChose(true);
             saveInfoLamp(lampSettings);
-            // 跳转到主界面
-            startActivity(new Intent(SearchDeviceActivity.this, MainActivity.class));
-            ActivityManager.getInstance().exitApp();
+            startActivity(new Intent(SearchDeviceByBleActivity.this, Start4Activity.class).putExtra("name", lampSettings.get(position).getDeviceName()));
         });
     }
 

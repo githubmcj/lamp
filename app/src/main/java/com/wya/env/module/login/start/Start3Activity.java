@@ -34,6 +34,6 @@ public class Start3Activity extends BaseActivity {
 
     @OnClick(R.id.next)
     public void onViewClicked() {
-        startActivity(new Intent(Start3Activity.this, SearchDeviceActivity.class));
+        startActivity(new Intent(Start3Activity.this, SearchDeviceByBleActivity.class));
     }
 }

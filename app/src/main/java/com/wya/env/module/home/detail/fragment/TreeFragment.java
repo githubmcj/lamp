@@ -29,11 +29,9 @@ public class TreeFragment extends BaseLazyFragment {
     protected void initView() {
         tree.setSize(model.getSize());
         tree.setColumn(model.getColumn());
-        tree.requestLayout();
         tree.setModelName(model.getName());
         tree.setMirror(model.getMirror());
         tree.setModel(model.getModeArr(), model.getLight(), false);
+        tree.requestLayout();
     }
-
-
 }

@@ -218,7 +218,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 EventBus.getDefault().post(new AddModel());
             } else {
                 startActivity(new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("type", 0)
                         .putExtra("position", position)
                         .putExtra("title", deviceName)
                         .putExtra("music", lampModels.get(position).isMusic()));

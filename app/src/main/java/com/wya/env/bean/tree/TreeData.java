@@ -11,9 +11,29 @@ public class TreeData {
 
     private int LampTotalNumber;
 
+    private int lampXnumber;
+
+    private int lampYnumber;
+
     private double AspectRatio;
 
     private List<Doodle> AddrTab;
+
+    public int getLampXnumber() {
+        return lampXnumber;
+    }
+
+    public void setLampXnumber(int lampXnumber) {
+        this.lampXnumber = lampXnumber;
+    }
+
+    public int getLampYnumber() {
+        return lampYnumber;
+    }
+
+    public void setLampYnumber(int lampYnumber) {
+        this.lampYnumber = lampYnumber;
+    }
 
     public String getDevname() {
         return Devname;
