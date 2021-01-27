@@ -5,7 +5,9 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -32,6 +34,7 @@ public class CircleColors extends View {
     private int mColor;
     private List<String> mColors;
     private Paint mPaint;
+    private Paint mFramePaint;
 
     public List<String> getmColors() {
         return mColors;
@@ -107,18 +110,86 @@ public class CircleColors extends View {
 
         mPaint.setStrokeWidth(1);
 
-        RectF ova = new RectF(2, 2, mWidth + 6, mWidth + 6);
-        if (circle_chose) {
-            mPaint.setColor(mContext.getResources().getColor(R.color.black));
-            canvas.drawArc(ova, -135, 360, false, mPaint);
+//        int add = 180 / mColors.size();
+//        RectF oval = new RectF(4, 4, mWidth + 4, mWidth + 4);
+
+//        mColors.clear();
+//        mColors.add("ff0000");
+//        mColors.add("00ff00");
+//        mColors.add("0000ff");
+
+        if (mColors.size() == 1) {
+            mPaint.setColor(ColorUtil.hex2Int(mColors.get(0)));
+            RectF r = new RectF();
+            r.left = 4;
+            r.right = 4 + mWidth;
+            r.top = 4;
+            r.bottom = 4 + mWidth;
+            canvas.drawRoundRect(r, 10, 10, mPaint);
+        } else {
+            for (int i = 0; i < mColors.size(); i++) {
+                mPaint.setColor(ColorUtil.hex2Int(mColors.get(i)));
+                RectF r = new RectF();
+                r.left = 4 + mWidth / mColors.size() * i;
+                r.right = 4 + mWidth / mColors.size() * (i + 1);
+                r.top = 4;
+                r.bottom = 4 + mWidth;
+                if (i == 0) {
+                    canvas.drawRoundRect(r, 0, 0, mPaint);
+                } else if (i == (mColors.size() - 1)) {
+                    canvas.drawRoundRect(r, 0, 0, mPaint);
+                } else {
+                    canvas.drawRoundRect(r, 0, 0, mPaint);
+                }
+            }
+
+            // 画边框
+            mFramePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+            // 消除锯齿
+            mFramePaint.setAntiAlias(true);
+            mFramePaint.setStrokeWidth(4);
+            mFramePaint.setStyle(Paint.Style.STROKE);        // 防抖动
+            mFramePaint.setDither(true);
+            RectF ova = new RectF(2, 2, mWidth + 6, mWidth + 6);
+            if (circle_chose) {
+                mFramePaint.setColor(mContext.getResources().getColor(R.color.black));
+            } else {
+                mFramePaint.setColor(mContext.getResources().getColor(R.color.white));
+            }
+            canvas.drawRoundRect(ova, 10, 10, mFramePaint);
+//            canvas.drawRoundRect(oval, -135 + add * i, 360 - add * i * 2, false, mPaint);
+        }
+    }
+
+    private Path getPath(RectF rectF, float radius, boolean topLeft, boolean topRight,
+                         boolean bottomRight, boolean bottomLeft) {
+
+        final Path path = new Path();
+        final float[] radii = new float[8];
+
+        if (topLeft) {
+            radii[0] = radius;
+            radii[1] = radius;
         }
 
-        int add = 180 / mColors.size();
-        RectF oval = new RectF(4, 4, mWidth + 4, mWidth + 4);
-        for (int i = 0; i < mColors.size(); i++) {
-            mPaint.setColor(ColorUtil.hex2Int(mColors.get(i)));
-            canvas.drawArc(oval, -135 + add * i, 360 - add * i * 2, false, mPaint);
+        if (topRight) {
+            radii[2] = radius;
+            radii[3] = radius;
         }
+
+        if (bottomRight) {
+            radii[4] = radius;
+            radii[5] = radius;
+        }
+
+        if (bottomLeft) {
+            radii[6] = radius;
+            radii[7] = radius;
+        }
+
+        path.addRoundRect(rectF, radii, Path.Direction.CW);
+
+        return path;
     }
 
 

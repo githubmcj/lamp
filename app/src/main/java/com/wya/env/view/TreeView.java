@@ -71,6 +71,8 @@ public class TreeView extends View {
     private boolean isStopSendUdpModeData;
     private boolean toClean;
 
+    private int speed;
+
 
     public TreeView(Context context) {
         super(context);
@@ -402,7 +404,7 @@ public class TreeView extends View {
         LogUtil.e("toShow=============" + toShow);
         this.size = modeArr.get(0).getSize();
         this.light = light;
-        mHeight = (size / column) * (lamp_size + 2 * lamp_margin);
+        mHeight = (int) ((size / column) * (lamp_size + 2 * lamp_margin) * 1.5);
         setMeasuredDimension(mWidth, mHeight);
         if (modeArr.size() == 1) {
             addMode = -1;
@@ -1210,7 +1212,17 @@ public class TreeView extends View {
 
     public void setConfigData(String config_str) {
         this.data_str = config_str;
-        init();
+        LogUtil.e(data_str);
+        try {
+            init();
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+        modelFrameTime = 200 * speed;
     }
 }
 

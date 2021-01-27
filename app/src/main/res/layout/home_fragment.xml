@@ -29,11 +29,11 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/dp_30"
             android:layout_marginBottom="@dimen/dp_30"
+            android:visibility="invisible"
             app:bg_color="@color/white"
             app:margin_left="@dimen/dp_30"
             app:margin_right="@dimen/dp_30"
-            app:size="300"
-            android:visibility="invisible">
+            app:size="300">
 
         </com.wya.env.view.LampView>
 
@@ -42,6 +42,80 @@
             android:layout_height="wrap_content"
             android:background="@drawable/paint_view_bg"
             android:orientation="vertical">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="@dimen/dp_12">
+
+
+                <TextView
+                    android:id="@+id/tv_local"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp_5"
+                    android:background="@drawable/btn_50r_shape"
+                    android:paddingLeft="@dimen/dp_13"
+                    android:paddingTop="@dimen/dp_3"
+                    android:paddingRight="@dimen/dp_13"
+                    android:paddingBottom="@dimen/dp_3"
+                    android:text="Local"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/sp_14">
+
+                </TextView>
+
+                <TextView
+                    android:id="@+id/tv_favorites"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp_5"
+                    android:background="@drawable/btn_50r_shape"
+                    android:paddingLeft="@dimen/dp_13"
+                    android:paddingTop="@dimen/dp_3"
+                    android:paddingRight="@dimen/dp_13"
+                    android:paddingBottom="@dimen/dp_3"
+                    android:text="Favorites"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/sp_14">
+
+                </TextView>
+
+                <TextView
+                    android:id="@+id/tv_cloud"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp_5"
+                    android:background="@drawable/btn_50r_shape"
+                    android:paddingLeft="@dimen/dp_13"
+                    android:paddingTop="@dimen/dp_3"
+                    android:paddingRight="@dimen/dp_13"
+                    android:paddingBottom="@dimen/dp_3"
+                    android:text="Cloud"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/sp_14">
+
+                </TextView>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                </TextView>
+
+                <ImageView
+                    android:id="@+id/img_upload"
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:background="@drawable/upload"
+                    android:layout_marginRight="@dimen/dp_22">
+
+                </ImageView>
+
+
+            </TableRow>
 
             <TableRow
                 android:layout_width="match_parent"
@@ -67,9 +141,22 @@
             </TableRow>
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerView"
+                android:id="@+id/recyclerView_l"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView_f"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView_c"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
 
         </LinearLayout>
 

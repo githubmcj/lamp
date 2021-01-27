@@ -112,6 +112,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     if (musicModel.isClick()) {
                         MusicSuccess musicSuccess = new MusicSuccess();
                         musicSuccess.setPosition(musicModel.getPosition());
+                        musicSuccess.setTypeLamp(musicModel.getTypeLamp());
                         EventBus.getDefault().post(musicSuccess);
                     } else {
                         LogUtil.e("声控开关和模型同步");
@@ -558,7 +559,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             toStartHeart();
             getLampOpenState();
             getLampTimerState();
-            getConfigFile(0);
+            frameNum = 0;
+            getConfigFile(frameNum);
 //            openFileRead();
             App.getInstance().setTcpConnected(true);
             eventtDeviceName = new EventtDeviceName();

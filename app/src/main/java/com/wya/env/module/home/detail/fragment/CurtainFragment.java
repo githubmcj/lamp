@@ -40,6 +40,7 @@ public class CurtainFragment extends BaseLazyFragment {
         curtain.requestLayout();
         curtain.setModelName(model.getName());
         curtain.setMirror(model.getMirror());
+        curtain.setSpeed(model.getSpeed());
         curtain.setModel(model.getModeArr(), model.getLight(), false);
     }
 
@@ -58,4 +59,7 @@ public class CurtainFragment extends BaseLazyFragment {
         curtain.stopSendUdpData();
     }
 
+    public void setSpeed(int speed) {
+        curtain.setSpeed(speed);
+    }
 }

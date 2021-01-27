@@ -4,6 +4,15 @@ public class MusicModel {
     private int position;
     private int music;
     private boolean isClick;
+    private int typeLamp;
+
+    public int getTypeLamp() {
+        return typeLamp;
+    }
+
+    public void setTypeLamp(int typeLamp) {
+        this.typeLamp = typeLamp;
+    }
 
     public boolean isClick() {
         return isClick;

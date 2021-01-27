@@ -53,5 +53,6 @@ public class LampColorAdapter extends BaseQuickAdapter<List<String>, BaseViewHol
 
     public void setChoseColors(int position) {
         chose_position = position;
+        this.notifyDataSetChanged();
     }
 }

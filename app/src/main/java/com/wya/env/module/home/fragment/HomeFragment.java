@@ -1,11 +1,19 @@
 package com.wya.env.module.home.fragment;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.Doodle;
@@ -13,6 +21,7 @@ import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.doodle.SaveModel;
+import com.wya.env.bean.event.EventFavarite;
 import com.wya.env.bean.event.EventtDeviceName;
 import com.wya.env.bean.home.AddModel;
 import com.wya.env.bean.home.MusicSuccess;
@@ -37,6 +46,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 
 import static java.lang.Math.tan;
 
@@ -49,20 +61,39 @@ import static java.lang.Math.tan;
 
 public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> implements HomeFragmentView {
 
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
+    @BindView(R.id.recyclerView_l)
+    RecyclerView recyclerViewL;
     @BindView(R.id.lamp_view)
     LampView lampView;
     @BindView(R.id.name)
     TextView name;
-    private LampModelAdapter adapter;
+    @BindView(R.id.tv_local)
+    TextView tvLocal;
+    @BindView(R.id.tv_favorites)
+    TextView tvFavorites;
+    @BindView(R.id.tv_cloud)
+    TextView tvCloud;
+    @BindView(R.id.img_upload)
+    ImageView imgUpload;
+    Unbinder unbinder;
+    @BindView(R.id.recyclerView_f)
+    RecyclerView recyclerViewF;
+    @BindView(R.id.recyclerView_c)
+    RecyclerView recyclerViewC;
+    private LampModelAdapter adapterL;
+    private LampModelAdapter adapterC;
+    private LampModelAdapter adapterF;
 
     private LoginInfo loginInfo;
     private List<DoodlePattern> doodlePatterns = new ArrayList<>();
 
-    private List<LampModel> netLampModels = new ArrayList<>();
+
     private List<DoodlePattern> choseModel;
     private String deviceName;
+    /**
+     * 0 local 1 favorite 2 cloud
+     */
+    private int typeLamp;
 
 
     private HomeFragmentPresenter homeFragmentPresenter = new HomeFragmentPresenter();
@@ -71,7 +102,10 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private String[] fifth_colors = {"#FA0000", "#FAA500", "#00FF00"};
 
     private Lamps lamps;
-    private List<LampModel> lampModels = new ArrayList<>();
+    private List<LampModel> lampModelsL = new ArrayList<>();
+    private List<LampModel> lampModelsF = new ArrayList<>();
+    private List<LampModel> lampModelsF_C = new ArrayList<>();
+    private List<LampModel> lampModelsC = new ArrayList<>();
 
     int column;
     int size;
@@ -108,11 +142,25 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MusicSuccess event) {
-        if (adapter != null) {
-            lampModels.get(event.getPosition()).setMusic(1 - lampModels.get(event.getPosition()).isMusic());
-            adapter.setNewData(lampModels);
-            loginInfo.setLampModels(lampModels);
-            SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+        switch (event.getTypeLamp()) {
+            case 0:
+                lampModelsL.get(event.getPosition()).setMusic(1 - lampModelsL.get(event.getPosition()).isMusic());
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+                    }
+                });
+                break;
+            case 1:
+                lampModelsF.get(event.getPosition()).setMusic(1 - lampModelsL.get(event.getPosition()).isMusic());
+                break;
+            case 2:
+                lampModelsC.get(event.getPosition()).setMusic(1 - lampModelsL.get(event.getPosition()).isMusic());
+                break;
+            default:
+                break;
+
         }
     }
 
@@ -130,17 +178,72 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     }
 
 
+    private boolean changeFavorite;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventFavarite eventFavarite) {
+        changeFavorite = true;
+        switch (eventFavarite.getTypeLamp()) {
+            case 0:
+                if (eventFavarite.isFavorite()) {
+                    lampModelsF.add(lampModelsL.get(eventFavarite.getPosition()));
+                } else {
+                    for (int i = 0; i < lampModelsF.size(); i++) {
+                        if (eventFavarite.getCreatTime().equals(lampModelsF.get(i).getCreatTime())) {
+                            lampModelsF.remove(i);
+                            break;
+                        }
+                    }
+                }
+                break;
+            case 1:
+                if (eventFavarite.isFavorite()) {
+                    lampModelsF.add(lampModelsL.get(eventFavarite.getPosition()));
+                } else {
+                    for (int i = 0; i < lampModelsF.size(); i++) {
+                        if (eventFavarite.getCreatTime().equals(lampModelsF.get(i).getCreatTime())) {
+                            lampModelsF.remove(i);
+                            break;
+                        }
+                    }
+                }
+                adapterF.setNewData(lampModelsF);
+                break;
+            case 2:
+                if (eventFavarite.isFavorite()) {
+                    lampModelsF.add(lampModelsC.get(eventFavarite.getPosition()));
+                } else {
+                    for (int i = 0; i < lampModelsF.size(); i++) {
+                        if (eventFavarite.getCreatTime().equals(lampModelsF.get(i).getCreatTime())) {
+                            lampModelsF.remove(i);
+                            break;
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SaveSharedPreferences.save(getActivity(), CommonValue.FAVORITE, new Gson().toJson(lampModelsF));
+            }
+        }).start();
+    }
+
+
     private void initData() {
+        initRecyclerView();
         getLocalData(false);
         getNetData();
-        initRecyclerView();
     }
 
     private void initSendData() {
-        for (int i = 0; i < lampModels.size(); i++) {
-            if (lampModels.get(i).isChose() == 1) {
-                lampView.setMirror(lampModels.get(i).getMirror());
-                lampView.setModel(lampModels.get(i).getModeArr(), lampModels.get(i).getLight(), true);
+        for (int i = 0; i < lampModelsL.size(); i++) {
+            if (lampModelsL.get(i).isChose() == 1) {
+                lampView.setMirror(lampModelsL.get(i).getMirror());
+                lampView.setModel(lampModelsL.get(i).getModeArr(), lampModelsL.get(i).getLight(), true);
             }
         }
     }
@@ -174,53 +277,40 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     }
 
     private void getLocalData(boolean refresh) {
-        loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
-        lampModels = loginInfo.getLampModels();
-        lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
-//        if (lamps != null) {
-//            column = lamps.getColumn();
-//            row = lamps.getRow();
-//            size = lamps.getSize();
-//        }
-        column = 15;
-        row = 15;
-        size = 225;
-        if (refresh) {
-            showLoading();
-            lampModels = getModels();
-            loginInfo.setLampModels(lampModels);
-            SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
-            hideLoading();
-        } else {
-            if (lampModels == null || lampModels.size() == 0) {
-                showLoading();
-                lampModels = getModels();
-                loginInfo.setLampModels(lampModels);
-                SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
-                hideLoading();
+        showLoading();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loginInfo = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LOGIN_INFO), LoginInfo.class);
+                lampModelsL = loginInfo.getLampModels();
+                lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
+                column = 20;
+                row = 15;
+                size = 300;
+                handler.sendEmptyMessage(refresh ? 1 : 2);
             }
-        }
-        if (lampModels.get(lampModels.size() - 1).getName() != null) {
-            lampModels.add(new LampModel());
-        }
+        }).start();
     }
 
 
     private void initRecyclerView() {
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        adapter = new LampModelAdapter(getActivity(), R.layout.lamp_pattern_item, lampModels);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setNestedScrollingEnabled(false);
-        recyclerView.setAdapter(adapter);
+        recyclerViewL.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        adapterL = new LampModelAdapter(getActivity(), R.layout.lamp_pattern_item, lampModelsL);
+        recyclerViewL.setHasFixedSize(true);
+        recyclerViewL.setNestedScrollingEnabled(false);
+        recyclerViewL.setAdapter(adapterL);
         // RecyclerView条目点击事件
-        adapter.setOnItemClickListener((adapter, view, position) -> {
-            if (position == lampModels.size() - 1) {
+        adapterL.setOnItemClickListener((adapter, view, position) -> {
+            if (position == lampModelsL.size() - 1) {
                 EventBus.getDefault().post(new AddModel());
             } else {
                 startActivity(new Intent(getActivity(), DetailActivity.class)
                         .putExtra("position", position)
                         .putExtra("title", deviceName)
-                        .putExtra("music", lampModels.get(position).isMusic()));
+                        .putExtra("id", lampModelsL.get(position).getId())
+                        .putExtra("typeLamp", typeLamp)
+                        .putExtra("createTime", lampModelsL.get(position).getCreatTime())
+                        .putExtra("music", lampModelsL.get(position).isMusic()));
 
 //                if (lampModels.get(position).isChose() != 1) {
 //                    choseModel = lampModels.get(position).getModeArr();
@@ -239,37 +329,45 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             }
 //            setTcpData(lampModels.get(position).getModeArr());
         });
-    }
 
-//    private void setTcpData(List<DoodlePattern> modeArr) {
-//        TaskCenter.sharedCenter().setDisconnectedCallback(new TaskCenter.OnServerDisconnectedCallbackBlock() {
-//            @Override
-//            public void callback(IOException e) {
-//                showShort("连接失败：" + e.getMessage());
-//            }
-//        });
-//        TaskCenter.sharedCenter().setConnectedCallback(new TaskCenter.OnServerConnectedCallbackBlock() {
-//            @Override
-//            public void callback() {
-//                LogUtil.e("连接成功， 打开文件");
-//                TaskCenter.sharedCenter().send(getOpenFileData());
-////                LogUtil.e("连接成功");
-//
-//            }
-//        });
-//        TaskCenter.sharedCenter().setReceivedCallback(new TaskCenter.OnReceiveCallbackBlock() {
-//            @Override
-//            public void callback(byte[] receiceData) {
-//                showShort("返回数据：" + ByteUtil.byte2hex(receiceData));
-//            }
-//        });
-//        //连接
-//        TaskCenter.sharedCenter().connect("192.168.4.1", 6600);
-////        //发送
-////
-////        // 断开连接
-////        TaskCenter.sharedCenter().disconnect();
-//    }
+        lampModelsF = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.FAVORITE), new TypeToken<List<LampModel>>() {
+        }.getType());
+        if (lampModelsF == null) {
+            lampModelsF = new ArrayList<>();
+        }
+        recyclerViewF.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        adapterF = new LampModelAdapter(getActivity(), R.layout.lamp_pattern_item, lampModelsF);
+        recyclerViewF.setHasFixedSize(true);
+        recyclerViewF.setNestedScrollingEnabled(false);
+        recyclerViewF.setAdapter(adapterF);
+        // RecyclerView条目点击事件
+        adapterF.setOnItemClickListener((adapter, view, position) -> {
+            startActivity(new Intent(getActivity(), DetailActivity.class)
+                    .putExtra("position", position)
+                    .putExtra("id", lampModelsF.get(position).getId())
+                    .putExtra("title", deviceName)
+                    .putExtra("typeLamp", typeLamp)
+                    .putExtra("createTime", lampModelsF.get(position).getCreatTime())
+                    .putExtra("music", lampModelsF.get(position).isMusic()));
+        });
+
+        recyclerViewC.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        adapterC = new LampModelAdapter(getActivity(), R.layout.lamp_pattern_item, lampModelsC);
+        recyclerViewC.setHasFixedSize(true);
+        recyclerViewC.setNestedScrollingEnabled(false);
+        recyclerViewC.setAdapter(adapterC);
+
+        adapterC.setOnItemClickListener((adapter, view, position) -> {
+            startActivity(new Intent(getActivity(), DetailActivity.class)
+                    .putExtra("position", position)
+                    .putExtra("id", lampModelsC.get(position).getId())
+                    .putExtra("title", deviceName)
+                    .putExtra("typeLamp", typeLamp)
+                    .putExtra("createTime", lampModelsC.get(position).getCreatTime())
+                    .putExtra("music", lampModelsC.get(position).isMusic()));
+        });
+
+    }
 
     @Override
     protected int getLayoutResource() {
@@ -281,6 +379,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         homeFragmentPresenter.mView = this;
         lampView.setFocusable(false);
         EventBus.getDefault().register(this);
+        typeLamp = 0;
+        setButton(typeLamp);
         initData();//初始化数据
     }
 
@@ -305,7 +405,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     @Override
     public void onModelsResult(List<SaveModel> data) {
-        netLampModels.clear();
+        lampModelsC.clear();
         for (int i = 0; i < data.size(); i++) {
             LampModel lampModel = new Gson().fromJson(data.get(i).getContent(), LampModel.class);
             for (int j = 0; j < lampModel.getModeArr().size(); j++) {
@@ -319,17 +419,19 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                     }
                 }
             }
-            netLampModels.add(lampModel);
+            lampModelsC.add(lampModel);
         }
-        if (lampModels.get(lampModels.size() - 1).getName() == null) {
-            lampModels.remove(lampModels.size() - 1);
+        adapterC.setNewData(lampModelsC);
+
+        if (lampModelsL.get(lampModelsL.size() - 1).getName() == null) {
+            lampModelsL.remove(lampModelsL.size() - 1);
         }
-        lampModels.addAll(netLampModels);
-        if (lampModels.get(lampModels.size() - 1).getName() != null) {
-            lampModels.add(new LampModel());
+        lampModelsL.addAll(lampModelsC);
+        if (lampModelsL.get(lampModelsL.size() - 1).getName() != null) {
+            lampModelsL.add(new LampModel());
         }
-        if (adapter != null) {
-            adapter.setNewData(lampModels);
+        if (adapterL != null) {
+            adapterL.setNewData(lampModelsL);
         }
     }
 
@@ -584,9 +686,9 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel10() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Bright Delightlux");
+        lampModel.setId(9);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0009");
         List<DoodlePattern> modeArr = new ArrayList<>();
-
-
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
             HashMap<String, Doodle> light_status = new HashMap<>();
@@ -620,6 +722,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel9() {
         String[] colorHexArr = {"#FF0000", "#00FF00", "#FFFFFF", "#000000", "#007FFF", "#0000FF", "#8B00FF"};
         LampModel lampModel = new LampModel();
+        lampModel.setId(8);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0008");
         lampModel.setName("Glow");
         List<DoodlePattern> modeArr = new ArrayList<>();
 
@@ -653,6 +757,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
         String[] colorHexArr = {"#FA0000", "#FAA500", "#FAFF00", "#00FF00", "#007FFF", "#0000FF", "#8B00FF"};
         LampModel lampModel = new LampModel();
+        lampModel.setId(7);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0007");
         lampModel.setName("Vertical");
         List<DoodlePattern> modeArr = new ArrayList<>();
 
@@ -683,6 +789,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel7() {
         String[] colors = {"#FA0000", "#FAA500", "#00FF00"};
         LampModel lampModel = new LampModel();
+        lampModel.setId(6);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0006");
         lampModel.setName("Sunset");
         List<DoodlePattern> modeArr = new ArrayList<>();
 
@@ -806,6 +914,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         String[] colorHexArr = {"#FA0000", "#FAA500", "#000000", "#00FF00", "#007FFF", "#000000", "#8B00FF"};
         LampModel lampModel = new LampModel();
         lampModel.setName("Updown");
+        lampModel.setId(5);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0005");
         List<DoodlePattern> modeArr = new ArrayList<>();
 
         for (int k = 0; k < row; k++) {
@@ -835,6 +945,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         String[] colorHexArr = {"#FA0000", "#FAA500", "#FAFF00", "#00FF00", "#007FFF", "#0000FF", "#8B00FF"};
         LampModel lampModel = new LampModel();
         lampModel.setName("Horizontal Flag");
+        lampModel.setId(4);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0004");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -862,6 +974,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel4() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Sparkles");
+        lampModel.setId(3);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0003");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -897,7 +1011,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                             doodle.setColor("#000000");
                         }
                     }
-
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
@@ -918,6 +1031,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel1() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Diagonal");
+        lampModel.setId(0);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0000");
         lampModel.setCopyModeColor("#ff0000,#ffffff,#F2E93F");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < size / column; k++) {
@@ -952,6 +1067,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel2() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Fireworks");
+        lampModel.setId(1);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0001");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -1059,6 +1176,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel3() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Waves");
+        lampModel.setId(2);
+        lampModel.setCreatTime(System.currentTimeMillis() + "0002");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -1224,4 +1343,144 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         return lampModel;
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // TODO: inflate a fragment view
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        unbinder = ButterKnife.bind(this, rootView);
+        return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+        loginInfo.setLampModels(lampModelsL);
+        SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+    }
+
+    @OnClick({R.id.tv_local, R.id.tv_favorites, R.id.tv_cloud, R.id.img_upload})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_local:
+                typeLamp = 0;
+                setButton(typeLamp);
+                break;
+            case R.id.tv_favorites:
+                typeLamp = 1;
+                setButton(typeLamp);
+                break;
+            case R.id.tv_cloud:
+                typeLamp = 2;
+                setButton(typeLamp);
+                break;
+            case R.id.img_upload:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:
+                    adapterF.setNewData(lampModelsF);
+                    hideLoading();
+                    break;
+                case 1: // refresh == true
+                    hideLoading();
+                    lampModelsL = getModels();
+                    loginInfo.setLampModels(lampModelsL);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showLoading();
+                            SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+                            handler.sendEmptyMessage(3);
+                        }
+                    }).start();
+                    if (lampModelsL.get(lampModelsL.size() - 1).getName() != null) {
+                        lampModelsL.add(new LampModel());
+                    }
+                    adapterL.setNewData(lampModelsL);
+                    break;
+                case 2: // refresh == false
+                    hideLoading();
+                    if (lampModelsL == null || lampModelsL.size() == 0) {
+                        showLoading();
+                        lampModelsL = getModels();
+                        loginInfo.setLampModels(lampModelsL);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+                                handler.sendEmptyMessage(4);
+                            }
+                        }).start();
+                    }
+                    if (lampModelsL.get(lampModelsL.size() - 1).getName() != null) {
+                        lampModelsL.add(new LampModel());
+                    }
+                    adapterL.setNewData(lampModelsL);
+                    break;
+                case 3:
+                    hideLoading();
+                    break;
+                case 4:
+                    hideLoading();
+                    break;
+            }
+        }
+    };
+
+    private void setButton(int i) {
+        recyclerViewL.setVisibility(View.GONE);
+        recyclerViewF.setVisibility(View.GONE);
+        recyclerViewC.setVisibility(View.GONE);
+        tvLocal.setBackground(getResources().getDrawable(R.drawable.btn_50r_white_shape));
+        tvFavorites.setBackground(getResources().getDrawable(R.drawable.btn_50r_white_shape));
+        tvCloud.setBackground(getResources().getDrawable(R.drawable.btn_50r_white_shape));
+        tvLocal.setTextColor(getResources().getColor(R.color.color_33));
+        tvFavorites.setTextColor(getResources().getColor(R.color.color_33));
+        tvCloud.setTextColor(getResources().getColor(R.color.color_33));
+        switch (i) {
+            case 0:
+                recyclerViewL.setVisibility(View.VISIBLE);
+                tvLocal.setBackground(getResources().getDrawable(R.drawable.btn_50r_shape));
+                tvLocal.setTextColor(getResources().getColor(R.color.white));
+                break;
+            case 1:
+                if (changeFavorite) {
+                    showLoading();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            lampModelsF = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.FAVORITE), new TypeToken<List<LampModel>>() {
+                            }.getType());
+                            if (lampModelsF == null) {
+                                lampModelsF = new ArrayList<>();
+                            }
+                            changeFavorite = false;
+                            handler.sendEmptyMessage(0);
+                        }
+                    }).start();
+                }
+                recyclerViewF.setVisibility(View.VISIBLE);
+                tvFavorites.setBackground(getResources().getDrawable(R.drawable.btn_50r_shape));
+                tvFavorites.setTextColor(getResources().getColor(R.color.white));
+                break;
+            case 2:
+                recyclerViewC.setVisibility(View.VISIBLE);
+                tvCloud.setBackground(getResources().getDrawable(R.drawable.btn_50r_shape));
+                tvCloud.setTextColor(getResources().getColor(R.color.white));
+                break;
+            default:
+                break;
+
+        }
+
+    }
 }

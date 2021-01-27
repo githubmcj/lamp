@@ -239,6 +239,11 @@ public class LampView extends View {
     private int frameTime;
 
     /**
+     * 速度
+     */
+    private int speed;
+
+    /**
      * 模板每一帧时间
      */
     private int modelFrameTime;
@@ -1173,6 +1178,11 @@ public class LampView extends View {
 
     public void setShape(int shape) {
         this.shape = shape;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+        modelFrameTime = 200 * speed;
     }
 }
 

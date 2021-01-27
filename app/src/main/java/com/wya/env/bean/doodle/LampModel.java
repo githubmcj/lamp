@@ -1,6 +1,5 @@
 package com.wya.env.bean.doodle;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import java.util.List;
 public class LampModel {
     private List<DoodlePattern> modeArr;
     String name;
+    int id;
     int music;
     int isChose;
     int mirror;
@@ -31,7 +31,7 @@ public class LampModel {
     int copyModeIndex;
 
     /**
-     *  如果是拷贝，存储的颜色 以,隔开  例#333333,#666666,#999999
+     * 如果是拷贝，存储的颜色 以,隔开  例#333333,#666666,#999999
      */
     String copyModeColor;
 
@@ -43,7 +43,25 @@ public class LampModel {
     /**
      * 速度
      */
-    int speed;
+    int speed = 1;
+
+    String creatTime;
+
+    public String getCreatTime() {
+        return creatTime;
+    }
+
+    public void setCreatTime(String creatTime) {
+        this.creatTime = creatTime;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public int getSpeed() {
         return speed;

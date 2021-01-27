@@ -38,6 +38,8 @@ public interface CommonValue {
     int UDP_PORT = 6000;
     int TCP_PORT = 6600;
 
+    String FAVORITE = "favorite";
+
 
     String COLUMN = "column";
     String SIZE = "size";
