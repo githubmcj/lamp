@@ -22,6 +22,7 @@ import com.wya.env.base.BaseMvpActivity;
 import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.event.EventApply;
 import com.wya.env.bean.event.EventFavarite;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.home.MusicSuccess;
@@ -97,6 +98,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private List<LampModel> lampModelsF;
     private boolean f_ok;
     private boolean v_ok;
+    private LampModel mLampModel;
 
     @Override
     protected void initView() {
@@ -154,11 +156,13 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     fragmentManager = getSupportFragmentManager();
                     fragmentTransaction = fragmentManager.beginTransaction();
                     if (lightType == 0) {
-                        curtainFragment = new CurtainFragment(getModels(id, lightType));
+                        mLampModel = getModels(id, lightType);
+                        curtainFragment = new CurtainFragment(mLampModel);
                         fragmentTransaction.add(R.id.view, curtainFragment);
                         fragmentTransaction.show(curtainFragment).commit();
                     } else {
-                        treeFragment = new TreeFragment(getModels(id, lightType));
+                        mLampModel = getModels(id, lightType);
+                        treeFragment = new TreeFragment(mLampModel);
                         fragmentTransaction.add(R.id.view, treeFragment);
                         fragmentTransaction.show(treeFragment).commit();
                     }
@@ -242,6 +246,22 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         setMusic();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventApply event) {
+        switch (event.getStatus()) {
+            case 0:
+                showLoading();
+                break;
+            case 1:
+                break;
+            case 2:
+                hideLoading();
+                break;
+            default:
+                break;
+        }
+    }
+
     @OnClick({R.id.ll_music, R.id.ll_like, R.id.ll_edit, R.id.ll_save})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -270,6 +290,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 showEditDialog();
                 break;
             case R.id.ll_save:
+                EventBus.getDefault().post(mLampModel);
                 break;
         }
     }

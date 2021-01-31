@@ -24,7 +24,11 @@ import com.google.gson.Gson;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.wya.env.App;
 import com.wya.env.R;
+import com.wya.env.bean.doodle.Doodle;
+import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.event.EventApply;
 import com.wya.env.bean.event.EventtDeviceName;
 import com.wya.env.bean.event.Hide;
 import com.wya.env.bean.event.TcpFail;
@@ -54,6 +58,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -84,6 +90,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     private EventtDeviceName eventtDeviceName;
 
     private Hide hide;
+    private EventApply eventApply;
     private boolean isClick = false;
 
     private TreeData treeData;
@@ -172,6 +179,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     }
 
 
+    private boolean off;
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void convert(BaseViewHolder helper, LampSetting item) {
@@ -200,8 +209,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 helper.getView(R.id.img_time_open).setEnabled(false);
             }
             if (item.isOpen()) {
+                off = false;
                 helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.dengguang));
             } else {
+                off = true;
                 helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.morenshebei));
             }
 
@@ -477,6 +488,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
             options.setMessageProtocol(new DefaultMessageProtocol());
             options.setMaxResponseDataMb(1000000);
+            options.setMaxWriteBytes(1472);
             options.setHeartbeatFreq(4000);
 
             // 初始化EasySocket
@@ -798,9 +810,55 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             case (byte) 0x8c:
                 if (originReadData.getBodyData()[1] == 0) {
                     LogUtil.e("成功");
+                } else if (originReadData.getBodyData()[1] == 1) {
+                    LogUtil.e("失败");
+                } else if (originReadData.getBodyData()[1] == 2) {
+                    LogUtil.e("已被其他用户打开");
                 } else if (originReadData.getBodyData()[1] == 3) {
-                    LogUtil.e("以公网时间为准");
+                    LogUtil.e("APP已经打开了一个文件");
                 } else {
+                    LogUtil.e("失败");
+                }
+                break;
+            case (byte) 0x8b:
+                if (originReadData.getBodyData()[1] == 0) {
+                    LogUtil.e("成功");
+                    if (!frameDataFinish && !modeDataFinish) {
+                        LogUtil.e("当前帧和模板数还没传完");
+                        LogUtil.e(lampIndex + "----" + index);
+                        lampIndex++;
+                        eventApply = new EventApply();
+                        eventApply.setStatus(1);
+                        EventBus.getDefault().post(eventApply);
+                        sendFrameApplyData(lampModel, index, lampIndex);
+                    } else if (frameDataFinish && !modeDataFinish) {
+                        LogUtil.e("当前帧传完，模板数还没传完");
+                        LogUtil.e(lampIndex + "----" + index);
+                        lampIndex = 0;
+                        index++;
+                        eventApply = new EventApply();
+                        eventApply.setStatus(1);
+                        EventBus.getDefault().post(eventApply);
+                        sendApplyData(lampModel, index);
+                    } else if (frameDataFinish && modeDataFinish) {
+                        LogUtil.e("全部传完");
+                        LogUtil.e(lampIndex + "----" + index);
+                        eventApply = new EventApply();
+                        eventApply.setStatus(2);
+                        EventBus.getDefault().post(eventApply);
+                    } else if (!frameDataFinish && modeDataFinish) {
+                        LogUtil.e("最后一个模板的帧");
+                        LogUtil.e(lampIndex + "----" + index);
+                        lampIndex++;
+                        eventApply = new EventApply();
+                        eventApply.setStatus(1);
+                        EventBus.getDefault().post(eventApply);
+                        sendFrameApplyData(lampModel, index, lampIndex);
+                    }
+                } else {
+                    hide = new Hide();
+                    hide.setHide(true);
+                    EventBus.getDefault().post(hide);
                     LogUtil.e("失败");
                 }
                 break;
@@ -949,6 +1007,263 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     private void getLampMusicState() {
         bodyData = getLampState((byte) 0x00);
         EasySocket.getInstance().upBytes(bodyData);
+    }
+
+    private int index;
+    private int lampIndex;
+    /**
+     * 一帧是否传完
+     */
+    boolean frameDataFinish = false;
+    /**
+     * 一个模板是否传完
+     */
+    boolean modeDataFinish = false;
+    private LampModel lampModel;
+
+    public void apply(LampModel lampModel) {
+        eventApply = new EventApply();
+        eventApply.setStatus(0);
+        EventBus.getDefault().post(eventApply);
+        this.lampModel = lampModel;
+        index = 0;
+        modeDataFinish = false;
+        sendApplyData(lampModel, index);
+    }
+
+
+    private void sendApplyData(LampModel lampModel, int index) {
+        if (index == lampModel.getModeArr().size() - 1) {
+            modeDataFinish = true;
+            lampIndex = 0;
+            frameDataFinish = false;
+            sendFrameApplyData(lampModel, index, lampIndex);
+        } else {
+            lampIndex = 0;
+            frameDataFinish = false;
+            sendFrameApplyData(lampModel, index, lampIndex);
+//            bodyData = applyMode(lampModel.getModeArr().get(index), lampModel.getMirror(), lampModel.getColumn(), lampModel.getSize(), -1, lampModel.getSpeed());
+        }
+        LogUtil.e(frameDataFinish + "-----" + modeDataFinish + "-----" + index + "-----" + lampIndex + "-----");
+    }
+
+    private void sendFrameApplyData(LampModel lampModel, int index, int lampIndex) {
+        bodyData = applyMode(lampModel.getModeArr().get(index), lampModel.getMirror(), lampModel.getColumn(), lampModel.getSize(), index, lampModel.getSpeed(), lampIndex);
+        EasySocket.getInstance().upBytes(bodyData);
+    }
+
+    private byte[] applyMode(DoodlePattern doodlePattern, int isMirror, int column, int size, int index, int speed, int lampIndex) {
+        byte[] headData = new byte[10];
+        headData[0] = 0x0b;
+        headData[1] = (byte) 0xff;
+        if (off) {
+            modeDataFinish = true;
+            frameDataFinish = true;
+        }
+        byte[] lampData;
+        if (size % 300 == 0) {
+            if (lampIndex < size / 300 - 1) {// 当前帧的前面组灯 300 * N
+                lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, 300);
+                byte[] start = ByteUtil.intToByteArray(lampIndex * 300);
+                if (start.length == 1) {
+                    headData[4] = start[0];
+                    headData[5] = 0x00;
+                } else if (start.length == 2) {
+                    headData[4] = start[0];
+                    headData[5] = start[1];
+                }
+                byte[] siz = ByteUtil.intToByteArray(300);
+                if (siz.length == 1) {
+                    headData[6] = siz[0];
+                    headData[7] = 0x00;
+                } else if (siz.length == 2) {
+                    headData[6] = siz[0];
+                    headData[7] = siz[1];
+                }
+            } else { // 当前帧的最后几个灯
+                frameDataFinish = true;
+                lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, size - lampIndex * 300);
+                byte[] start = ByteUtil.intToByteArray(lampIndex * 300);
+                if (start.length == 1) {
+                    headData[4] = start[0];
+                    headData[5] = 0x00;
+                } else if (start.length == 2) {
+                    headData[4] = start[0];
+                    headData[5] = start[1];
+                }
+                byte[] siz = ByteUtil.intToByteArray(size - lampIndex * 300);
+                if (siz.length == 1) {
+                    headData[6] = siz[0];
+                    headData[7] = 0x00;
+                } else if (siz.length == 2) {
+                    headData[6] = siz[0];
+                    headData[7] = siz[1];
+                }
+            }
+        } else {
+            if (lampIndex < size / 300) {// 当前帧的前面组灯 300 * N
+                lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, 300);
+                byte[] start = ByteUtil.intToByteArray(lampIndex * 300);
+                if (start.length == 1) {
+                    headData[4] = start[0];
+                    headData[5] = 0x00;
+                } else if (start.length == 2) {
+                    headData[4] = start[0];
+                    headData[5] = start[1];
+                }
+                byte[] siz = ByteUtil.intToByteArray(300);
+                if (siz.length == 1) {
+                    headData[6] = siz[0];
+                    headData[7] = 0x00;
+                } else if (siz.length == 2) {
+                    headData[6] = siz[0];
+                    headData[7] = siz[1];
+                }
+            } else { // 当前帧的最后几个灯
+                frameDataFinish = true;
+                lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, size - lampIndex * 300);
+                byte[] start = ByteUtil.intToByteArray(lampIndex * 300);
+                if (start.length == 1) {
+                    headData[4] = start[0];
+                    headData[5] = 0x00;
+                } else if (start.length == 2) {
+                    headData[4] = start[0];
+                    headData[5] = start[1];
+                }
+                byte[] siz = ByteUtil.intToByteArray(size - lampIndex * 300);
+                if (siz.length == 1) {
+                    headData[6] = siz[0];
+                    headData[7] = 0x00;
+                } else if (siz.length == 2) {
+                    headData[6] = siz[0];
+                    headData[7] = siz[1];
+                }
+            }
+        }
+
+        if (modeDataFinish && frameDataFinish) {
+            headData[2] = (byte) 0xff;
+            headData[3] = (byte) 0xff;
+        } else {
+            byte[] len = ByteUtil.intToByteArray(index);
+            if (len.length == 1) {
+                headData[2] = len[0];
+                headData[3] = 0x00;
+            } else if (len.length == 2) {
+                headData[2] = len[0];
+                headData[3] = len[1];
+            }
+        }
+        byte[] time = ByteUtil.intToByteArray(speed);
+        if (time.length == 1) {
+            headData[8] = time[0];
+            headData[9] = 0x00;
+        } else if (time.length == 2) {
+            headData[8] = time[0];
+            headData[9] = time[1];
+        }
+        byte[] bodyData = ByteUtil.byteMerger(headData, lampData);
+        byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+        byte[] applyData = ByteUtil.byteMerger(send_head_data, bodyData);
+        LogUtil.e(applyData.length + "---");
+        String s = ByteUtil.bytesToHex(applyData);
+        LogUtil.e(s.length() + "---");
+        LogUtil.e(s);
+        return applyData;
+    }
+
+    /**
+     * 获取Udp实时数据
+     *
+     * @return
+     */
+    public byte[] getUdpByteData(HashMap<String, Doodle> data, int start, int size) {
+        boolean w = true;
+        byte[] upd_data;
+        if (w) {
+            upd_data = new byte[4 * size];
+            for (int i = start; i < size + start; i++) {
+                String color = data.get(String.valueOf(i)).getColor();
+                boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                if (isTwinkle) {
+                    if (Math.random() * 10 < 4) {
+                        upd_data[i * 4 + 0] = 0x00;
+                        upd_data[i * 4 + 1] = 0x00;
+                        upd_data[i * 4 + 2] = 0x00;
+                        upd_data[i * 4 + 3] = 0x00;
+                    } else {
+                        upd_data[i * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                        upd_data[i * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                        upd_data[i * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                        upd_data[i * 4 + 3] = (byte) (0x00);
+                    }
+                } else {
+                    upd_data[i * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                    upd_data[i * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                    upd_data[i * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                    upd_data[i * 4 + 3] = (byte) (0x00);
+                }
+            }
+        } else {
+            upd_data = new byte[3 * size];
+            for (int i = start; i < size + start; i++) {
+                String color = data.get(String.valueOf(i)).getColor();
+                boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                if (isTwinkle) {
+                    if (Math.random() * 10 < 4) {
+                        upd_data[i * 3 + 0] = 0x00;
+                        upd_data[i * 3 + 1] = 0x00;
+                        upd_data[i * 3 + 2] = 0x00;
+                    } else {
+                        upd_data[i * 3 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                        upd_data[i * 3 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                        upd_data[i * 3 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                    }
+                } else {
+                    upd_data[i * 3 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                    upd_data[i * 3 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                    upd_data[i * 3 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                }
+            }
+        }
+
+        return upd_data;
+    }
+
+    HashMap<String, Doodle> mirror_doodles;
+
+    private HashMap<String, Doodle> toMirror(HashMap<String, Doodle> doodles, int column) {
+        mirror_doodles = depCopy(doodles);
+        for (int i = 0; i < mirror_doodles.size() / 2; i++) {
+            for (int j = 0; j < column / 2; j++) {
+                if (i >= mirror_doodles.size() / column * j && i < mirror_doodles.size() / column + mirror_doodles.size() / column * j) {
+                    toChangeValue(mirror_doodles, i, (mirror_doodles.size() - (mirror_doodles.size() / column)) - j * 2 * (mirror_doodles.size() / column) + i);
+                }
+            }
+        }
+        return mirror_doodles;
+    }
+
+
+    private void toChangeValue(HashMap<String, Doodle> mirror_doodles, int i, int i1) {
+        Doodle emp = mirror_doodles.get(String.valueOf(i));
+        mirror_doodles.put(String.valueOf(i), mirror_doodles.get(String.valueOf(i1)));
+        mirror_doodles.put(String.valueOf(i1), emp);
+    }
+
+    /**
+     * 深拷贝
+     *
+     * @param doodles
+     * @return
+     */
+    public HashMap<String, Doodle> depCopy(HashMap<String, Doodle> doodles) {
+        HashMap<String, Doodle> destList = new HashMap<String, Doodle>();
+        for (Iterator keyIt = doodles.keySet().iterator(); keyIt.hasNext(); ) {
+            String key = (String) keyIt.next();
+            destList.put(key, doodles.get(key));
+        }
+        return destList;
     }
 
 

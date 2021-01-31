@@ -15,6 +15,15 @@ public class LampSetting {
     private int column;
     private int row;
     private String address;
+    private String colorType;
+
+    public String getColorType() {
+        return colorType;
+    }
+
+    public void setColorType(String colorType) {
+        this.colorType = colorType;
+    }
 
     public String getAddress() {
         return address;

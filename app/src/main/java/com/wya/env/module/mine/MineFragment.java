@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
+import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.event.Hide;
 import com.wya.env.bean.event.TcpFail;
@@ -240,6 +241,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
                             bundle.putString("name", new String(getNameData(data)));
                             bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
+                            bundle.putString("colorType", bytesToHex(data).substring(18, 20));
                             msg.setData(bundle);
                             handler.sendMessage(msg);
                             break;
@@ -326,6 +328,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
+                            String colorType = msg.getData().getString("colorType");
                             LogUtil.e(lampSettings.size() + "---------size-----");
                             if (lampSettings.get(i).getName() != null && lampSettings.get(i).getName().equals(name) && !TextUtils.isEmpty(deviceName) && size > 0) {
                                 has = true;
@@ -333,6 +336,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                                 lampSettings.get(i).setIp(ip);
                                 lampSettings.get(i).setSize(size);
                                 lampSettings.get(i).setDeviceName(deviceName);
+                                lampSettings.get(i).setColorType(colorType);
                                 if (i == (lampSettings.size() - 1) && lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                     lampSettings.add(new LampSetting());
                                 }
@@ -349,12 +353,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
+                            String colorType = msg.getData().getString("colorType");
                             if (!TextUtils.isEmpty(deviceName) && size > 0) {
                                 LampSetting lampSetting = new LampSetting();
                                 lampSetting.setName(name);
                                 lampSetting.setIp(ip);
                                 lampSetting.setSize(size);
                                 lampSetting.setDeviceName(deviceName);
+                                lampSetting.setColorType(colorType);
                                 lampSettings.add(lampSetting);
                                 if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                     lampSettings.add(new LampSetting());
@@ -372,12 +378,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         String name = msg.getData().getString("name");
                         int size = msg.getData().getInt("size");
                         String deviceName = msg.getData().getString("deviceName");
+                        String colorType = msg.getData().getString("colorType");
                         if (!TextUtils.isEmpty(deviceName) && size > 0) {
                             LampSetting lampSetting = new LampSetting();
                             lampSetting.setName(name);
                             lampSetting.setIp(ip);
                             lampSetting.setSize(size);
                             lampSetting.setDeviceName(deviceName);
+                            lampSetting.setColorType(colorType);
                             lampSettings.add(lampSetting);
                             if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                 lampSettings.add(new LampSetting());
@@ -497,6 +505,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     public void onMessageEvent(MusicModel event) {
         if (myLampAdapter != null) {
             myLampAdapter.setMusicModel(event);
+        }
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(LampModel lampModel) {
+        if (myLampAdapter != null) {
+            myLampAdapter.apply(lampModel);
         }
     }
 

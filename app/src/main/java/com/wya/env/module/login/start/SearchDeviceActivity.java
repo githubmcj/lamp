@@ -217,6 +217,7 @@ public class SearchDeviceActivity extends BaseActivity {
                         bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
                         bundle.putString("name", new String(getNameData(data)));
                         bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
+                        bundle.putString("colorType", bytesToHex(data).substring(18, 20));
                         msg.setData(bundle);
                         handler.sendMessage(msg);
                         break;
@@ -279,6 +280,7 @@ public class SearchDeviceActivity extends BaseActivity {
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
+                            String colorType = msg.getData().getString("colorType");
                             if (lampSettings.get(i).getName().equals(name) && !TextUtils.isEmpty(deviceName) && size > 0) {
                                 tvSearching.setVisibility(View.GONE);
                                 has = true;
@@ -286,6 +288,7 @@ public class SearchDeviceActivity extends BaseActivity {
                                 lampSettings.get(i).setIp(ip);
                                 lampSettings.get(i).setSize(size);
                                 lampSettings.get(i).setDeviceName(deviceName);
+                                lampSettings.get(i).setColorType(colorType);
                                 deviceAdapter.setNewData(lampSettings);
                                 break;
                             }
@@ -295,6 +298,7 @@ public class SearchDeviceActivity extends BaseActivity {
                             String name = msg.getData().getString("name");
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
+                            String colorType = msg.getData().getString("colorType");
                             if (!TextUtils.isEmpty(deviceName) && size > 0) {
                                 tvSearching.setVisibility(View.GONE);
                                 LampSetting lampSetting = new LampSetting();
@@ -302,6 +306,7 @@ public class SearchDeviceActivity extends BaseActivity {
                                 lampSetting.setIp(ip);
                                 lampSetting.setSize(size);
                                 lampSetting.setDeviceName(deviceName);
+                                lampSetting.setColorType(colorType);
                                 lampSettings.add(lampSetting);
                                 deviceAdapter.setNewData(lampSettings);
                             }
@@ -311,6 +316,7 @@ public class SearchDeviceActivity extends BaseActivity {
                         String name = msg.getData().getString("name");
                         int size = msg.getData().getInt("size");
                         String deviceName = msg.getData().getString("deviceName");
+                        String colorType = msg.getData().getString("colorType");
                         if (!TextUtils.isEmpty(deviceName) && size > 0) {
                             tvSearching.setVisibility(View.GONE);
                             LampSetting lampSetting = new LampSetting();
@@ -318,6 +324,7 @@ public class SearchDeviceActivity extends BaseActivity {
                             lampSetting.setIp(ip);
                             lampSetting.setSize(size);
                             lampSetting.setDeviceName(deviceName);
+                            lampSetting.setColorType(colorType);
                             lampSettings.add(lampSetting);
                             deviceAdapter.setNewData(lampSettings);
                         }
