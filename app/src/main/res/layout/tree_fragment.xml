@@ -16,6 +16,6 @@
         app:bg_color="@color/cF7F7F7"
         app:margin_left="@dimen/dp_30"
         app:margin_right="@dimen/dp_30"
-        app:online="true"></com.wya.env.view.TreeView>
+        app:online="false"></com.wya.env.view.TreeView>
 
 </LinearLayout>

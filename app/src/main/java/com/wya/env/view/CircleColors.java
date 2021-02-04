@@ -134,20 +134,14 @@ public class CircleColors extends View {
                 r.right = 4 + mWidth / mColors.size() * (i + 1);
                 r.top = 4;
                 r.bottom = 4 + mWidth;
-                if (i == 0) {
-                    canvas.drawRoundRect(r, 0, 0, mPaint);
-                } else if (i == (mColors.size() - 1)) {
-                    canvas.drawRoundRect(r, 0, 0, mPaint);
-                } else {
-                    canvas.drawRoundRect(r, 0, 0, mPaint);
-                }
+                canvas.drawRoundRect(r, 0, 0, mPaint);
             }
 
             // 画边框
             mFramePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
             // 消除锯齿
             mFramePaint.setAntiAlias(true);
-            mFramePaint.setStrokeWidth(4);
+            mFramePaint.setStrokeWidth(6);
             mFramePaint.setStyle(Paint.Style.STROKE);        // 防抖动
             mFramePaint.setDither(true);
             RectF ova = new RectF(2, 2, mWidth + 6, mWidth + 6);

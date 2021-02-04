@@ -110,7 +110,8 @@
 
                         <TableRow
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:gravity="center">
 
                             <TableRow
                                 android:id="@+id/tab1"
@@ -125,7 +126,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     app:circle_color="@color/cEA1318"
-                                    app:circle_width="@dimen/dp_30"></com.wya.env.view.Circle>
+                                    app:circle_width="@dimen/dp_34"></com.wya.env.view.Circle>
 
                             </TableRow>
 
@@ -142,7 +143,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     app:circle_color="@color/c68C7DD"
-                                    app:circle_width="@dimen/dp_30">
+                                    app:circle_width="@dimen/dp_34">
 
                                 </com.wya.env.view.Circle>
                             </TableRow>
@@ -161,7 +162,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     app:circle_color="@color/cF69218"
-                                    app:circle_width="@dimen/dp_30">
+                                    app:circle_width="@dimen/dp_34">
 
                                 </com.wya.env.view.Circle>
 
@@ -181,7 +182,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     app:circle_color="@color/c6BBA2B"
-                                    app:circle_width="@dimen/dp_30">
+                                    app:circle_width="@dimen/dp_34">
 
                                 </com.wya.env.view.Circle>
 
@@ -202,7 +203,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     app:circle_color="@color/cF2E93F"
-                                    app:circle_width="@dimen/dp_30">
+                                    app:circle_width="@dimen/dp_34">
 
                                 </com.wya.env.view.Circle>
 
@@ -224,7 +225,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     app:circle_color="@color/c1A489E"
-                                    app:circle_width="@dimen/dp_30">
+                                    app:circle_width="@dimen/dp_34">
 
                                 </com.wya.env.view.Circle>
 
@@ -244,7 +245,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     app:circle_color="@color/cB04F9C"
-                                    app:circle_width="@dimen/dp_30">
+                                    app:circle_width="@dimen/dp_34">
 
                                 </com.wya.env.view.Circle>
 

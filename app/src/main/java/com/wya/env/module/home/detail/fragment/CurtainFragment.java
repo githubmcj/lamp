@@ -62,4 +62,9 @@ public class CurtainFragment extends BaseLazyFragment {
     public void setSpeed(int speed) {
         curtain.setSpeed(speed);
     }
+
+    public void setLampModel(LampModel mLampModel) {
+        this.model = mLampModel;
+        curtain.setModel(model.getModeArr(), model.getLight(), true);
+    }
 }

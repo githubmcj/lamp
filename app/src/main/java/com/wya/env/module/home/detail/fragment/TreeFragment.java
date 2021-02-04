@@ -57,4 +57,9 @@ public class TreeFragment extends BaseLazyFragment {
     public void setSpeed(int speed) {
         tree.setSpeed(speed);
     }
+
+    public void setLampModel(LampModel mLampModel) {
+        this.model = mLampModel;
+        tree.setModel(model.getModeArr(), model.getLight(), true);
+    }
 }

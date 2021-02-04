@@ -19,8 +19,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpActivity;
+import com.wya.env.bean.doodle.CopyModeColor;
 import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.EventAddMode;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.event.EventApply;
 import com.wya.env.bean.event.EventFavarite;
@@ -38,11 +40,17 @@ import com.wya.uikit.button.WYAButton;
 import com.wya.uikit.dialog.CustomListener;
 import com.wya.uikit.dialog.WYACustomDialog;
 import com.wya.utils.utils.LogUtil;
+import com.wya.utils.utils.ScreenUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,6 +79,13 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     LinearLayout llEdit;
     @BindView(R.id.ll_save)
     LinearLayout llSave;
+    @BindView(R.id.img_del)
+    ImageView imgDel;
+    @BindView(R.id.ll_music)
+    LinearLayout llMusic;
+    @BindView(R.id.ll_like)
+    LinearLayout llLike;
+
 
     /**
      * 0 窗帘， 1 圣诞树
@@ -79,7 +94,18 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private int position;
     private int typeLamp;
     private String creatTime;
-    private int id;
+    /**
+     * 如果是拷贝，这个值为被copy的模式的下标
+     */
+    private int copyModeIndex;
+    /**
+     * 模式类型  0：固定模式  1:自定义模式  2:拷贝固定模式
+     */
+    private int modeType;
+    /**
+     * 如果是拷贝，存储的颜色
+     */
+    private List<CopyModeColor> copyModeColor;
 
 
     private FragmentManager fragmentManager;
@@ -99,15 +125,18 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private boolean f_ok;
     private boolean v_ok;
     private LampModel mLampModel;
+    private int choseColorPosition = 0;
 
     @Override
     protected void initView() {
         title = getIntent().getStringExtra("title");
         position = getIntent().getIntExtra("position", 0);
-        id = getIntent().getIntExtra("id", -1);
         music = getIntent().getIntExtra("music", 1);
         typeLamp = getIntent().getIntExtra("typeLamp", 1);
         creatTime = getIntent().getStringExtra("createTime");
+        modeType = getIntent().getIntExtra("modeType", 0);
+        copyModeColor = (List<CopyModeColor>) getIntent().getSerializableExtra("copyModeColor");
+        copyModeIndex = getIntent().getIntExtra("copyModeIndex", 0);
         showLoading();
         v_ok = false;
         new Thread(new Runnable() {
@@ -136,6 +165,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             }
         }).start();
         setMusic();
+        if (modeType == 0) {
+            imgDel.setVisibility(View.GONE);
+        } else {
+            imgDel.setVisibility(View.VISIBLE);
+        }
     }
 
     private Handler handler = new Handler() {
@@ -156,12 +190,12 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     fragmentManager = getSupportFragmentManager();
                     fragmentTransaction = fragmentManager.beginTransaction();
                     if (lightType == 0) {
-                        mLampModel = getModels(id, lightType);
+                        mLampModel = getModels(copyModeIndex, lightType);
                         curtainFragment = new CurtainFragment(mLampModel);
                         fragmentTransaction.add(R.id.view, curtainFragment);
                         fragmentTransaction.show(curtainFragment).commit();
                     } else {
-                        mLampModel = getModels(id, lightType);
+                        mLampModel = getModels(copyModeIndex, lightType);
                         treeFragment = new TreeFragment(mLampModel);
                         fragmentTransaction.add(R.id.view, treeFragment);
                         fragmentTransaction.show(treeFragment).commit();
@@ -262,7 +296,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         }
     }
 
-    @OnClick({R.id.ll_music, R.id.ll_like, R.id.ll_edit, R.id.ll_save})
+    @OnClick({R.id.ll_music, R.id.ll_like, R.id.ll_edit, R.id.ll_save, R.id.img_del})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ll_music:
@@ -292,6 +326,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             case R.id.ll_save:
                 EventBus.getDefault().post(mLampModel);
                 break;
+            case R.id.img_del:
+                EventAddMode eventAddMode = new EventAddMode();
+                eventAddMode.setCopyModeColor(choseCopyModeColor);
+                eventAddMode.setPosition(position);
+                eventAddMode.setDel(true);
+                EventBus.getDefault().post(eventAddMode);
+                this.finish();
+                break;
         }
     }
 
@@ -319,11 +361,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                                 chose_speed = 6 - progress;
                                 lampModel.setSpeed(chose_speed);
-                                if (lightType == 0) {
-                                    curtainFragment.setSpeed(lampModel.getSpeed());
-                                } else {
-                                    treeFragment.setSpeed(lampModel.getSpeed());
-                                }
+//                                if (lightType == 0) {
+//                                    curtainFragment.setSpeed(lampModel.getSpeed());
+//                                } else {
+//                                    treeFragment.setSpeed(lampModel.getSpeed());
+//                                }
                             }
 
                             @Override
@@ -337,7 +379,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         });
 
                         if (data_colors.size() == 0) {
-                            data_colors.add(colors);
+                            data_colors.add(getDataColor(colors));
                             data_colors.add(new ArrayList<>());
                         }
                         RecyclerView rv_colors = v.findViewById(R.id.rv_colors);
@@ -353,6 +395,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                                 if (position == data_colors.size() - 1) {
                                     showAddColorDialog();
                                 } else {
+                                    choseColorPosition = position;
                                     lampColorAdapter.setChoseColors(position);
                                 }
                             }
@@ -369,6 +412,8 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         sure.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                setChoseCopyColor(data_colors.get(choseColorPosition));
+                                showSave();
                                 editDialog.dismiss();
                             }
                         });
@@ -376,6 +421,100 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 })
                 .build();
         editDialog.show();
+    }
+
+    private void setChoseCopyColor(List<String> strings) {
+        choseCopyModeColor = new ArrayList<>();
+        for (int i = 0; i < strings.size(); i++) {
+            CopyModeColor copyModeColor = new CopyModeColor();
+            copyModeColor.setColor(strings.get(i));
+            copyModeColor.setShowColor(strings.get(i));
+            copyModeColor.setW(0);
+            choseCopyModeColor.add(copyModeColor);
+        }
+    }
+
+    private void showSave() {
+        WYACustomDialog save = new WYACustomDialog.Builder(this)
+                .title("")
+                .message("Would you like to svae your changes as a copy of this effect?")
+                .width(ScreenUtil.getScreenWidth(this) * 3 / 4)
+                .cancelText("CANCEL")
+                .confirmText("OK")
+                .build();
+        save.setNoClickListener(new WYACustomDialog.NoClickListener() {
+            @Override
+            public void onNoClick() {
+                save.dismiss();
+            }
+        });
+        save.setYesClickListener(new WYACustomDialog.YesClickListener() {
+            @Override
+            public void onYesClick() {
+                showName();
+                save.dismiss();
+            }
+        });
+        save.show();
+
+    }
+
+    private WYACustomDialog setName;
+    private List<CopyModeColor> choseCopyModeColor;
+
+    private void showName() {
+        setName = new WYACustomDialog.Builder(this)
+                .title("Insert a title")
+                .canEdit(true)
+                .message("Name your effect")
+                .cancelText("CANCEL")
+                .confirmText("OK")
+                .width(ScreenUtil.getScreenWidth(this) * 3 / 4)
+                .build();
+        setName.setNoClickListener(new WYACustomDialog.NoClickListener() {
+            @Override
+            public void onNoClick() {
+                setName.dismiss();
+            }
+        });
+        setName.setYesClickListener(new WYACustomDialog.YesClickListener() {
+            @Override
+            public void onYesClick() {
+                if (TextUtils.isEmpty(setName.getEditText())) {
+                    showShort("Name your effect");
+                    return;
+                }
+                isCopy = true;
+                mLampModel = getModels(copyModeIndex, lightType);
+                if (lightType == 0) {
+                    curtainFragment.setSpeed(chose_speed);
+                    curtainFragment.setLampModel(mLampModel);
+                } else {
+                    treeFragment.setSpeed(chose_speed);
+                    treeFragment.setLampModel(mLampModel);
+                }
+                setTitle(setName.getEditText());
+                EventAddMode eventAddMode = new EventAddMode();
+                eventAddMode.setCopyModeColor(choseCopyModeColor);
+                eventAddMode.setPosition(position);
+                eventAddMode.setSpeed(chose_speed);
+                eventAddMode.setName(setName.getEditText());
+                eventAddMode.setLightType(lightType);
+                EventBus.getDefault().post(eventAddMode);
+                setName.dismiss();
+            }
+        });
+        setName.show();
+    }
+
+    List<String> dataColor;
+
+    private List<String> getDataColor(List<CopyModeColor> colors) {
+        dataColor = new ArrayList<>();
+        for (int i = 0; i < colors.size(); i++) {
+            dataColor.add(colors.get(i).getShowColor());
+        }
+        return dataColor;
     }
 
 
@@ -389,8 +528,6 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 .setLayoutId(R.layout.add_color_layout, new CustomListener() {
                     @Override
                     public void customLayout(View v) {
-
-
                         ColorPickerView picker1 = v.findViewById(R.id.picker1);
                         ColorPickerView picker2 = v.findViewById(R.id.picker2);
 
@@ -469,11 +606,12 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         sure.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                addColorDialog.dismiss();
                                 if (TextUtils.isEmpty(add_colors.get(add_colors.size() - 1))) {
-                                    add_colors.remove(add_colors.size() - 1);
+                                    showShort(lampModel.getCopyModeColor().size() + " colors must be selected");
+                                    return;
                                 }
-                                data_colors.add(data_colors.size() - 1, add_colors);
+                                addColorDialog.dismiss();
+                                data_colors.add(data_colors.size() - 1, deepCopy(add_colors));
                                 lampColorAdapter.setNewData(data_colors);
                             }
                         });
@@ -482,6 +620,34 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 .build();
         addColorDialog.show();
 
+    }
+
+    /**
+     * 描述：list集合深拷贝
+     * @param src
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @author songfayuan
+     * 2018年7月22日下午2:35:23
+     */
+    private   <T> List<T> deepCopy(List<T> src) {
+        try {
+            ByteArrayOutputStream byteout = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(byteout);
+            out.writeObject(src);
+            ByteArrayInputStream bytein = new ByteArrayInputStream(byteout.toByteArray());
+            ObjectInputStream in = new ObjectInputStream(bytein);
+            @SuppressWarnings("unchecked")
+            List<T> dest = (List<T>) in.readObject();
+            return dest;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
@@ -494,13 +660,13 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     /**
      * 选取的颜色
      */
-    private List<String> colors = new ArrayList<>();
+    private List<CopyModeColor> colors = new ArrayList<>();
 
     private List<List<String>> data_colors = new ArrayList<>();
 
-    private LampModel getModels(int id, int type) {
+    private LampModel getModels(int copyModeIndex, int type) {
         data_colors.clear();
-        switch (id) {
+        switch (copyModeIndex) {
             case 0:
                 lampModel = getModel1(type);
                 break;
@@ -511,25 +677,25 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 lampModel = getModel3(type);
                 break;
             case 3:
-                lampModel = getModel4();
+                lampModel = getModel4(type);
                 break;
             case 4:
-                lampModel = getModel5();
+                lampModel = getModel5(type);
                 break;
             case 5:
-                lampModel = getModel6();
+                lampModel = getModel6(type);
                 break;
             case 6:
-                lampModel = getModel7();
+                lampModel = getModel7(type);
                 break;
             case 7:
-                lampModel = getModel8();
+                lampModel = getModel8(type);
                 break;
             case 8:
-                lampModel = getModel9();
+                lampModel = getModel9(type);
                 break;
             case 9:
-                lampModel = getModel10();
+                lampModel = getModel10(type);
                 break;
             default:
                 break;
@@ -553,12 +719,21 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         EventBus.getDefault().post(musicModel);
     }
 
-    private LampModel getModel10() {
+    private LampModel getModel10(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Bright Delightlux");
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#0000FF,#00FF00,#FF0000"));
+        }
+        colors = lampModel.getCopyModeColor();
+        lampModel.setSpeed(1);
+        if (type == 1) {
+            treeData = new Gson().fromJson(data_str, TreeData.class);
+            treeDoodles = treeData.getAddrTab();
+        }
         List<DoodlePattern> modeArr = new ArrayList<>();
-
-
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
             HashMap<String, Doodle> light_status = new HashMap<>();
@@ -567,17 +742,21 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
                 int w = (int) (Math.random() * 10);
                 if (w == 6) {
-                    doodle.setColor("#FF00FF");
+                    doodle.setColor(colors.get(0).getShowColor());
                 } else if (w == 3) {
-                    doodle.setColor("#FFFFFF");
+                    doodle.setColor(colors.get(1).getShowColor());
                 } else {
-                    doodle.setColor("#000000");
+                    doodle.setColor(colors.get(2).getShowColor());
                 }
 
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
-            doodlePattern.setLight_status(light_status);
+            if (type == 1) {
+                doodlePattern.setLight_status(getLightStatus(light_status));
+            } else {
+                doodlePattern.setLight_status(light_status);
+            }
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
@@ -589,10 +768,40 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         return lampModel;
     }
 
-    private LampModel getModel9() {
-        String[] colorHexArr = {"#FF0000", "#00FF00", "#FFFFFF", "#000000", "#007FFF", "#0000FF", "#8B00FF"};
+    private List<CopyModeColor> copyModeColors;
+    private boolean isCopy;
+
+    private List<CopyModeColor> setCopyModeColor(String s) {
+        if (isCopy) {
+            copyModeColors = choseCopyModeColor;
+            isCopy = false;
+        } else {
+            copyModeColors = new ArrayList<>();
+            for (int i = 0; i < s.split(",").length; i++) {
+                CopyModeColor copyModeColor = new CopyModeColor();
+                copyModeColor.setColor(s.split(",")[i]);
+                copyModeColor.setShowColor(s.split(",")[i]);
+                copyModeColor.setW(0);
+                copyModeColors.add(copyModeColor);
+            }
+        }
+        return copyModeColors;
+    }
+
+    private LampModel getModel9(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Glow");
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#FF0000,#00FF00,#FF00FF,#000000,#007FFF,#0000FF,#8B00FF"));
+        }
+        colors = lampModel.getCopyModeColor();
+        lampModel.setSpeed(1);
+        if (type == 1) {
+            treeData = new Gson().fromJson(data_str, TreeData.class);
+            treeDoodles = treeData.getAddrTab();
+        }
         List<DoodlePattern> modeArr = new ArrayList<>();
 
         for (int k = 0; k < 2; k++) {
@@ -600,7 +809,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             HashMap<String, Doodle> light_status = new HashMap<>();
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
-                doodle.setColor(colorHexArr[(i % row - 0 + row + 1) / 1 % 4]);
+                doodle.setColor(colors.get((i % row - 0 + row + 1) / 1 % 4).getShowColor());
                 doodle.setFlash(0);
                 int x = (int) (Math.random() * 2);
                 if (x == 1) {
@@ -608,7 +817,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 }
                 light_status.put(String.valueOf(i), doodle);
             }
-            doodlePattern.setLight_status(light_status);
+            if (type == 1) {
+                doodlePattern.setLight_status(getLightStatus(light_status));
+            } else {
+                doodlePattern.setLight_status(light_status);
+            }
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
@@ -621,11 +834,21 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         return lampModel;
     }
 
-    private LampModel getModel8() {
+    private LampModel getModel8(int type) {
 
-        String[] colorHexArr = {"#FA0000", "#FAA500", "#FAFF00", "#00FF00", "#007FFF", "#0000FF", "#8B00FF"};
         LampModel lampModel = new LampModel();
         lampModel.setName("Vertical");
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#FAFF00,#00FF00,#007FFF,#0000FF,#8B00FF"));
+        }
+        colors = lampModel.getCopyModeColor();
+        lampModel.setSpeed(1);
+        if (type == 1) {
+            treeData = new Gson().fromJson(data_str, TreeData.class);
+            treeDoodles = treeData.getAddrTab();
+        }
         List<DoodlePattern> modeArr = new ArrayList<>();
 
         for (int k = 0; k < column; k++) {
@@ -633,12 +856,16 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             HashMap<String, Doodle> light_status = new HashMap<>();
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
-                doodle.setColor(colorHexArr[(i / row - k + column + 1) / 3 % 7]);
+                doodle.setColor(colors.get((i / row - k + column + 1) / 3 % 7).getShowColor());
 
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
-            doodlePattern.setLight_status(light_status);
+            if (type == 1) {
+                doodlePattern.setLight_status(getLightStatus(light_status));
+            } else {
+                doodlePattern.setLight_status(light_status);
+            }
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
@@ -652,12 +879,21 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
     }
 
-    private LampModel getModel7() {
-        String[] colors = {"#FA0000", "#FAA500", "#00FF00"};
+    private LampModel getModel7(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Sunset");
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#00FF00"));
+        }
+        colors = lampModel.getCopyModeColor();
+        lampModel.setSpeed(1);
+        if (type == 1) {
+            treeData = new Gson().fromJson(data_str, TreeData.class);
+            treeDoodles = treeData.getAddrTab();
+        }
         List<DoodlePattern> modeArr = new ArrayList<>();
-
         int alpha = 14;
         int beta = 7;
         int gama = 0;
@@ -679,26 +915,26 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
                 if (a > b && b > c) {
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
-                        doodle.setColor(colors[0]);
+                        doodle.setColor(colors.get(0).getShowColor());
                         doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a && (double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
-                        doodle.setColor(colors[1]);
+                        doodle.setColor(colors.get(1).getShowColor());
                         doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
 
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
-                        doodle.setColor(colors[2]);
+                        doodle.setColor(colors.get(2).getShowColor());
                         doodle.setFlash(2);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c) {
-                        doodle.setColor(colors[0]);
+                        doodle.setColor(colors.get(0).getShowColor());
                         doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
@@ -707,25 +943,25 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
                 if (a < c && b > c) {
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
-                        doodle.setColor(colors[1]);
+                        doodle.setColor(colors.get(1).getShowColor());
                         doodle.setFlash(1);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
-                        doodle.setColor(colors[2]);
+                        doodle.setColor(colors.get(2).getShowColor());
                         doodle.setFlash(2);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= a && (double) (row - 1 - j % row) / (double) (j / row + 1) < c) {
-                        doodle.setColor(colors[0]);
+                        doodle.setColor(colors.get(0).getShowColor());
                         doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
-                        doodle.setColor(colors[1]);
+                        doodle.setColor(colors.get(1).getShowColor());
                         doodle.setFlash(2);
 
                         light_status.put(String.valueOf(j), doodle);
@@ -734,25 +970,25 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
                 if (a > b && b < c) {
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
-                        doodle.setColor(colors[2]);
+                        doodle.setColor(colors.get(2).getShowColor());
                         doodle.setFlash(2);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c && (double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
-                        doodle.setColor(colors[0]);
+                        doodle.setColor(colors.get(0).getShowColor());
                         doodle.setFlash(2);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b && (double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
-                        doodle.setColor(colors[1]);
+                        doodle.setColor(colors.get(1).getShowColor());
                         doodle.setFlash(2);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b) {
-                        doodle.setColor(colors[2]);
+                        doodle.setColor(colors.get(2).getShowColor());
                         doodle.setFlash(2);
 
                         light_status.put(String.valueOf(j), doodle);
@@ -760,7 +996,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 }
 
             }
-            doodlePattern.setLight_status(light_status);
+            if (type == 1) {
+                doodlePattern.setLight_status(getLightStatus(light_status));
+            } else {
+                doodlePattern.setLight_status(light_status);
+            }
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
 
@@ -774,23 +1014,36 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     }
 
 
-    private LampModel getModel6() {
-        String[] colorHexArr = {"#FA0000", "#FAA500", "#000000", "#00FF00", "#007FFF", "#000000", "#8B00FF"};
+    private LampModel getModel6(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Updown");
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#000000,#00FF00,#007FFF,#000000,#8B00FF"));
+        }
+        colors = lampModel.getCopyModeColor();
+        lampModel.setSpeed(1);
+        if (type == 1) {
+            treeData = new Gson().fromJson(data_str, TreeData.class);
+            treeDoodles = treeData.getAddrTab();
+        }
         List<DoodlePattern> modeArr = new ArrayList<>();
-
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
             HashMap<String, Doodle> light_status = new HashMap<>();
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
-                doodle.setColor(colorHexArr[(i % row - k + row + 1) / 3 % 7]);
+                doodle.setColor(colors.get((i % row - k + row + 1) / 3 % 7).getShowColor());
 
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
-            doodlePattern.setLight_status(light_status);
+            if (type == 1) {
+                doodlePattern.setLight_status(getLightStatus(light_status));
+            } else {
+                doodlePattern.setLight_status(light_status);
+            }
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
@@ -803,22 +1056,35 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         return lampModel;
     }
 
-    private LampModel getModel5() {
-        String[] colorHexArr = {"#FA0000", "#FAA500", "#FAFF00", "#00FF00", "#007FFF", "#0000FF", "#8B00FF"};
+    private LampModel getModel5(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Horizontal Flag");
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#FAFF00,#00FF00,#007FFF,#0000FF,#8B00FF"));
+        }
+        colors = lampModel.getCopyModeColor();
+        lampModel.setSpeed(1);
+        if (type == 1) {
+            treeData = new Gson().fromJson(data_str, TreeData.class);
+            treeDoodles = treeData.getAddrTab();
+        }
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
             HashMap<String, Doodle> light_status = new HashMap<>();
             for (int i = 0; i < size; i++) {
                 Doodle doodle = new Doodle();
-                doodle.setColor(colorHexArr[(i % row - k + row + 1) / 3 % 7]);
-
+                doodle.setColor(colors.get((i % row - k + row + 1) / 3 % 7).getShowColor());
                 doodle.setFlash(0);
                 light_status.put(String.valueOf(i), doodle);
             }
-            doodlePattern.setLight_status(light_status);
+            if (type == 1) {
+                doodlePattern.setLight_status(getLightStatus(light_status));
+            } else {
+                doodlePattern.setLight_status(light_status);
+            }
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
@@ -831,9 +1097,20 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     }
 
 
-    private LampModel getModel4() {
+    private LampModel getModel4(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Sparkles");
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#F99601,#ff0000"));
+        }
+        colors = lampModel.getCopyModeColor();
+        lampModel.setSpeed(1);
+        if (type == 1) {
+            treeData = new Gson().fromJson(data_str, TreeData.class);
+            treeDoodles = treeData.getAddrTab();
+        }
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -842,17 +1119,20 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
                     if ((i * row + j) % row >= (row - 1 - k)) {
-                        doodle.setColor("#F99601");
+                        doodle.setColor(colors.get(0).getShowColor());
                     } else {
                         doodle.setColor("#000000");
                     }
-
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
                 }
             }
-            doodlePattern.setLight_status(light_status);
+            if (type == 1) {
+                doodlePattern.setLight_status(getLightStatus(light_status));
+            } else {
+                doodlePattern.setLight_status(light_status);
+            }
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
@@ -862,7 +1142,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             for (int i = 0; i < column; i++) {
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
-                    doodle.setColor("#000000");
+                    doodle.setColor(colors.get(1).getShowColor());
                     if (k != 0) {
                         int x = (int) (Math.random() * 2);
                         if (x == 1) {
@@ -875,7 +1155,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     light_status.put(String.valueOf(key), doodle);
                 }
             }
-            doodlePattern.setLight_status(light_status);
+            if (type == 1) {
+                doodlePattern.setLight_status(getLightStatus(light_status));
+            } else {
+                doodlePattern.setLight_status(light_status);
+            }
             doodlePattern.setSize(size);
             modeArr.add(doodlePattern);
         }
@@ -890,8 +1174,12 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel1(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Diagonal");
-        lampModel.setCopyModeColor("#ff0000,#00ff00,#F2E93F");
-        colors = lampModel.getCopyModeColorList();
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#F2E93F"));
+        }
+        colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(1);
         if (type == 0) {
             List<DoodlePattern> modeArr = new ArrayList<>();
@@ -902,11 +1190,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     for (int j = 0; j < size / column; j++) {
                         Doodle doodle = new Doodle();
                         if (j % (size / column) == (i + k) % (size / column) || j % (size / column) == (i + k + 1) % (size / column) || j % (size / column) == (i + k + 2) % (size / column) || j % (size / column) == (i + k + 3) % (size / column)) {
-                            doodle.setColor(colors.get(0));
+                            doodle.setColor(colors.get(0).getShowColor());
                         } else if (j % (size / column) == (i + k + 8) % (size / column) || j % (size / column) == (i + k + 9) % (size / column) || j % (size / column) == (i + k + 10) % (size / column) || j % (size / column) == (i + k + 11) % (size / column)) {
-                            doodle.setColor(colors.get(1));
+                            doodle.setColor(colors.get(1).getShowColor());
                         } else {
-                            doodle.setColor(colors.get(2));
+                            doodle.setColor(colors.get(2).getShowColor());
                         }
                         doodle.setFlash(0);
                         light_status.put(String.valueOf(i * size / column + j), doodle);
@@ -932,11 +1220,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     for (int j = 0; j < size / column; j++) {
                         Doodle doodle = new Doodle();
                         if (j % (size / column) == (i + k) % (size / column) || j % (size / column) == (i + k + 1) % (size / column) || j % (size / column) == (i + k + 2) % (size / column) || j % (size / column) == (i + k + 3) % (size / column)) {
-                            doodle.setColor(colors.get(0));
+                            doodle.setColor(colors.get(0).getShowColor());
                         } else if (j % (size / column) == (i + k + 8) % (size / column) || j % (size / column) == (i + k + 9) % (size / column) || j % (size / column) == (i + k + 10) % (size / column) || j % (size / column) == (i + k + 11) % (size / column)) {
-                            doodle.setColor(colors.get(1));
+                            doodle.setColor(colors.get(1).getShowColor());
                         } else {
-                            doodle.setColor(colors.get(2));
+                            doodle.setColor(colors.get(2).getShowColor());
                         }
                         light_status.put(String.valueOf(i * size / column + j), doodle);
                     }
@@ -957,8 +1245,12 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel2(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Fireworks");
-        lampModel.setCopyModeColor("#ff0000,#00ff00,#0000ff,#ffffff");
-        colors = lampModel.getCopyModeColorList();
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#0000ff,#ffffff"));
+        }
+        colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(1);
         if (type == 1) {
             treeData = new Gson().fromJson(data_str, TreeData.class);
@@ -973,7 +1265,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     Doodle doodle = new Doodle();
 
                     if ((i * row + j) % row >= (row - 1 - k)) {
-                        doodle.setColor(colors.get(0));
+                        doodle.setColor(colors.get(0).getShowColor());
                     } else {
                         doodle.setColor("#000000");
                     }
@@ -1003,7 +1295,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     Doodle doodle = new Doodle();
 
                     if ((i * row + j) % row <= k) {
-                        doodle.setColor(colors.get(1));
+                        doodle.setColor(colors.get(1).getShowColor());
                     } else {
                         doodle.setColor("#000000");
                     }
@@ -1029,7 +1321,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
                     if ((i * row + j) % row >= (row - 1 - k)) {
-                        doodle.setColor(colors.get(2));
+                        doodle.setColor(colors.get(2).getShowColor());
                     } else {
                         doodle.setColor("#000000");
                     }
@@ -1056,7 +1348,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
                     if ((i * row + j) % row <= k) {
-                        doodle.setColor(colors.get(3));
+                        doodle.setColor(colors.get(3).getShowColor());
                     } else {
                         doodle.setColor("#000000");
                     }
@@ -1085,15 +1377,17 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel3(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Waves");
-        lampModel.setCopyModeColor("#ff0000,#00ff00,#0000ff");
-        colors = lampModel.getCopyModeColorList();
+        if (modeType == 1 && !isCopy) {
+            lampModel.setCopyModeColor(copyModeColor);
+        } else {
+            lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#0000ff"));
+        }
+        colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(1);
         if (type == 1) {
             treeData = new Gson().fromJson(data_str, TreeData.class);
             treeDoodles = treeData.getAddrTab();
         }
-
-
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -1102,7 +1396,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
                     if ((i * row + j) % row >= (row - 1 - k)) {
-                        doodle.setColor(colors.get(0));
+                        doodle.setColor(colors.get(0).getShowColor());
                     } else {
                         doodle.setColor("#000000");
                     }
@@ -1135,7 +1429,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     if ((i * row + j) % row <= k) {
                         doodle.setColor("#000000");
                     } else {
-                        doodle.setColor(colors.get(0));
+                        doodle.setColor(colors.get(0).getShowColor());
                     }
                     int x = (int) (Math.random() * 2);
                     if (x == 1) {
@@ -1163,7 +1457,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
                     if ((i * row + j) % row >= (row - 1 - k)) {
-                        doodle.setColor(colors.get(1));
+                        doodle.setColor(colors.get(1).getShowColor());
                     } else {
                         doodle.setColor("#000000");
                     }
@@ -1196,7 +1490,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     if ((i * row + j) % row <= k) {
                         doodle.setColor("#000000");
                     } else {
-                        doodle.setColor(colors.get(1));
+                        doodle.setColor(colors.get(1).getShowColor());
                     }
                     int x = (int) (Math.random() * 2);
                     if (x == 1) {
@@ -1224,7 +1518,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
                     if ((i * row + j) % row >= (row - 1 - k)) {
-                        doodle.setColor(colors.get(2));
+                        doodle.setColor(colors.get(2).getShowColor());
                     } else {
                         doodle.setColor("#000000");
                     }
@@ -1255,7 +1549,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     if ((i * row + j) % row <= k) {
                         doodle.setColor("#000000");
                     } else {
-                        doodle.setColor(colors.get(2));
+                        doodle.setColor(colors.get(2).getShowColor());
                     }
                     int x = (int) (Math.random() * 2);
                     if (x == 1) {
@@ -1299,4 +1593,5 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     protected void onDestroy() {
         super.onDestroy();
     }
+
 }

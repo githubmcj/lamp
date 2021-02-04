@@ -29,6 +29,7 @@
                 app:margin_left="@dimen/dp_10"
                 app:margin_right="@dimen/dp_10"
                 app:size="300"
+                app:column="20"
                 app:type="2"></com.wya.env.view.LampView>
 
         </RelativeLayout>

@@ -9,7 +9,7 @@ import java.util.List;
  * @classname: ModeArr
  * @describe: 模板
  */
-public class LampModel {
+public class LampModel implements Cloneable{
     private List<DoodlePattern> modeArr;
     String name;
     int id;
@@ -33,7 +33,7 @@ public class LampModel {
     /**
      * 如果是拷贝，存储的颜色 以,隔开  例#333333,#666666,#999999
      */
-    String copyModeColor;
+    List<CopyModeColor> copyModeColor;
 
     /**
      * 0为窗帘灯 1为圣诞树
@@ -87,17 +87,14 @@ public class LampModel {
         this.copyModeIndex = copyModeIndex;
     }
 
-    public String getCopyModeColor() {
+    public List<CopyModeColor> getCopyModeColor() {
         return copyModeColor;
     }
 
-    public void setCopyModeColor(String copyModeColor) {
+    public void setCopyModeColor(List<CopyModeColor> copyModeColor) {
         this.copyModeColor = copyModeColor;
     }
 
-    public List<String> getCopyModeColorList() {
-        return Arrays.asList(this.copyModeColor.split(","));
-    }
 
     public int getLightType() {
         return lightType;
@@ -177,5 +174,11 @@ public class LampModel {
 
     public void setChose(int chose) {
         isChose = chose;
+    }
+
+    @Override
+    public LampModel clone() throws CloneNotSupportedException {
+        LampModel lampModel = (LampModel) super.clone();
+        return lampModel;
     }
 }

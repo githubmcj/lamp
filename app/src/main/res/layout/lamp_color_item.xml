@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:circle_color="@color/cF69218"
-        app:circle_width="@dimen/dp_30"></com.wya.env.view.CircleColors>
+        app:circle_width="@dimen/dp_28"></com.wya.env.view.CircleColors>
 
     <ImageView
         android:id="@+id/add"

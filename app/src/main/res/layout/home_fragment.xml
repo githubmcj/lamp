@@ -109,8 +109,8 @@
                     android:id="@+id/img_upload"
                     android:layout_width="@dimen/dp_20"
                     android:layout_height="@dimen/dp_20"
-                    android:background="@drawable/upload"
-                    android:layout_marginRight="@dimen/dp_22">
+                    android:layout_marginRight="@dimen/dp_22"
+                    android:background="@drawable/upload">
 
                 </ImageView>
 
@@ -159,6 +159,38 @@
                 android:visibility="gone" />
 
         </LinearLayout>
+
+        <TableRow
+            android:id="@+id/up_down"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:id="@+id/cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:gravity="center"
+                android:padding="@dimen/dp_10"
+                android:text="Cancel"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sp_14"></TextView>
+
+            <TextView
+                android:id="@+id/submit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/app_blue"
+                android:gravity="center"
+                android:padding="@dimen/dp_10"
+                android:text="Submit"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_14"></TextView>
+
+        </TableRow>
 
     </RelativeLayout>
 

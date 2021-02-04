@@ -15,6 +15,12 @@ import com.wya.env.module.register.RegisterActivity;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 
@@ -43,8 +49,8 @@ public class StartUpActivity extends BaseActivity {
         if (isLogin) {
             // 保存数据
             lamps = new Gson().fromJson(SaveSharedPreferences.getString(this, CommonValue.LAMPS), Lamps.class);
-            if(lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0){
-                if(lamps.getLampSettings().size() == 1 && lamps.getLampSettings().get(0).getName() == null){
+            if (lamps != null && lamps.getLampSettings() != null && lamps.getLampSettings().size() > 0) {
+                if (lamps.getLampSettings().size() == 1 && lamps.getLampSettings().get(0).getName() == null) {
                     startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
                     finish();
                 } else {
@@ -55,10 +61,9 @@ public class StartUpActivity extends BaseActivity {
                 startActivity(new Intent(StartUpActivity.this, Start1Activity.class));
                 finish();
             }
-//            startActivity(new Intent(StartUpActivity.this, MainActivity.class));
-//            ActivityManager.getInstance().exitApp();
         }
     }
+
 
     @Override
     protected int getLayoutId() {

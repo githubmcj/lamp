@@ -10,14 +10,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.easysocket.utils.LogUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
+import com.wya.env.bean.doodle.CopyModeColor;
 import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
+import com.wya.env.bean.doodle.EventAddMode;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.doodle.SaveModel;
@@ -36,6 +40,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.Serializable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -80,6 +85,12 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     RecyclerView recyclerViewF;
     @BindView(R.id.recyclerView_c)
     RecyclerView recyclerViewC;
+    @BindView(R.id.cancel)
+    TextView cancel;
+    @BindView(R.id.submit)
+    TextView submit;
+    @BindView(R.id.up_down)
+    TableRow upDown;
     private LampModelAdapter adapterL;
     private LampModelAdapter adapterC;
     private LampModelAdapter adapterF;
@@ -88,7 +99,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private List<DoodlePattern> doodlePatterns = new ArrayList<>();
 
 
-    private List<DoodlePattern> choseModel;
+    private int chosePosition;
     private String deviceName;
     /**
      * 0 local 1 favorite 2 cloud
@@ -106,6 +117,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private List<LampModel> lampModelsF = new ArrayList<>();
     private List<LampModel> lampModelsF_C = new ArrayList<>();
     private List<LampModel> lampModelsC = new ArrayList<>();
+
+    private boolean action;
 
     int column;
     int size;
@@ -177,6 +190,72 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 //        initRecyclerView();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventAddMode eventAddMode) throws CloneNotSupportedException {
+        switch (typeLamp) {
+            case 0:
+                if (eventAddMode.isDel()) {
+                    lampModelsL.remove(eventAddMode.getPosition());
+                } else {
+                    LampModel lampModel = lampModelsL.get(eventAddMode.getPosition()).clone();
+                    lampModel.setCopyModeColor(eventAddMode.getCopyModeColor());
+                    lampModel.setName(eventAddMode.getName());
+                    lampModel.setSpeed(eventAddMode.getSpeed());
+                    lampModel.setModeType(1);
+                    lampModel.setLightType(eventAddMode.getLightType());
+                    lampModel.setCreatTime(System.currentTimeMillis() + "111" + lampModelsL.get(eventAddMode.getPosition()).getCopyModeIndex());
+                    lampModel.setCopyModeIndex(lampModelsL.get(eventAddMode.getPosition()).getCopyModeIndex());
+                    setModeLamp1(lampModel);
+                    lampModelsL.add(lampModelsL.size() - 1, lampModel);
+                }
+                adapterL.notifyDataSetChanged();
+                break;
+            case 1:
+                if (eventAddMode.isDel()) {
+                    lampModelsL.remove(eventAddMode.getPosition());
+                } else {
+                    LampModel lampModelF = lampModelsF.get(eventAddMode.getPosition()).clone();
+                    lampModelF.setCopyModeColor(eventAddMode.getCopyModeColor());
+                    lampModelF.setName(eventAddMode.getName());
+                    lampModelF.setSpeed(eventAddMode.getSpeed());
+                    lampModelF.setModeType(1);
+                    lampModelF.setLightType(eventAddMode.getLightType());
+                    lampModelF.setCreatTime(System.currentTimeMillis() + "111" + lampModelsF.get(eventAddMode.getPosition()).getCopyModeIndex());
+                    lampModelF.setCopyModeIndex(lampModelsF.get(eventAddMode.getPosition()).getCopyModeIndex());
+                    setModeLamp1(lampModelF);
+                    lampModelsL.add(lampModelsL.size() - 1, lampModelF);
+                }
+                adapterL.notifyDataSetChanged();
+                break;
+            case 2:
+                if (eventAddMode.isDel()) {
+                    lampModelsL.remove(eventAddMode.getPosition());
+                } else {
+                    LampModel lampModelC = lampModelsC.get(eventAddMode.getPosition()).clone();
+                    lampModelC.setCopyModeColor(eventAddMode.getCopyModeColor());
+                    lampModelC.setName(eventAddMode.getName());
+                    lampModelC.setSpeed(eventAddMode.getSpeed());
+                    lampModelC.setModeType(1);
+                    lampModelC.setLightType(eventAddMode.getLightType());
+                    lampModelC.setCreatTime(System.currentTimeMillis() + "111" + lampModelsC.get(eventAddMode.getPosition()).getCopyModeIndex());
+                    lampModelC.setCopyModeIndex(lampModelsC.get(eventAddMode.getPosition()).getCopyModeIndex());
+                    setModeLamp1(lampModelC);
+                    lampModelsL.add(lampModelsL.size() - 1, lampModelC);
+                }
+                adapterL.notifyDataSetChanged();
+                break;
+            default:
+                break;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loginInfo.setLampModels(lampModelsL);
+                SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+            }
+        }).start();
+    }
+
 
     private boolean changeFavorite;
 
@@ -237,6 +316,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         initRecyclerView();
         getLocalData(false);
         getNetData();
+        action = false;
+        setAction(action);
     }
 
     private void initSendData() {
@@ -304,13 +385,25 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             if (position == lampModelsL.size() - 1) {
                 EventBus.getDefault().post(new AddModel());
             } else {
-                startActivity(new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("position", position)
-                        .putExtra("title", deviceName)
-                        .putExtra("id", lampModelsL.get(position).getId())
-                        .putExtra("typeLamp", typeLamp)
-                        .putExtra("createTime", lampModelsL.get(position).getCreatTime())
-                        .putExtra("music", lampModelsL.get(position).isMusic()));
+                if (action) {
+                    chosePosition = position;
+                    for (int i = 0; i < lampModelsL.size(); i++) {
+                        lampModelsL.get(i).setChose(0);
+                    }
+                    lampModelsL.get(position).setChose(1);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    startActivity(new Intent(getActivity(), DetailActivity.class)
+                            .putExtra("position", position)
+                            .putExtra("title", deviceName)
+                            .putExtra("typeLamp", typeLamp)
+                            .putExtra("copyModeIndex", lampModelsL.get(position).getCopyModeIndex())
+                            .putExtra("modeType", lampModelsL.get(position).getModeType())
+                            .putExtra("copyModeColor", (Serializable) lampModelsL.get(position).getCopyModeColor())
+                            .putExtra("createTime", lampModelsL.get(position).getCreatTime())
+                            .putExtra("music", lampModelsL.get(position).isMusic()));
+                }
+
 
 //                if (lampModels.get(position).isChose() != 1) {
 //                    choseModel = lampModels.get(position).getModeArr();
@@ -342,13 +435,24 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         recyclerViewF.setAdapter(adapterF);
         // RecyclerView条目点击事件
         adapterF.setOnItemClickListener((adapter, view, position) -> {
-            startActivity(new Intent(getActivity(), DetailActivity.class)
-                    .putExtra("position", position)
-                    .putExtra("id", lampModelsF.get(position).getId())
-                    .putExtra("title", deviceName)
-                    .putExtra("typeLamp", typeLamp)
-                    .putExtra("createTime", lampModelsF.get(position).getCreatTime())
-                    .putExtra("music", lampModelsF.get(position).isMusic()));
+            if (action) {
+                chosePosition = position;
+                for (int i = 0; i < lampModelsF.size(); i++) {
+                    lampModelsF.get(i).setChose(0);
+                }
+                lampModelsF.get(position).setChose(1);
+                adapter.notifyDataSetChanged();
+            } else {
+                startActivity(new Intent(getActivity(), DetailActivity.class)
+                        .putExtra("position", position)
+                        .putExtra("title", deviceName)
+                        .putExtra("typeLamp", typeLamp)
+                        .putExtra("createTime", lampModelsF.get(position).getCreatTime())
+                        .putExtra("music", lampModelsF.get(position).isMusic())
+                        .putExtra("copyModeIndex", lampModelsF.get(position).getCopyModeIndex())
+                        .putExtra("modeType", lampModelsF.get(position).getModeType())
+                        .putExtra("copyModeColor", (Serializable) lampModelsF.get(position).getCopyModeColor()));
+            }
         });
 
         recyclerViewC.setLayoutManager(new GridLayoutManager(getActivity(), 2));
@@ -358,13 +462,24 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         recyclerViewC.setAdapter(adapterC);
 
         adapterC.setOnItemClickListener((adapter, view, position) -> {
-            startActivity(new Intent(getActivity(), DetailActivity.class)
-                    .putExtra("position", position)
-                    .putExtra("id", lampModelsC.get(position).getId())
-                    .putExtra("title", deviceName)
-                    .putExtra("typeLamp", typeLamp)
-                    .putExtra("createTime", lampModelsC.get(position).getCreatTime())
-                    .putExtra("music", lampModelsC.get(position).isMusic()));
+            if (action) {
+                chosePosition = position;
+                for (int i = 0; i < lampModelsC.size(); i++) {
+                    lampModelsC.get(i).setChose(0);
+                }
+                lampModelsC.get(position).setChose(1);
+                adapter.notifyDataSetChanged();
+            } else {
+                startActivity(new Intent(getActivity(), DetailActivity.class)
+                        .putExtra("position", position)
+                        .putExtra("title", deviceName)
+                        .putExtra("typeLamp", typeLamp)
+                        .putExtra("createTime", lampModelsC.get(position).getCreatTime())
+                        .putExtra("music", lampModelsC.get(position).isMusic())
+                        .putExtra("copyModeIndex", lampModelsC.get(position).getCopyModeIndex())
+                        .putExtra("modeType", lampModelsC.get(position).getModeType())
+                        .putExtra("copyModeColor", (Serializable) lampModelsC.get(position).getCopyModeColor()));
+            }
         });
 
     }
@@ -407,6 +522,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     public void onModelsResult(List<SaveModel> data) {
         lampModelsC.clear();
         for (int i = 0; i < data.size(); i++) {
+            String content = data.get(i).getContent();
+            LogUtil.e("content" + i + ":" + content);
             LampModel lampModel = new Gson().fromJson(data.get(i).getContent(), LampModel.class);
             for (int j = 0; j < lampModel.getModeArr().size(); j++) {
                 DoodlePattern doodlePattern = lampModel.getModeArr().get(j);
@@ -423,16 +540,16 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         }
         adapterC.setNewData(lampModelsC);
 
-        if (lampModelsL.get(lampModelsL.size() - 1).getName() == null) {
-            lampModelsL.remove(lampModelsL.size() - 1);
-        }
-        lampModelsL.addAll(lampModelsC);
-        if (lampModelsL.get(lampModelsL.size() - 1).getName() != null) {
-            lampModelsL.add(new LampModel());
-        }
-        if (adapterL != null) {
-            adapterL.setNewData(lampModelsL);
-        }
+//        if (lampModelsL.get(lampModelsL.size() - 1).getName() == null) {
+//            lampModelsL.remove(lampModelsL.size() - 1);
+//        }
+//        lampModelsL.addAll(lampModelsC);
+//        if (lampModelsL.get(lampModelsL.size() - 1).getName() != null) {
+//            lampModelsL.add(new LampModel());
+//        }
+//        if (adapterL != null) {
+//            adapterL.setNewData(lampModelsL);
+//        }
     }
 
 //
@@ -686,7 +803,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel10() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Bright Delightlux");
-        lampModel.setId(9);
+        lampModel.setCopyModeIndex(9);
         lampModel.setCreatTime(System.currentTimeMillis() + "0009");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
@@ -722,7 +839,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel9() {
         String[] colorHexArr = {"#FF0000", "#00FF00", "#FFFFFF", "#000000", "#007FFF", "#0000FF", "#8B00FF"};
         LampModel lampModel = new LampModel();
-        lampModel.setId(8);
+        lampModel.setCopyModeIndex(8);
         lampModel.setCreatTime(System.currentTimeMillis() + "0008");
         lampModel.setName("Glow");
         List<DoodlePattern> modeArr = new ArrayList<>();
@@ -757,7 +874,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
         String[] colorHexArr = {"#FA0000", "#FAA500", "#FAFF00", "#00FF00", "#007FFF", "#0000FF", "#8B00FF"};
         LampModel lampModel = new LampModel();
-        lampModel.setId(7);
+        lampModel.setCopyModeIndex(7);
         lampModel.setCreatTime(System.currentTimeMillis() + "0007");
         lampModel.setName("Vertical");
         List<DoodlePattern> modeArr = new ArrayList<>();
@@ -789,7 +906,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel7() {
         String[] colors = {"#FA0000", "#FAA500", "#00FF00"};
         LampModel lampModel = new LampModel();
-        lampModel.setId(6);
+        lampModel.setCopyModeIndex(6);
         lampModel.setCreatTime(System.currentTimeMillis() + "0006");
         lampModel.setName("Sunset");
         List<DoodlePattern> modeArr = new ArrayList<>();
@@ -914,7 +1031,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         String[] colorHexArr = {"#FA0000", "#FAA500", "#000000", "#00FF00", "#007FFF", "#000000", "#8B00FF"};
         LampModel lampModel = new LampModel();
         lampModel.setName("Updown");
-        lampModel.setId(5);
+        lampModel.setCopyModeIndex(5);
         lampModel.setCreatTime(System.currentTimeMillis() + "0005");
         List<DoodlePattern> modeArr = new ArrayList<>();
 
@@ -945,7 +1062,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         String[] colorHexArr = {"#FA0000", "#FAA500", "#FAFF00", "#00FF00", "#007FFF", "#0000FF", "#8B00FF"};
         LampModel lampModel = new LampModel();
         lampModel.setName("Horizontal Flag");
-        lampModel.setId(4);
+        lampModel.setCopyModeIndex(4);
         lampModel.setCreatTime(System.currentTimeMillis() + "0004");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
@@ -974,7 +1091,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel4() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Sparkles");
-        lampModel.setId(3);
+        lampModel.setCopyModeIndex(3);
         lampModel.setCreatTime(System.currentTimeMillis() + "0003");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
@@ -1004,7 +1121,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             for (int i = 0; i < column; i++) {
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
-                    doodle.setColor("#000000");
+                    doodle.setColor("#ff0000");
                     if (k != 0) {
                         int x = (int) (Math.random() * 2);
                         if (x == 1) {
@@ -1031,9 +1148,14 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel1() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Diagonal");
-        lampModel.setId(0);
+        lampModel.setCopyModeIndex(0);
         lampModel.setCreatTime(System.currentTimeMillis() + "0000");
-        lampModel.setCopyModeColor("#ff0000,#ffffff,#F2E93F");
+        lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#F2E93F"));
+        setModeLamp1(lampModel);
+        return lampModel;
+    }
+
+    private void setModeLamp1(LampModel lampModel) {
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < size / column; k++) {
             DoodlePattern doodlePattern = new DoodlePattern();
@@ -1042,11 +1164,11 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 for (int j = 0; j < size / column; j++) {
                     Doodle doodle = new Doodle();
                     if (j % (size / column) == (i + k) % (size / column) || j % (size / column) == (i + k + 1) % (size / column) || j % (size / column) == (i + k + 2) % (size / column) || j % (size / column) == (i + k + 3) % (size / column)) {
-                        doodle.setColor(lampModel.getCopyModeColorList().get(0));
+                        doodle.setColor(lampModel.getCopyModeColor().get(0).getShowColor());
                     } else if (j % (size / column) == (i + k + 8) % (size / column) || j % (size / column) == (i + k + 9) % (size / column) || j % (size / column) == (i + k + 10) % (size / column) || j % (size / column) == (i + k + 11) % (size / column)) {
-                        doodle.setColor(lampModel.getCopyModeColorList().get(1));
+                        doodle.setColor(lampModel.getCopyModeColor().get(1).getShowColor());
                     } else {
-                        doodle.setColor(lampModel.getCopyModeColorList().get(2));
+                        doodle.setColor(lampModel.getCopyModeColor().get(2).getShowColor());
                     }
                     doodle.setFlash(0);
                     light_status.put(String.valueOf(i * size / column + j), doodle);
@@ -1061,13 +1183,28 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setSize(size);
         lampModel.setLightRow(size / column);
         lampModel.setColumn(column);
-        return lampModel;
     }
+
+
+    private List<CopyModeColor> copyModeColors;
+
+    private List<CopyModeColor> setCopyModeColor(String s) {
+        copyModeColors = new ArrayList<>();
+        for (int i = 0; i < s.split(",").length; i++) {
+            CopyModeColor copyModeColor = new CopyModeColor();
+            copyModeColor.setColor(s.split(",")[i]);
+            copyModeColor.setShowColor(s.split(",")[i]);
+            copyModeColor.setW(0);
+            copyModeColors.add(copyModeColor);
+        }
+        return copyModeColors;
+    }
+
 
     private LampModel getModel2() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Fireworks");
-        lampModel.setId(1);
+        lampModel.setCopyModeIndex(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0001");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
@@ -1086,7 +1223,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                     doodle.setFlash(0);
                     int key = (i * size / column + j);
                     light_status.put(String.valueOf(key), doodle);
-
 
                 }
             }
@@ -1176,7 +1312,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private LampModel getModel3() {
         LampModel lampModel = new LampModel();
         lampModel.setName("Waves");
-        lampModel.setId(2);
+        lampModel.setCopyModeIndex(2);
         lampModel.setCreatTime(System.currentTimeMillis() + "0002");
         List<DoodlePattern> modeArr = new ArrayList<>();
         for (int k = 0; k < row; k++) {
@@ -1359,25 +1495,87 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
     }
 
-    @OnClick({R.id.tv_local, R.id.tv_favorites, R.id.tv_cloud, R.id.img_upload})
+    @OnClick({R.id.tv_local, R.id.tv_favorites, R.id.tv_cloud, R.id.img_upload, R.id.cancel, R.id.submit})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.tv_local:
+                if (action) {
+                    action = false;
+                    setAction(false);
+                }
                 typeLamp = 0;
                 setButton(typeLamp);
                 break;
             case R.id.tv_favorites:
+                if (action) {
+                    action = false;
+                    setAction(false);
+                }
                 typeLamp = 1;
                 setButton(typeLamp);
                 break;
             case R.id.tv_cloud:
+                if (action) {
+                    action = false;
+                    setAction(false);
+                }
                 typeLamp = 2;
                 setButton(typeLamp);
                 break;
             case R.id.img_upload:
+                action = !action;
+                setAction(action);
+                if (typeLamp == 2) {// 下载
+
+                } else { //上传
+
+                }
+                break;
+            case R.id.cancel:
+                action = false;
+                setAction(action);
+                break;
+            case R.id.submit:
+                action = false;
+                setAction(action);
                 break;
             default:
                 break;
+        }
+    }
+
+    private void setAction(boolean action) {
+        if (action) {
+            upDown.setVisibility(View.VISIBLE);
+            if (typeLamp == 0) {
+                submit.setText("SUBMIT");
+            } else if (typeLamp == 2) {
+                submit.setText("DOWNLOAD");
+            }
+        } else {
+            upDown.setVisibility(View.GONE);
+            switch (typeLamp) {
+                case 0:
+                    for (int i = 0; i < lampModelsL.size(); i++) {
+                        lampModelsL.get(i).setChose(0);
+                    }
+                    adapterL.notifyDataSetChanged();
+                    break;
+                case 1:
+                    for (int i = 0; i < lampModelsF.size(); i++) {
+                        lampModelsF.get(i).setChose(0);
+                    }
+                    adapterF.notifyDataSetChanged();
+                    break;
+                case 2:
+                    for (int i = 0; i < lampModelsC.size(); i++) {
+                        lampModelsC.get(i).setChose(0);
+                    }
+                    adapterC.notifyDataSetChanged();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -1391,35 +1589,22 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                     hideLoading();
                     break;
                 case 1: // refresh == true
-                    hideLoading();
                     lampModelsL = getModels();
                     loginInfo.setLampModels(lampModelsL);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showLoading();
-                            SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
-                            handler.sendEmptyMessage(3);
-                        }
-                    }).start();
+                    SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+                    handler.sendEmptyMessage(3);
                     if (lampModelsL.get(lampModelsL.size() - 1).getName() != null) {
                         lampModelsL.add(new LampModel());
                     }
                     adapterL.setNewData(lampModelsL);
                     break;
                 case 2: // refresh == false
-                    hideLoading();
                     if (lampModelsL == null || lampModelsL.size() == 0) {
                         showLoading();
                         lampModelsL = getModels();
                         loginInfo.setLampModels(lampModelsL);
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
-                                handler.sendEmptyMessage(4);
-                            }
-                        }).start();
+                        SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+                        handler.sendEmptyMessage(4);
                     }
                     if (lampModelsL.get(lampModelsL.size() - 1).getName() != null) {
                         lampModelsL.add(new LampModel());
@@ -1451,6 +1636,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 recyclerViewL.setVisibility(View.VISIBLE);
                 tvLocal.setBackground(getResources().getDrawable(R.drawable.btn_50r_shape));
                 tvLocal.setTextColor(getResources().getColor(R.color.white));
+                imgUpload.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.upload));
+                imgUpload.setVisibility(View.VISIBLE);
                 break;
             case 1:
                 if (changeFavorite) {
@@ -1471,11 +1658,15 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 recyclerViewF.setVisibility(View.VISIBLE);
                 tvFavorites.setBackground(getResources().getDrawable(R.drawable.btn_50r_shape));
                 tvFavorites.setTextColor(getResources().getColor(R.color.white));
+                imgUpload.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.upload));
+                imgUpload.setVisibility(View.GONE);
                 break;
             case 2:
                 recyclerViewC.setVisibility(View.VISIBLE);
                 tvCloud.setBackground(getResources().getDrawable(R.drawable.btn_50r_shape));
                 tvCloud.setTextColor(getResources().getColor(R.color.white));
+                imgUpload.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.download));
+                imgUpload.setVisibility(View.VISIBLE);
                 break;
             default:
                 break;
@@ -1483,4 +1674,5 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         }
 
     }
+
 }

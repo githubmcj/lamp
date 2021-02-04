@@ -136,15 +136,28 @@ public class TreeView extends View {
 //        whitePaint.setColor(getResources().getColor(android.R.color.transparent));
 
         for (int i = 0; i < data.size(); i++) {
-            if (data.get(String.valueOf(i)) != null && data.get(String.valueOf(i)).getColor() != null && !data.get(String.valueOf(i)).getColor().equals("#000000")) {
-                if (data.get(String.valueOf(i)).isFlash() == 1) {
+            if (isOnline) {
+                if (data.get(String.valueOf(i)) != null && data.get(String.valueOf(i)).getColor() != null && !data.get(String.valueOf(i)).getColor().equals("#000000")) {
+                    if (data.get(String.valueOf(i)).isFlash() == 1) {
 //                        data.get(String.valueOf(j + size / column * i)).setLight(light);
-                    lampPaint.setColor(data.get(String.valueOf(i)).getLampColor(light * 255 / 100));
+                        lampPaint.setColor(data.get(String.valueOf(i)).getLampColor(light * 255 / 100));
+                    } else {
+                        lampPaint.setColor(data.get(String.valueOf(i)).getLampColor(255));
+                    }
                 } else {
-                    lampPaint.setColor(data.get(String.valueOf(i)).getLampColor(255));
+                    lampPaint.setColor(Color.argb(0, 0, 0, 0));
                 }
             } else {
-                lampPaint.setColor(Color.argb(0, 0, 0, 0));
+                if (data.get(String.valueOf(i)) != null && data.get(String.valueOf(i)).getColor() != null) {
+                    if (data.get(String.valueOf(i)).isFlash() == 1) {
+//                        data.get(String.valueOf(j + size / column * i)).setLight(light);
+                        lampPaint.setColor(data.get(String.valueOf(i)).getLampColor(light * 255 / 100));
+                    } else {
+                        lampPaint.setColor(data.get(String.valueOf(i)).getLampColor(255));
+                    }
+                } else {
+                    lampPaint.setColor(Color.argb(0, 0, 0, 0));
+                }
             }
             canvas.drawCircle(data.get(String.valueOf(i)).getX() * (mWidth - lamp_size - 2) + lamp_size / 2 + 1, data.get(String.valueOf(i)).getY() * (mHeight - lamp_size - 2) + lamp_size / 2 + 1, lamp_size / 2, framePaint);
 //            canvas.drawCircle(data.get(String.valueOf(i)).getX() * (mWidth - lamp_size) + lamp_size / 2, data.get(String.valueOf(i)).getY() * mHeight, lamp_size / 2, whitePaint);
@@ -1223,6 +1236,7 @@ public class TreeView extends View {
     public void setSpeed(int speed) {
         this.speed = speed;
         modelFrameTime = 200 * speed;
+        stopSendUdpModeData();
     }
 }
 

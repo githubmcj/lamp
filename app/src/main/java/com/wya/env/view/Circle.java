@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -104,15 +105,25 @@ public class Circle extends View {
 
         if (circle_chose) {
             mPaint.setColor(mContext.getResources().getColor(R.color.c9396B7));
-            canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 4, mPaint);
+            RectF r = new RectF(4, 4, 4 + mWidth, 4 + mWidth);
+            canvas.drawRoundRect(r, 10, 10, mPaint);
+
+//            canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 4, mPaint);
             mPaint.setColor(mContext.getResources().getColor(R.color.white));
-            canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 2, mPaint);
+            RectF r2 = new RectF(6, 6, 2 + mWidth, 2 + mWidth);
+            canvas.drawRoundRect(r2, 10, 10, mPaint);
+
+//            canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 2, mPaint);
         }
 
         mPaint.setColor(mContext.getResources().getColor(R.color.cEDEDED));
-        canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 1, mPaint);
+        RectF r = new RectF(7, 7, 1 + mWidth, 1 + mWidth);
+        canvas.drawRoundRect(r, 10, 10, mPaint);
+//        canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2 + 1, mPaint);
         mPaint.setColor(mColor);
-        canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2, mPaint);
+        RectF r2 = new RectF(8, 8, mWidth, mWidth);
+        canvas.drawRoundRect(r2, 10, 10, mPaint);
+//        canvas.drawCircle(mWidth / 2 + 4, mWidth / 2 + 4, mWidth / 2, mPaint);
 
 
     }

@@ -72,6 +72,7 @@ public class LinkActivity extends BaseActivity {
             }
         });
         toConnectBle();
+        open.setVisibility(View.GONE);
     }
 
     private void toConnectBle() {
