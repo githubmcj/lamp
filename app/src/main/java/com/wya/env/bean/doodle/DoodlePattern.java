@@ -1,5 +1,6 @@
 package com.wya.env.bean.doodle;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -8,7 +9,7 @@ import java.util.HashMap;
  * @classname: DoodlePattern
  * @describe: 一帧的样式
  */
-public class DoodlePattern {
+public class DoodlePattern implements Serializable, Cloneable {
 
     private int size = 300;
 

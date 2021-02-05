@@ -2,6 +2,8 @@ package com.wya.env.module.doodle;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +15,15 @@ import android.widget.SeekBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.easysocket.utils.LogUtil;
 import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.event.EventCustomLampModel;
+import com.wya.env.bean.event.EventSaveSuccess;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.bean.login.LoginInfo;
 import com.wya.env.common.CommonValue;
@@ -435,11 +440,12 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                     showShort("please enter mode name");
                     return;
                 }
-                if (!getIpAddressString().contains("192.168.4.")) {
-                    toSave();
-                } else {
-                    showShort("Network not available");
-                }
+                toSave();
+//                if (!getIpAddressString().contains("192.168.4.")) {
+//                    toSave();
+//                } else {
+//                    showShort("Network not available");
+//                }
                 break;
             case R.id.img_del:
                 toCleanChose();
@@ -522,21 +528,39 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     }
 
 
-    // TODO 模板上传区分灯类型
     private void toSave() {
         LampModel lampModel = new LampModel();
         lampModel.setName(etName.getText().toString());
+        lampModel.setModeType(1);
+        lampModel.setLightType(lightType);
+        lampModel.setCreatTime(System.currentTimeMillis()+"custom");
+        lampModel.setChose(0);
         DoodlePattern doodlePattern = new DoodlePattern();
-        doodlePattern.setLight_status(lampView.getSaveData());
-        doodlePattern.setSize(lampView.getSize());
-        List<DoodlePattern> doodlePatterns = new ArrayList<>();
-        doodlePatterns.add(doodlePattern);
-        lampModel.setModeArr(doodlePatterns);
-        lampModel.setLight(chose_light);
-        lampModel.setSize(lampView.getSize());
-        lampModel.setLightRow(lampView.getSize() / lampView.getColumn());
-        lampModel.setColumn(lampView.getColumn());
-        doodleFragmentPresenter.saveModel(new Gson().toJson(lampModel));
+        if(lightType == 1){
+            doodlePattern.setLight_status(lampTreeView.getSaveData());
+            doodlePattern.setSize(lampTreeView.getSize());
+            List<DoodlePattern> doodlePatterns = new ArrayList<>();
+            doodlePatterns.add(doodlePattern);
+            lampModel.setModeArr(doodlePatterns);
+            lampModel.setLight(chose_light);
+            lampModel.setSize(size);
+            lampModel.setLightRow(row);
+            lampModel.setColumn(column);
+        } else {
+            doodlePattern.setLight_status(lampView.getSaveData());
+            doodlePattern.setSize(lampView.getSize());
+            List<DoodlePattern> doodlePatterns = new ArrayList<>();
+            doodlePatterns.add(doodlePattern);
+            lampModel.setModeArr(doodlePatterns);
+            lampModel.setLight(chose_light);
+            lampModel.setSize(size);
+            lampModel.setLightRow(row);
+            lampModel.setColumn(column);
+        }
+        EventCustomLampModel eventCustomLampModel = new EventCustomLampModel();
+        eventCustomLampModel.setLampModel(lampModel);
+        EventBus.getDefault().post(eventCustomLampModel);
+        showLoading();
     }
 
     private void setPainter(int painter_type) {
@@ -667,7 +691,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Override
     public void onStart() {
         super.onStart();
-//        EventBus.getDefault().register(this);
+        EventBus.getDefault().register(this);
         if (isVisible()) {
             lampView.startSendUpdData();
             lampView.startTwinkle();
@@ -677,16 +701,26 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Override
     public void onStop() {
         super.onStop();
-//        EventBus.getDefault().unregister(this);
+        EventBus.getDefault().unregister(this);
         lampView.stopSendUdpData();
     }
-//
+
 //    @Subscribe(threadMode = ThreadMode.MAIN)
 //    public void onMessageEvent(LampSetting lampSetting) {
 //        lampView.setSize(size);
 //        lampView.setColumn(column);
 //        lampView.requestLayout();
 //    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventSaveSuccess eventSaveSuccess) {
+        LogUtil.e("SUCCESS");
+        if(eventSaveSuccess.isSuccess()){
+            hideLoading();
+            toCleanChose();
+        }
+    }
 
 
     @Override
@@ -732,43 +766,64 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     private boolean isChangeDevice;
 
     private void setType() {
-        lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
-        isChangeDevice = false;
-        for (int i = 0; i < lamps.getLampSettings().size(); i++) {
-            if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null) {
-                if (choseDeviceName == null || !choseDeviceName.equals(lamps.getLampSettings().get(i).getName())) {
-                    isChangeDevice = true;
-                    choseDeviceName = lamps.getLampSettings().get(i).getName();
-                }
-                if(isChangeDevice){
-                    switch (lamps.getLampSettings().get(i).getName().substring(5, 6)) {
-                        case "C":
-                            lightType = 0;
-                            lampTreeView.setVisibility(View.GONE);
-                            lampView.setVisibility(View.VISIBLE);
-                            size = lamps.getLampSettings().get(i).getSize();
-                            column = lamps.getLampSettings().get(i).getColumn();
-                            lampView.setSize(size);
-                            lampView.setColumn(column);
-                            lampView.requestLayout();
-                            break;
-                        case "T":
-                            lightType = 1;
-                            lampTreeView.setVisibility(View.VISIBLE);
-                            lampView.setVisibility(View.GONE);
-                            if(!TextUtils.isEmpty(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE))){
-                                lampTreeView.setConfigData(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE));
-                                lampTreeView.requestLayout();
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
+        showLoading();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
+                isChangeDevice = false;
+                handler.sendEmptyMessage(0);
             }
-        }
+        }).start();
     }
 
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:
+                    for (int i = 0; i < lamps.getLampSettings().size(); i++) {
+                        if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null) {
+                            if (choseDeviceName == null || !choseDeviceName.equals(lamps.getLampSettings().get(i).getName())) {
+                                isChangeDevice = true;
+                                choseDeviceName = lamps.getLampSettings().get(i).getName();
+                            }
+                            if(isChangeDevice){
+                                switch (lamps.getLampSettings().get(i).getName().substring(5, 6)) {
+                                    case "C":
+                                        lightType = 0;
+                                        lampTreeView.setVisibility(View.GONE);
+                                        lampView.setVisibility(View.VISIBLE);
+                                        size = lamps.getLampSettings().get(i).getSize();
+                                        column = lamps.getLampSettings().get(i).getColumn();
+                                        lampView.setSize(size);
+                                        lampView.setColumn(column);
+                                        lampView.requestLayout();
+                                        break;
+                                    case "T":
+                                        lightType = 1;
+                                        lampTreeView.setVisibility(View.VISIBLE);
+                                        lampView.setVisibility(View.GONE);
+                                        if(!TextUtils.isEmpty(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE))){
+                                            lampTreeView.setConfigData(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE));
+                                            lampTreeView.requestLayout();
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    hideLoading();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 //
 //    @Subscribe(threadMode = ThreadMode.MAIN)
 //    public void onMessageEvent(EventtDeviceName eventtDeviceName) {

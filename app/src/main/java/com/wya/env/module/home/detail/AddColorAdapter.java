@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.wya.env.R;
+import com.wya.env.bean.doodle.CopyModeColor;
 import com.wya.env.util.ColorUtil;
 import com.wya.env.view.Circle;
 
@@ -21,7 +22,7 @@ import java.util.List;
  * @describe:
  */
 
-public class AddColorAdapter extends BaseQuickAdapter<String, BaseViewHolder> {
+public class AddColorAdapter extends BaseQuickAdapter<CopyModeColor, BaseViewHolder> {
 
     private Context context;
     private int chose_position = 0;
@@ -32,20 +33,20 @@ public class AddColorAdapter extends BaseQuickAdapter<String, BaseViewHolder> {
      * @param layoutResId
      * @param data
      */
-    public AddColorAdapter(Context context, int layoutResId, @Nullable List<String> data) {
+    public AddColorAdapter(Context context, int layoutResId, @Nullable List<CopyModeColor> data) {
         super(layoutResId, data);
         this.context = context;
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, String item) {
-        if (TextUtils.isEmpty(item)) {
+    protected void convert(BaseViewHolder helper, CopyModeColor item) {
+        if (TextUtils.isEmpty(item.getShowColor())) {
             helper.setGone(R.id.add, true);
             helper.setGone(R.id.circle, false);
         } else {
             helper.setGone(R.id.circle, true);
             helper.setGone(R.id.add, false);
-            ((Circle) helper.getView(R.id.circle)).setmColor(ColorUtil.hex2Int(item));
+            ((Circle) helper.getView(R.id.circle)).setmColor(ColorUtil.hex2Int(item.getShowColor()));
         }
     }
 

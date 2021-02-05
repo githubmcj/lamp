@@ -14,4 +14,5 @@ import java.util.List;
 
 public interface HomeFragmentView extends BaseView {
     void onModelsResult(List<SaveModel> data);
+    void onUpLoadModelResult();
 }

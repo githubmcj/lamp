@@ -43,8 +43,14 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
     protected void convert(BaseViewHolder helper, LampModel item) {
         if (item.getName() == null) {
             helper.setGone(R.id.ll_add, true);
+            helper.setGone(R.id.ll_custom, false);
+        } else if(item.getModeType() == 1){
+            helper.setGone(R.id.ll_custom, true);
+            helper.setGone(R.id.ll_add, false);
+            helper.setText(R.id.tv_custom, item.getName());
         } else {
             helper.setGone(R.id.ll_add, false);
+            helper.setGone(R.id.ll_custom, false);
             helper.setText(R.id.tv_mode_name, item.getName());
             ((LampView) helper.getView(R.id.lamp_view)).setSize(item.getSize());
             ((LampView) helper.getView(R.id.lamp_view)).setColumn(item.getColumn());

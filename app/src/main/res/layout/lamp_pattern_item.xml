@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-    
+
 
     <LinearLayout
         android:id="@+id/ll_item"
@@ -26,10 +26,10 @@
                 android:layout_marginTop="@dimen/dp_12"
                 android:layout_marginBottom="@dimen/dp_2"
                 app:bg_color="@color/white"
+                app:column="20"
                 app:margin_left="@dimen/dp_10"
                 app:margin_right="@dimen/dp_10"
                 app:size="300"
-                app:column="20"
                 app:type="2"></com.wya.env.view.LampView>
 
         </RelativeLayout>
@@ -65,22 +65,23 @@
         </TableRow>
 
     </LinearLayout>
-    
+
     <LinearLayout
         android:id="@+id/ll_add"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/dp_10"
         android:background="@drawable/lamp_pattern_normal_bg"
-        android:orientation="vertical"
-        android:gravity="center">
-        
+        android:gravity="center"
+        android:orientation="vertical">
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/tianjia">
 
         </ImageView>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -88,8 +89,52 @@
             android:padding="@dimen/dp_12"
             android:text="ADD MODEL"
             android:textColor="@color/black"
-            android:textSize="@dimen/sp_14">
-        </TextView>
+            android:textSize="@dimen/sp_14"></TextView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_custom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/dp_10"
+        android:background="@drawable/lamp_pattern_normal_bg"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/custom">
+
+        </ImageView>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_custom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:padding="@dimen/dp_12"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sp_14">
+
+            </TextView>
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/dp_2"
+                android:padding="@dimen/dp_10"
+                android:src="@drawable/yinyueshibie"
+                android:visibility="gone"></ImageView>
+
+        </TableRow>
 
     </LinearLayout>
 

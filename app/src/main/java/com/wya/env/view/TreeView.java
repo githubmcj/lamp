@@ -415,7 +415,7 @@ public class TreeView extends View {
 
     public void setModel(List<DoodlePattern> modeArr, int light, boolean toShow) {
         LogUtil.e("toShow=============" + toShow);
-        this.size = modeArr.get(0).getSize();
+        this.size = modeArr.get(0).getLight_status().size();
         this.light = light;
         mHeight = (int) ((size / column) * (lamp_size + 2 * lamp_margin) * 1.5);
         setMeasuredDimension(mWidth, mHeight);
@@ -500,13 +500,7 @@ public class TreeView extends View {
     private HashMap<String, Doodle> save_data = new HashMap<>();
 
     public HashMap<String, Doodle> getSaveData() {
-        save_data.clear();
-        for (int i = 0; i < data.size(); i++) {
-            if (!data.get(String.valueOf(i)).getColor().equals("#000000")) {
-                save_data.put(String.valueOf(i), data.get(String.valueOf(i)));
-            }
-        }
-        return save_data;
+        return data;
     }
 
 

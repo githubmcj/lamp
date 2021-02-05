@@ -7,6 +7,7 @@ import com.wya.env.net.BaseExt;
 import com.wya.env.net.BaseSubscriber;
 import com.wya.env.net.api.ResultApi;
 import com.wya.env.util.ResultStatusUtil;
+import com.wya.utils.utils.LogUtil;
 
 import java.util.List;
 
@@ -36,4 +37,24 @@ public class HomeFragmentPresenter extends BasePresent<HomeFragmentView> {
             }
         });
     }
+
+    /**
+     * 上传模板
+     *
+     * @param content
+     */
+    public void upLoadModel(String content) {
+        mView.showLoading();
+        LogUtil.e(content);
+        BaseExt.ext(resultApi.saveModelApi(content), new BaseSubscriber<BaseResult<Object>>(mView) {
+            @Override
+            public void onNext(BaseResult<Object> loginInfoBaseResult) {
+                if (ResultStatusUtil.resultStatus(mView, loginInfoBaseResult.code, loginInfoBaseResult.msg, loginInfoBaseResult.success)) {
+                    mView.onUpLoadModelResult();
+                }
+            }
+        });
+    }
+
 }
+

@@ -15,8 +15,9 @@
             android:id="@+id/et_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp_10"
             android:layout_weight="1"
-            android:background="@null"
+            android:background="@drawable/et_bg"
             android:hint="@string/equipment_name"
             android:padding="@dimen/dp_12"
             android:textSize="@dimen/sp_18"></EditText>

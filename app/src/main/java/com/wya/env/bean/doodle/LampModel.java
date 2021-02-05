@@ -1,5 +1,6 @@
 package com.wya.env.bean.doodle;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
  * @classname: ModeArr
  * @describe: 模板
  */
-public class LampModel implements Cloneable{
+public class LampModel implements Cloneable, Serializable {
     private List<DoodlePattern> modeArr;
     String name;
     int id;

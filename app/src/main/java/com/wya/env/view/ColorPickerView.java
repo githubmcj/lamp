@@ -301,7 +301,7 @@ public class ColorPickerView extends View {
 
     /**
      * 设置颜色条的渐变颜色，不支持具有 alpha 的颜色，{@link Color#TRANSPARENT}会被当成 {@link Color#BLACK}处理
-     * 如果想设置 alpha ，可以在{@link OnColorPickerChangeListener#onColorChanged(ColorPickerView, int)} 回调
+     * 如果想设置 alpha ，可以在{@link OnColorPickerChangeListener#onColorChanged(ColorPickerView, int, int)} 回调
      * 中调用{@link android.support.v4.graphics.ColorUtils#setAlphaComponent(int, int)}方法添加 alpha 值。
      *
      * @param colors 颜色值
@@ -364,6 +364,12 @@ public class ColorPickerView extends View {
             rectForIndicator.set(curX - mRadius, curY - mRadius, curX + mRadius, curY + mRadius);
             canvas.drawBitmap(bitmapForIndicator, null, rectForIndicator, paint);
         }
+        if (colorPickerChangeListener != null) {
+            progress = curX * 255 / getWidth();
+            colorPickerChangeListener.onStartTrackingTouch(this);
+            calcuColor();
+            colorPickerChangeListener.onColorChanged(this, currentColor, progress);
+        }
     }
 
     private void createIndicatorBitmap() {
@@ -403,6 +409,8 @@ public class ColorPickerView extends View {
         needReDrawColorTable = false;
     }
 
+    private int progress = 127;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -420,25 +428,26 @@ public class ColorPickerView extends View {
             curX = getWidth() / 2;
             curY = ey;
         }
+        progress = curX * 255 / getWidth();
 
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             if (colorPickerChangeListener != null) {
                 colorPickerChangeListener.onStartTrackingTouch(this);
                 calcuColor();
-                colorPickerChangeListener.onColorChanged(this, currentColor);
+                colorPickerChangeListener.onColorChanged(this, currentColor, progress);
             }
 
         } else if (event.getActionMasked() == MotionEvent.ACTION_UP) { //手抬起
             if (colorPickerChangeListener != null) {
                 colorPickerChangeListener.onStopTrackingTouch(this);
                 calcuColor();
-                colorPickerChangeListener.onColorChanged(this, currentColor);
+                colorPickerChangeListener.onColorChanged(this, currentColor, progress);
             }
 
         } else { //按着+拖拽
             if (colorPickerChangeListener != null) {
                 calcuColor();
-                colorPickerChangeListener.onColorChanged(this, currentColor);
+                colorPickerChangeListener.onColorChanged(this, currentColor, progress);
             }
         }
 
@@ -518,7 +527,7 @@ public class ColorPickerView extends View {
          * @param picker ColorPickerView
          * @param color  颜色
          */
-        void onColorChanged(ColorPickerView picker, int color);
+        void onColorChanged(ColorPickerView picker, int color, int progress);
 
         /**
          * 开始颜色选取

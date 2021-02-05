@@ -18,21 +18,5 @@ import com.wya.utils.utils.LogUtil;
 public class DoodleFragmentPresenter extends BasePresent<DoodleFragmentView> {
     private ResultApi resultApi = new ResultApi();
 
-    /**
-     * 保存模板
-     *
-     * @param content
-     */
-    public void saveModel(String content) {
-        mView.showLoading();
-        LogUtil.e(content);
-        BaseExt.ext(resultApi.saveModelApi(content), new BaseSubscriber<BaseResult<Object>>(mView) {
-            @Override
-            public void onNext(BaseResult<Object> loginInfoBaseResult) {
-                if (ResultStatusUtil.resultStatus(mView, loginInfoBaseResult.code, loginInfoBaseResult.msg, loginInfoBaseResult.success)) {
-                    mView.onSaveResult();
-                }
-            }
-        });
-    }
+
 }

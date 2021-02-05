@@ -4,7 +4,9 @@ import android.graphics.Color;
 
 import com.wya.env.util.ColorUtil;
 
-public class Doodle implements Cloneable {
+import java.io.Serializable;
+
+public class Doodle implements Cloneable, Serializable {
 
     private String color;
 
