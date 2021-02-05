@@ -17,6 +17,7 @@ public class Doodle implements Cloneable, Serializable {
      */
     private int isFlash;
 
+    private int w;
 
     private int addr;
 
@@ -25,6 +26,14 @@ public class Doodle implements Cloneable, Serializable {
     private float Y;
 
     private float Z;
+
+    public int getW() {
+        return w;
+    }
+
+    public void setW(int w) {
+        this.w = w;
+    }
 
     public int getAddr() {
         return addr;

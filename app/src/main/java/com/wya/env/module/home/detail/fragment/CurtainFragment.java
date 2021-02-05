@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import com.wya.env.R;
 import com.wya.env.base.BaseLazyFragment;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.common.CommonValue;
+import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
 
 import butterknife.BindView;
@@ -34,6 +36,7 @@ public class CurtainFragment extends BaseLazyFragment {
 
     @Override
     protected void initView() {
+        curtain.setColorType(SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE));
         curtain.setSize(model.getSize());
         curtain.setColumn(model.getColumn());
         curtain.setShape(0);

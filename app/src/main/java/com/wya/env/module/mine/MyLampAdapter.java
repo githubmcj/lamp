@@ -194,7 +194,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
         } else {
             helper.setGone(R.id.ll_add, false);
-            helper.setText(R.id.name, item.getDeviceName() + "\n" + item.getRow() + "*" + item.getColumn());
+            helper.setText(R.id.name, item.getDeviceName());
             if (item.isChose() && App.getInstance().isTcpConnected()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
                 helper.getView(R.id.img_open).setEnabled(true);
@@ -1020,8 +1020,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      */
     boolean modeDataFinish = false;
     private LampModel lampModel;
+    private int colorType;
 
     public void apply(LampModel lampModel) {
+        colorType = SaveSharedPreferences.getInt(context, CommonValue.COLOR_TYPE);
         eventApply = new EventApply();
         eventApply.setStatus(0);
         EventBus.getDefault().post(eventApply);
@@ -1178,9 +1180,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      * @return
      */
     public byte[] getUdpByteData(HashMap<String, Doodle> data, int start, int size) {
-        boolean w = true;
         byte[] upd_data;
-        if (w) {
+        if (colorType == 0x04) {
             upd_data = new byte[4 * size];
             for (int i = start; i < size + start; i++) {
                 String color = data.get(String.valueOf(i)).getColor();
@@ -1195,13 +1196,13 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                         upd_data[i * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                         upd_data[i * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                         upd_data[i * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                        upd_data[i * 4 + 3] = (byte) (0x00);
+                        upd_data[i * 4 + 3] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
                     }
                 } else {
                     upd_data[i * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                     upd_data[i * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                     upd_data[i * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                    upd_data[i * 4 + 3] = (byte) (0x00);
+                    upd_data[i * 4 + 3] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
                 }
             }
         } else {

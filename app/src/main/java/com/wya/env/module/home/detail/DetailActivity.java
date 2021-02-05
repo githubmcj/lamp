@@ -355,7 +355,6 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 .setLayoutId(R.layout.lamp_edit_layout, new CustomListener() {
                     @Override
                     public void customLayout(View v) {
-
                         SeekBar mSeekBar = (SeekBar) v.findViewById(R.id.seekbar);
                         LogUtil.e(lampModel.getSpeed() + "--------");
                         mSeekBar.post(new Runnable() {

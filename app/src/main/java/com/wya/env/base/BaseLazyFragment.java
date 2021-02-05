@@ -43,7 +43,7 @@ public abstract class BaseLazyFragment extends Fragment {
             rootView = inflater.inflate(getLayoutResource(), container, false);
             mUnbinder = ButterKnife.bind(this, rootView);
         }
-        loadingDialog = new WYALoadingDialog(getActivity(), false, false);
+        loadingDialog = new WYALoadingDialog(getActivity(), false, true);
         loadingDialog.setText("loading...");
         initView();
         //可见，但是并没有加载过

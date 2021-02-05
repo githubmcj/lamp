@@ -75,6 +75,7 @@ public class SearchDeviceActivity extends BaseActivity {
     protected void onStop() {
         super.onStop();
         stopSendUdpModeData();
+        loadingDialog.dismiss();
     }
 
     ScheduledExecutorService modelExecutorService;
@@ -145,6 +146,7 @@ public class SearchDeviceActivity extends BaseActivity {
             }
             lampSettings.get(position).setChose(true);
             saveInfoLamp(lampSettings);
+            loadingDialog.show();
             // 跳转到主界面
             startActivity(new Intent(SearchDeviceActivity.this, MainActivity.class));
             ActivityManager.getInstance().exitApp();
@@ -184,6 +186,8 @@ public class SearchDeviceActivity extends BaseActivity {
 //        socket.close();
 //        LogUtil.e("发送搜索广播数据成功");
 //    }
+
+
 
 
     private void sendData(int type) {

@@ -202,6 +202,11 @@ public class LampView extends View {
     private String choseColor;
 
     /**
+     * w值
+     */
+    private int w;
+
+    /**
      * 展示的颜色
      */
     private String showColor;
@@ -262,6 +267,19 @@ public class LampView extends View {
      * 实时画板
      */
     private boolean isOnline;
+
+    /**
+     * 0x00 RGB; 0x04 RGBW
+     */
+    private int colorType = 0;
+
+    public int getColorType() {
+        return colorType;
+    }
+
+    public void setColorType(int colorType) {
+        this.colorType = colorType;
+    }
 
     public void setModelName(String modelName) {
         this.modelName = modelName;
@@ -391,10 +409,11 @@ public class LampView extends View {
         return choseColor;
     }
 
-    public void setChoseColor(String choseColor) {
+    public void setChoseColor(String choseColor, int w) {
         if (choseColor == null) {
             choseColor = "#000000";
         }
+        this.w = w;
         this.choseColor = choseColor;
     }
 
@@ -407,7 +426,6 @@ public class LampView extends View {
 
     private HashMap<String, Doodle> data = new HashMap<>();
     private HashMap<String, Doodle> clean_data = new HashMap<>();
-
 
     public void setModel(List<DoodlePattern> modeArr, int light, boolean toShow) {
         LogUtil.e("toShow=============" + toShow);
@@ -607,6 +625,7 @@ public class LampView extends View {
                                 if (!data.get(String.valueOf(position)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position)).isFlash() == 1) != isTwinkle) {
                                     data.get(String.valueOf(position)).setColor(choseColor);
                                     data.get(String.valueOf(position)).setShowColor(showColor);
+                                    data.get(String.valueOf(position)).setW(w);
 //                                    data.get(String.valueOf(position)).setLight(choseLight);
                                     if (isTwinkle && choseColor != "#000000") {
                                         data.get(String.valueOf(position)).setFlash(1);
@@ -639,6 +658,7 @@ public class LampView extends View {
                                     if (!data.get(String.valueOf(position)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position)).isFlash() == 1) != isTwinkle) {
                                         data.get(String.valueOf(position)).setColor(choseColor);
                                         data.get(String.valueOf(position)).setShowColor(showColor);
+                                        data.get(String.valueOf(position)).setW(w);
 //                                        data.get(String.valueOf(position)).setLight(choseLight);
                                         if (isTwinkle && choseColor != "#000000") {
                                             data.get(String.valueOf(position)).setFlash(1);
@@ -673,6 +693,7 @@ public class LampView extends View {
         if (!data.get(String.valueOf(position)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position)).isFlash() == 1) != isTwinkle) {
             data.get(String.valueOf(position)).setColor(choseColor);
             data.get(String.valueOf(position)).setShowColor(showColor);
+            data.get(String.valueOf(position)).setW(w);
 //            data.get(String.valueOf(position)).setLight(choseLight);
             if (isTwinkle) {
                 data.get(String.valueOf(position)).setFlash(1);
@@ -686,6 +707,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setShowColor(showColor);
+                data.get(String.valueOf(position + 1)).setW(w);
 //                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -697,6 +719,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position + size / column)).setW(w);
 //                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -710,6 +733,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setShowColor(showColor);
+                data.get(String.valueOf(position + 1)).setW(w);
 //                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -721,6 +745,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setShowColor(showColor);
+                data.get(String.valueOf(position - 1)).setW(w);
 //                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -732,6 +757,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position + size / column)).setW(w);
 //                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -745,6 +771,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setShowColor(showColor);
+                data.get(String.valueOf(position - 1)).setW(w);
 //                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -756,6 +783,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position + size / column)).setW(w);
 //                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -769,6 +797,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setShowColor(showColor);
+                data.get(String.valueOf(position - 1)).setW(w);
 //                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -780,6 +809,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position - size / column)).setW(w);
 //                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -793,6 +823,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setShowColor(showColor);
+                data.get(String.valueOf(position + 1)).setW(w);
 //                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -804,6 +835,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position - size / column)).setW(w);
 //                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -817,6 +849,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setShowColor(showColor);
+                data.get(String.valueOf(position + 1)).setW(w);
 //                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -828,6 +861,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position - size / column)).setW(w);
 //                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -839,6 +873,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position + size / column)).setW(w);
 //                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -852,6 +887,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setShowColor(showColor);
+                data.get(String.valueOf(position - 1)).setW(w);
 //                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -863,6 +899,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position - size / column)).setW(w);
 //                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -874,6 +911,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position + size / column)).setW(w);
 //                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -887,6 +925,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setShowColor(showColor);
+                data.get(String.valueOf(position - 1)).setW(w);
 //                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -898,6 +937,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setShowColor(showColor);
+                data.get(String.valueOf(position + 1)).setW(w);
 //                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -909,6 +949,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position - size / column)).setW(w);
 //                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -922,6 +963,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position + 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position + 1)).setColor(choseColor);
                 data.get(String.valueOf(position + 1)).setShowColor(showColor);
+                data.get(String.valueOf(position + 1)).setW(w);
 //                data.get(String.valueOf(position + 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + 1)).setFlash(1);
@@ -933,6 +975,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - 1)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - 1)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - 1)).setColor(choseColor);
                 data.get(String.valueOf(position - 1)).setShowColor(showColor);
+                data.get(String.valueOf(position - 1)).setW(w);
 //                data.get(String.valueOf(position - 1)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - 1)).setFlash(1);
@@ -944,6 +987,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position - size / column)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(position - size / column)).isFlash() == 1) != isTwinkle) {
                 data.get(String.valueOf(position - size / column)).setColor(choseColor);
                 data.get(String.valueOf(position - size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position - size / column)).setW(w);
 //                data.get(String.valueOf(position - size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position - size / column)).setFlash(1);
@@ -955,6 +999,7 @@ public class LampView extends View {
             if (!data.get(String.valueOf(position + size / column)).getColor().equalsIgnoreCase(choseColor)) {
                 data.get(String.valueOf(position + size / column)).setColor(choseColor);
                 data.get(String.valueOf(position + size / column)).setShowColor(showColor);
+                data.get(String.valueOf(position + size / column)).setW(w);
 //                data.get(String.valueOf(position + size / column)).setLight(choseLight);
                 if (isTwinkle) {
                     data.get(String.valueOf(position + size / column)).setFlash(1);
@@ -1030,29 +1075,57 @@ public class LampView extends View {
      * @return
      */
     public byte[] getUdpByteData(HashMap<String, Doodle> data) {
-        byte[] upd_data = new byte[1 + 2 + 2 + 3 * size];
-        upd_data[0] = 0x01;
-        upd_data[1] = 0x00;
-        upd_data[2] = 0x00;
-        upd_data[3] = ByteUtil.intToByteArray(size)[0];
-        upd_data[4] = ByteUtil.intToByteArray(size)[1];
-        for (int i = 0; i < size; i++) {
-            String color = data.get(String.valueOf(i)).getColor();
-            boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
-            if (isTwinkle) {
-                if (Math.random() * 10 < 4) {
-                    upd_data[i * 3 + 5] = 0x00;
-                    upd_data[i * 3 + 6] = 0x00;
-                    upd_data[i * 3 + 7] = 0x00;
+        byte[] upd_data;
+        if (colorType == 0x04) {
+            upd_data = new byte[1 + 2 + 2 + 4 * size];
+            for (int i = 0; i < size; i++) {
+                String color = data.get(String.valueOf(i)).getColor();
+                boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                if (isTwinkle) {
+                    if (Math.random() * 10 < 4) {
+                        upd_data[i * 4 + 5] = 0x00;
+                        upd_data[i * 4 + 4] = 0x00;
+                        upd_data[i * 4 + 7] = 0x00;
+                        upd_data[i * 4 + 8] = 0x00;
+                    } else {
+                        upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                        upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                        upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                        upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                    }
+                } else {
+                    upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                    upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                    upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                    upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                }
+            }
+
+        } else {
+            upd_data = new byte[1 + 2 + 2 + 3 * size];
+            upd_data[0] = 0x01;
+            upd_data[1] = 0x00;
+            upd_data[2] = 0x00;
+            upd_data[3] = ByteUtil.intToByteArray(size)[0];
+            upd_data[4] = ByteUtil.intToByteArray(size)[1];
+            for (int i = 0; i < size; i++) {
+                String color = data.get(String.valueOf(i)).getColor();
+                boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                if (isTwinkle) {
+                    if (Math.random() * 10 < 4) {
+                        upd_data[i * 3 + 5] = 0x00;
+                        upd_data[i * 3 + 6] = 0x00;
+                        upd_data[i * 3 + 7] = 0x00;
+                    } else {
+                        upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                        upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                        upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                    }
                 } else {
                     upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                     upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                     upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
                 }
-            } else {
-                upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-                upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-                upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
             }
         }
         return upd_data;

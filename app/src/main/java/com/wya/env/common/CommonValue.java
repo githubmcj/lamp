@@ -44,4 +44,6 @@ public interface CommonValue {
     String COLUMN = "column";
     String SIZE = "size";
     String ROW = "row";
+    
+    String COLOR_TYPE = "color_type";
 }

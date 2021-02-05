@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import com.wya.env.R;
 import com.wya.env.base.BaseLazyFragment;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.common.CommonValue;
+import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.TreeView;
 
 import butterknife.BindView;
@@ -27,6 +29,7 @@ public class TreeFragment extends BaseLazyFragment {
 
     @Override
     protected void initView() {
+        tree.setColorType(SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE));
         tree.setSize(model.getSize());
         tree.setColumn(model.getColumn());
         tree.setModelName(model.getName());

@@ -1610,6 +1610,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     // 下载模板
     private void downLoad() {
+        showLoading();
         lampModelsC.get(chosePosition).setChose(0);
         lampModelsL.add(lampModelsL.size() - 1, lampModelsC.get(chosePosition));
         adapterL.notifyDataSetChanged();
@@ -1709,6 +1710,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                     EventBus.getDefault().post(saveSuccess);
                     break;
                 case 5:
+                    hideLoading();
                     setAction(false);
                     break;
                 default:

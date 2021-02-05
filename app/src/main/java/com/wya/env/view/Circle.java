@@ -134,6 +134,13 @@ public class Circle extends View {
         return ColorUtil.int2Hex(mColor);
     }
 
+
+    public void setColor(String chose_color) {
+        mColor = ColorUtil.hex2Int(chose_color);
+        postInvalidate();
+    }
+
+
     public String getShowColor(String chose_color, int chose_light) {
         if (chose_light < 15) {
             chose_light = 15;

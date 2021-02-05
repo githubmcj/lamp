@@ -16,79 +16,101 @@
         android:paddingTop="@dimen/dp_20"
         android:paddingBottom="@dimen/dp_20">
 
+
+        <com.wya.env.view.Circle
+            android:id="@+id/circle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:circle_color="@color/cEA1318"
+            app:circle_width="@dimen/dp_40"
+            android:layout_gravity="left"
+            android:layout_marginLeft="@dimen/dp_12">
+
+        </com.wya.env.view.Circle>
+
+        <com.wya.env.view.ColorPickerView
+            android:id="@+id/picker2"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_alignParentTop="true"
+            android:background="#ffffff"
+            android:paddingTop="0dp"
+            app:indicatorColor="#ffffff"
+            app:indicatorEnable="true"
+            app:orientation="horizontal" />
+
+        <com.wya.env.view.ColorPickerView
+            android:id="@+id/picker1"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_alignParentTop="true"
+            android:background="#ffffff"
+            app:indicatorColor="#ffffff"
+            app:indicatorEnable="true"
+            app:orientation="horizontal" />
+
+
+
         <RelativeLayout
-            android:layout_width="@dimen/dp_300"
-            android:layout_height="@dimen/dp_300">
+            android:layout_width="@dimen/dp_280"
+            android:layout_height="@dimen/dp_280">
+
             <top.defaults.colorpicker.ColorPickerView
                 android:id="@+id/picker_view"
-                android:layout_width="@dimen/dp_300"
-                android:layout_height="@dimen/dp_300"
+                android:layout_width="@dimen/dp_280"
+                android:layout_height="@dimen/dp_280"
                 app:enableAlpha="false"
                 app:enableBrightness="false"
+                app:indicatorColor="@color/white"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <com.wya.env.view.Circle
-                android:id="@+id/circle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:circle_color="@color/cEA1318"
-                app:circle_width="@dimen/dp_40">
-
-            </com.wya.env.view.Circle>
+                app:layout_constraintTop_toTopOf="parent" />
 
         </RelativeLayout>
 
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/dp_10"
-            android:gravity="center">
+            android:layout_height="wrap_content">
 
-            <SeekBar
-                android:id="@+id/seekbar"
+            <com.wya.uikit.button.WYAButton
+                android:id="@+id/cancel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_marginTop="@dimen/dp_20"
                 android:layout_weight="1"
-                android:max="100"
-                android:maxHeight="@dimen/dp_10"
-                android:minHeight="@dimen/dp_10"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:progress="100"
-                android:progressDrawable="@drawable/seekbar_shape"
-                android:thumb="@drawable/seek_bar" />
+                android:padding="@dimen/dp_10"
+                android:paddingLeft="@dimen/dp_50"
+                android:paddingRight="@dimen/dp_50"
+                android:text="CANCEL"
+                android:textSize="@dimen/sp_14"
+                android:textStyle="bold"
+                app:buttonBackGroundColor="@color/white"
+                app:buttonBackGroundColorPress="@color/white"
+                app:buttonFillet="true"
+                app:buttonRadius="10dp"
+                app:buttonTextColor="@color/app_blue" />
 
-            <TextView
-                android:id="@+id/tv_light"
-                android:layout_width="wrap_content"
+            <com.wya.uikit.button.WYAButton
+                android:id="@+id/create"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="100"
-                android:textColor="@color/black"
-                android:textSize="@dimen/sp_16"></TextView>
+                android:layout_marginTop="@dimen/dp_20"
+                android:layout_weight="1"
+                android:padding="@dimen/dp_10"
+                android:paddingLeft="@dimen/dp_50"
+                android:paddingRight="@dimen/dp_50"
+                android:text="CREATE"
+                android:textSize="@dimen/sp_14"
+                android:textStyle="bold"
+                app:buttonBackGroundColor="@color/white"
+                app:buttonBackGroundColorPress="@color/white"
+                app:buttonFillet="true"
+                app:buttonRadius="10dp"
+                app:buttonTextColor="@color/app_blue" />
 
 
         </TableRow>
-
-
-        <com.wya.uikit.button.WYAButton
-            android:id="@+id/sure"
-            android:layout_width="@dimen/dp_150"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_20"
-            android:padding="@dimen/dp_10"
-            android:paddingLeft="@dimen/dp_50"
-            android:paddingRight="@dimen/dp_50"
-            android:text="确定"
-            android:textSize="@dimen/sp_16"
-            app:buttonBackGroundColor="@color/app_blue"
-            app:buttonBackGroundColorPress="@color/app_blue_press"
-            app:buttonFillet="true"
-            app:buttonRadius="5dp"
-            app:buttonTextColor="@color/white" />
 
 
     </LinearLayout>

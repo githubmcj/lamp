@@ -11,9 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TableRow;
-import android.widget.TextView;
 
 import com.easysocket.utils.LogUtil;
 import com.google.gson.Gson;
@@ -21,7 +19,6 @@ import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
-import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.event.EventCustomLampModel;
 import com.wya.env.bean.event.EventSaveSuccess;
 import com.wya.env.bean.login.Lamps;
@@ -53,7 +50,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import top.defaults.colorpicker.ColorObserver;
-import top.defaults.colorpicker.ColorPickerView;
 
 /**
  * @date: 2018/7/3 13:55
@@ -176,11 +172,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         chose_light = 100;
         switch (lightType) {
             case 0:
-                lampView.setChoseColor(chose_color);
+                lampView.setChoseColor(chose_color, w);
                 lampView.setShowColor(show_color);
                 break;
             case 1:
-                lampTreeView.setChoseColor(chose_color);
+                lampTreeView.setChoseColor(chose_color, w);
                 lampTreeView.setShowColor(show_color);
                 break;
             default:
@@ -217,6 +213,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         initData();//初始化数据
     }
 
+    private com.wya.env.view.ColorPickerView picker1;
+    private com.wya.env.view.ColorPickerView pickerW;
+    private top.defaults.colorpicker.ColorPickerView colorPickerView;
+    private int w;
+
     @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab_add, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.img_mirror, R.id.img_del, R.id.img_all})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -250,42 +251,87 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 break;
             case R.id.tab_add:
                 choseColorDialog = new WYACustomDialog.Builder(getActivity())
-                        .title("")
-                        .message("")
-                        .cancelable(true)
-                        .cancelTouchout(true)
                         .setLayoutId(R.layout.chose_color_layout, new CustomListener() {
                             @Override
                             public void customLayout(View v) {
-                                WYAButton sure = v.findViewById(R.id.sure);
-                                ColorPickerView colorPickerView = v.findViewById(R.id.picker_view);
-                                TextView tvLight = v.findViewById(R.id.tv_light);
                                 Circle circle = v.findViewById(R.id.circle);
-                                if (picker_chose_color == null) {
-                                    picker_chose_color = "#ffffff";
+                                if (show_color == null) {
+                                    show_color = "#ffffff";
                                 }
-                                chose_color = circle.getColor(picker_chose_color, chose_light);
-                                tvLight.setText(chose_light + "");
-                                colorPickerView.setInitialColor(Color.rgb(ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[0], ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[1], ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[2]));
-                                show_color = circle.getShowColor(picker_chose_color, chose_light);
+                                circle.setColor(show_color);
+                                picker1 = v.findViewById(R.id.picker1);
+                                pickerW = v.findViewById(R.id.picker2);
+                                picker1.setOnColorPickerChangeListener(new com.wya.env.view.ColorPickerView.OnColorPickerChangeListener() {
+                                    @Override
+                                    public void onColorChanged(com.wya.env.view.ColorPickerView picker, int color, int progress) {
+                                        pickerW.setColors(Color.rgb(254, 240, 214), color);
+                                        chose_color = ColorUtil.int2Hex2(color);
+                                    }
+
+                                    @Override
+                                    public void onStartTrackingTouch(com.wya.env.view.ColorPickerView picker) {
+
+                                    }
+
+                                    @Override
+                                    public void onStopTrackingTouch(com.wya.env.view.ColorPickerView picker) {
+
+                                    }
+                                });
+                                pickerW.setOnColorPickerChangeListener(new com.wya.env.view.ColorPickerView.OnColorPickerChangeListener() {
+                                    @Override
+                                    public void onColorChanged(com.wya.env.view.ColorPickerView picker, int color, int progress) {
+                                        if (progress < 15) {
+                                            w = 0;
+                                        } else if (progress > 240) {
+                                            w = 255;
+                                        } else {
+                                            w = progress;
+                                        }
+                                        show_color = ColorUtil.int2Hex(color);
+                                        circle.setColor(show_color);
+//                                        add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex2(color), w, choseColor));
+//                                        addColorAdapter.setNewData(add_colors);
+                                    }
+
+                                    @Override
+                                    public void onStartTrackingTouch(com.wya.env.view.ColorPickerView picker) {
+
+                                    }
+
+                                    @Override
+                                    public void onStopTrackingTouch(com.wya.env.view.ColorPickerView picker) {
+
+                                    }
+                                });
+
+                                colorPickerView = v.findViewById(R.id.picker_view);
                                 colorPickerView.subscribe(new ColorObserver() {
                                     @Override
                                     public void onColor(int color, boolean fromUser, boolean shouldPropagate) {
-                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & color));
-                                        chose_color = circle.getColor(picker_chose_color, chose_light);
-                                        show_color = circle.getShowColor(picker_chose_color, chose_light);
+                                        picker1.setColors(Color.WHITE, color, Color.TRANSPARENT);
                                     }
                                 });
+                                colorPickerView.setInitialColor(Color.WHITE);
+
+                                WYAButton cancel = v.findViewById(R.id.cancel);
+                                cancel.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        choseColorDialog.dismiss();
+                                    }
+                                });
+                                WYAButton sure = v.findViewById(R.id.create);
                                 sure.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
                                         switch (lightType) {
                                             case 0:
-                                                lampView.setChoseColor(chose_color);
+                                                lampView.setChoseColor(chose_color, w);
                                                 lampView.setShowColor(show_color);
                                                 break;
                                             case 1:
-                                                lampTreeView.setChoseColor(chose_color);
+                                                lampTreeView.setChoseColor(chose_color, w);
                                                 lampTreeView.setShowColor(show_color);
                                                 break;
                                             default:
@@ -296,42 +342,96 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                         choseColorDialog.dismiss();
                                     }
                                 });
-
-                                SeekBar mSeekBar = (SeekBar) v.findViewById(R.id.seekbar);
-                                mSeekBar.setProgress(chose_light);
-                                mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                                    @Override
-                                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                        chose_light = progress;
-                                        tvLight.setText(chose_light + "");
-                                        chose_color = circle.getColor(picker_chose_color, chose_light);
-                                        show_color = circle.getShowColor(picker_chose_color, chose_light);
-                                    }
-
-                                    @Override
-                                    public void onStartTrackingTouch(SeekBar seekBar) {
-                                    }
-
-                                    @Override
-                                    public void onStopTrackingTouch(SeekBar seekBar) {
-                                        switch (lightType) {
-                                            case 0:
-                                                lampView.setChoseColor(chose_color);
-                                                lampView.setShowColor(show_color);
-                                                break;
-                                            case 1:
-                                                lampTreeView.setChoseColor(chose_color);
-                                                lampTreeView.setShowColor(show_color);
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                    }
-                                });
                             }
                         })
                         .build();
                 choseColorDialog.show();
+                
+                
+//
+//                choseColorDialog = new WYACustomDialog.Builder(getActivity())
+//                        .title("")
+//                        .message("")
+//                        .cancelable(true)
+//                        .cancelTouchout(true)
+//                        .setLayoutId(R.layout.chose_color_layout, new CustomListener() {
+//                            @Override
+//                            public void customLayout(View v) {
+//                                WYAButton sure = v.findViewById(R.id.sure);
+//                                ColorPickerView colorPickerView = v.findViewById(R.id.picker_view);
+//                                TextView tvLight = v.findViewById(R.id.tv_light);
+//                                Circle circle = v.findViewById(R.id.circle);
+//                                if (picker_chose_color == null) {
+//                                    picker_chose_color = "#ffffff";
+//                                }
+//                                chose_color = circle.setColor(picker_chose_color);
+//                                tvLight.setText(chose_light + "");
+//                                colorPickerView.setInitialColor(Color.rgb(ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[0], ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[1], ColorUtil.int2Rgb(Color.parseColor(picker_chose_color))[2]));
+//                                show_color = circle.getShowColor(picker_chose_color, chose_light);
+//                                colorPickerView.subscribe(new ColorObserver() {
+//                                    @Override
+//                                    public void onColor(int color, boolean fromUser, boolean shouldPropagate) {
+//                                        picker_chose_color = String.format("#%06X", (0xFFFFFF & color));
+//                                        chose_color = circle.getColor(picker_chose_color, chose_light);
+//                                        show_color = circle.getShowColor(picker_chose_color, chose_light);
+//                                    }
+//                                });
+//                                sure.setOnClickListener(new View.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(View v) {
+//                                        switch (lightType) {
+//                                            case 0:
+//                                                lampView.setChoseColor(chose_color);
+//                                                lampView.setShowColor(show_color);
+//                                                break;
+//                                            case 1:
+//                                                lampTreeView.setChoseColor(chose_color);
+//                                                lampTreeView.setShowColor(show_color);
+//                                                break;
+//                                            default:
+//                                                break;
+//                                        }
+//                                        color_index = 0;
+//                                        getColorIndex(color_index);
+//                                        choseColorDialog.dismiss();
+//                                    }
+//                                });
+//
+//                                SeekBar mSeekBar = (SeekBar) v.findViewById(R.id.seekbar);
+//                                mSeekBar.setProgress(chose_light);
+//                                mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                                    @Override
+//                                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                                        chose_light = progress;
+//                                        tvLight.setText(chose_light + "");
+//                                        chose_color = circle.getColor(picker_chose_color, chose_light);
+//                                        show_color = circle.getShowColor(picker_chose_color, chose_light);
+//                                    }
+//
+//                                    @Override
+//                                    public void onStartTrackingTouch(SeekBar seekBar) {
+//                                    }
+//
+//                                    @Override
+//                                    public void onStopTrackingTouch(SeekBar seekBar) {
+//                                        switch (lightType) {
+//                                            case 0:
+//                                                lampView.setChoseColor(chose_color);
+//                                                lampView.setShowColor(show_color);
+//                                                break;
+//                                            case 1:
+//                                                lampTreeView.setChoseColor(chose_color);
+//                                                lampTreeView.setShowColor(show_color);
+//                                                break;
+//                                            default:
+//                                                break;
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                        })
+//                        .build();
+//                choseColorDialog.show();
                 break;
             case R.id.ll_bold_paint:
                 if (painter_type == 1) {
@@ -486,13 +586,13 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         switch (lightType) {
             case 0:
                 lampView.clean();
-                lampView.setChoseColor(chose_color);
+                lampView.setChoseColor(chose_color, w);
                 lampView.setShowColor(chose_color);
                 lampView.setTwinkle(isTwinkle);
                 break;
             case 1:
                 lampTreeView.clean();
-                lampTreeView.setChoseColor(chose_color);
+                lampTreeView.setChoseColor(chose_color, w);
                 lampTreeView.setShowColor(chose_color);
                 lampTreeView.setTwinkle(isTwinkle);
                 break;
@@ -571,11 +671,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             imgBoldPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.cubidianji));
             switch (lightType) {
                 case 0:
-                    lampView.setChoseColor(chose_color);
+                    lampView.setChoseColor(chose_color, w);
                     lampView.setShowColor(chose_color);
                     break;
                 case 1:
-                    lampTreeView.setChoseColor(chose_color);
+                    lampTreeView.setChoseColor(chose_color, w);
                     lampTreeView.setShowColor(chose_color);
                     break;
                 default:
@@ -585,11 +685,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             imgThinPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.xibidianji));
             switch (lightType) {
                 case 0:
-                    lampView.setChoseColor(chose_color);
+                    lampView.setChoseColor(chose_color, w);
                     lampView.setShowColor(chose_color);
                     break;
                 case 1:
-                    lampTreeView.setChoseColor(chose_color);
+                    lampTreeView.setChoseColor(chose_color, w);
                     lampTreeView.setShowColor(chose_color);
                     break;
                 default:
@@ -599,11 +699,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachudianji));
             switch (lightType) {
                 case 0:
-                    lampView.setChoseColor("#000000");
+                    lampView.setChoseColor("#000000", w);
                     lampView.setShowColor("#000000");
                     break;
                 case 1:
-                    lampTreeView.setChoseColor("#000000");
+                    lampTreeView.setChoseColor("#000000", w);
                     lampTreeView.setShowColor("#000000");
                     break;
                 default:
@@ -632,6 +732,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         circle5.setCircle_chose(false);
         circle6.setCircle_chose(false);
         circle7.setCircle_chose(false);
+        w = 0;
         switch (color_index) {
             case 1:
                 chose_color = "#EA1318";
@@ -666,7 +767,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         }
         switch (lightType) {
             case 0:
-                lampView.setChoseColor(chose_color);
+                lampView.setChoseColor(chose_color, w);
                 lampView.setShowColor(chose_color);
                 if (painter_type == 0 || painter_type == 3) {
                     lampView.setPaintBold(false);
@@ -675,7 +776,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 }
                 break;
             case 1:
-                lampTreeView.setChoseColor(chose_color);
+                lampTreeView.setChoseColor(chose_color, w);
                 lampTreeView.setShowColor(chose_color);
                 if (painter_type == 0 || painter_type == 3) {
                     lampTreeView.setPaintBold(false);
@@ -727,6 +828,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
+            toCleanChose();
             setType();
             switch (lightType) {
                 case 0:

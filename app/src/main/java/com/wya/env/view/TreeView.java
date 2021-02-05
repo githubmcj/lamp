@@ -210,6 +210,11 @@ public class TreeView extends View {
     private String choseColor;
 
     /**
+     * 暖色值
+     */
+    private int w;
+
+    /**
      * 展示的颜色
      */
     private String showColor;
@@ -265,6 +270,19 @@ public class TreeView extends View {
      * 实时画板
      */
     private boolean isOnline;
+
+    /**
+     * 0x00 RGB; 0x04 RGBW
+     */
+    private int colorType = 0;
+
+    public int getColorType() {
+        return colorType;
+    }
+
+    public void setColorType(int colorType) {
+        this.colorType = colorType;
+    }
 
     public void setModelName(String modelName) {
         this.modelName = modelName;
@@ -395,10 +413,11 @@ public class TreeView extends View {
         return choseColor;
     }
 
-    public void setChoseColor(String choseColor) {
+    public void setChoseColor(String choseColor, int w) {
         if (choseColor == null) {
             choseColor = "#000000";
         }
+        this.w = w;
         this.choseColor = choseColor;
     }
 
@@ -696,6 +715,7 @@ public class TreeView extends View {
                 if (!data.get(String.valueOf(i)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(i)).isFlash() == 1) != isTwinkle) {
                     data.get(String.valueOf(i)).setColor(choseColor);
                     data.get(String.valueOf(i)).setShowColor(showColor);
+                    data.get(String.valueOf(i)).setW(w);
 //                                        data.get(String.valueOf(position)).setLight(choseLight);
                     if (isTwinkle && choseColor != "#000000") {
                         data.get(String.valueOf(i)).setFlash(1);
@@ -1073,29 +1093,56 @@ public class TreeView extends View {
      * @return
      */
     public byte[] getUdpByteData(HashMap<String, Doodle> data) {
-        byte[] upd_data = new byte[1 + 2 + 2 + 3 * size];
-        upd_data[0] = 0x01;
-        upd_data[1] = 0x00;
-        upd_data[2] = 0x00;
-        upd_data[3] = ByteUtil.intToByteArray(size)[0];
-        upd_data[4] = ByteUtil.intToByteArray(size)[1];
-        for (int i = 0; i < size; i++) {
-            String color = data.get(String.valueOf(i)).getColor();
-            boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
-            if (isTwinkle) {
-                if (Math.random() * 10 < 4) {
-                    upd_data[i * 3 + 5] = 0x00;
-                    upd_data[i * 3 + 6] = 0x00;
-                    upd_data[i * 3 + 7] = 0x00;
+        byte[] upd_data;
+        if (colorType == 0x04) {
+            upd_data = new byte[1 + 2 + 2 + 4 * size];
+            for (int i = 0; i < size; i++) {
+                String color = data.get(String.valueOf(i)).getColor();
+                boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                if (isTwinkle) {
+                    if (Math.random() * 10 < 4) {
+                        upd_data[i * 4 + 5] = 0x00;
+                        upd_data[i * 4 + 4] = 0x00;
+                        upd_data[i * 4 + 7] = 0x00;
+                        upd_data[i * 4 + 8] = 0x00;
+                    } else {
+                        upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                        upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                        upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                        upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                    }
+                } else {
+                    upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                    upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                    upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                    upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                }
+            }
+        } else {
+            upd_data = new byte[1 + 2 + 2 + 3 * size];
+            upd_data[0] = 0x01;
+            upd_data[1] = 0x00;
+            upd_data[2] = 0x00;
+            upd_data[3] = ByteUtil.intToByteArray(size)[0];
+            upd_data[4] = ByteUtil.intToByteArray(size)[1];
+            for (int i = 0; i < size; i++) {
+                String color = data.get(String.valueOf(i)).getColor();
+                boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                if (isTwinkle) {
+                    if (Math.random() * 10 < 4) {
+                        upd_data[i * 3 + 5] = 0x00;
+                        upd_data[i * 3 + 6] = 0x00;
+                        upd_data[i * 3 + 7] = 0x00;
+                    } else {
+                        upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                        upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                        upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                    }
                 } else {
                     upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                     upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                     upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
                 }
-            } else {
-                upd_data[i * 3 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-                upd_data[i * 3 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-                upd_data[i * 3 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
             }
         }
         return upd_data;
@@ -1149,7 +1196,8 @@ public class TreeView extends View {
     }
 
 
-    private void send(String destip, int port, byte[] udpByteData, String type) throws IOException {
+    private void send(String destip, int port, byte[] udpByteData, String type) throws
+            IOException {
         InetAddress address = InetAddress.getByName(destip);
         byte[] send_head_data = ByteUtil.getHeadByteData(udpByteData);
 //        LogUtil.e("udpByteData:" + byte2hex(udpByteData));

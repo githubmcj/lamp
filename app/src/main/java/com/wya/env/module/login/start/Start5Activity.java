@@ -100,6 +100,37 @@ public class Start5Activity extends BaseActivity {
         @Override
         public void onConnectException(BleDevice device, int errorCode) {
             super.onConnectException(device, errorCode);
+            if(errorCode == 2030){
+                Ble.getInstance().enableNotify(bleDevice, true, new BleNotifyCallback<BleDevice>() {
+                    @Override
+                    public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
+                        UUID uuid = characteristic.getUuid();
+                        BleLog.e(TAG, "onChanged==uuid:" + uuid.toString());
+                        BleLog.e(TAG, "onChanged==data:" + ByteUtils.toHexString(characteristic.getValue()));
+                        switch (characteristic.getValue()[8]) {
+                            case (byte) 0x82:
+                                if (characteristic.getValue()[9] == 0) {
+                                    LogUtil.e("打开热点成功");
+                                    startActivity(new Intent(Start5Activity.this, SearchDeviceActivity.class));
+                                    Start5Activity.this.finish();
+                                } else {
+                                    LogUtil.e("打开热点失败");
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+
+                    }
+
+                    @Override
+                    public void onNotifySuccess(BleDevice device) {
+                        super.onNotifySuccess(device);
+                        BleLog.e(TAG, "onNotifySuccess: " + device.getBleName());
+                    }
+                });
+                openWifi();
+            }
         }
 
         @Override
@@ -130,8 +161,6 @@ public class Start5Activity extends BaseActivity {
         @Override
         public void onReady(BleDevice device) {
             super.onReady(device);
-            //连接成功后，设置通知
-            // 跳转到主界面
             Ble.getInstance().enableNotify(bleDevice, true, new BleNotifyCallback<BleDevice>() {
                 @Override
                 public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {

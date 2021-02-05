@@ -36,7 +36,7 @@ public abstract class BaseActivity extends BaseToolBarActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initToolBar();
         unbinder = ButterKnife.bind(this);
-        loadingDialog = new WYALoadingDialog(this, false, false);
+        loadingDialog = new WYALoadingDialog(this, false, true);
         loadingDialog.setText("loading...");
         initView();
 //        initGesture();
