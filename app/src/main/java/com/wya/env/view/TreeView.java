@@ -25,7 +25,6 @@ import com.wya.utils.utils.ScreenUtil;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -483,19 +482,14 @@ public class TreeView extends View {
                         addMode++;
                         postInvalidate();
                         if (toShow) {
-                            try {
-                                if (isStopSendUdpModeData) {
-                                    if (toClean) {
-                                        send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "模板");
-                                        LogUtil.e("清除灯数据成功");
-                                    }
-                                    stopSendUdpModeData();
-                                } else {
-                                    send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()), "模板");
+                            if (isStopSendUdpModeData) {
+                                if (toClean) {
+                                    send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "模板");
+                                    LogUtil.e("清除灯数据成功");
                                 }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                LogUtil.e("发送UDP数据失败");
+                                stopSendUdpModeData();
+                            } else {
+                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()), "模板");
                             }
                         }
                     }
@@ -1095,14 +1089,25 @@ public class TreeView extends View {
     public byte[] getUdpByteData(HashMap<String, Doodle> data) {
         byte[] upd_data;
         if (colorType == 0x04) {
-            upd_data = new byte[1 + 2 + 2 + 4 * size];
+            upd_data = new byte[1 + 2 + 2 + 4 * data.size()];
+            upd_data[0] = 0x01;
+            upd_data[1] = 0x00;
+            upd_data[2] = 0x00;
+            byte[] len = ByteUtil.intToByteArray(data.size());
+            if (len.length == 1) {
+                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+                upd_data[4] = 0x00;
+            } else if (len.length == 2) {
+                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+                upd_data[4] = ByteUtil.intToByteArray(data.size())[1];
+            }
             for (int i = 0; i < size; i++) {
                 String color = data.get(String.valueOf(i)).getColor();
                 boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
                 if (isTwinkle) {
                     if (Math.random() * 10 < 4) {
                         upd_data[i * 4 + 5] = 0x00;
-                        upd_data[i * 4 + 4] = 0x00;
+                        upd_data[i * 4 + 6] = 0x00;
                         upd_data[i * 4 + 7] = 0x00;
                         upd_data[i * 4 + 8] = 0x00;
                     } else {
@@ -1119,13 +1124,19 @@ public class TreeView extends View {
                 }
             }
         } else {
-            upd_data = new byte[1 + 2 + 2 + 3 * size];
+            upd_data = new byte[1 + 2 + 2 + 3 * data.size()];
             upd_data[0] = 0x01;
             upd_data[1] = 0x00;
             upd_data[2] = 0x00;
-            upd_data[3] = ByteUtil.intToByteArray(size)[0];
-            upd_data[4] = ByteUtil.intToByteArray(size)[1];
-            for (int i = 0; i < size; i++) {
+            byte[] len = ByteUtil.intToByteArray(data.size());
+            if (len.length == 1) {
+                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+                upd_data[4] = 0x00;
+            } else if (len.length == 2) {
+                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+                upd_data[4] = ByteUtil.intToByteArray(data.size())[1];
+            }
+            for (int i = 0; i < data.size(); i++) {
                 String color = data.get(String.valueOf(i)).getColor();
                 boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
                 if (isTwinkle) {
@@ -1175,16 +1186,11 @@ public class TreeView extends View {
                 public void run() {
                     if (sendUdpDataAdd != -1) {
                         addMode++;
-                        try {
-                            if (isStopSendUdpData) {
-                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "画板");
-                                stopSendUdpData();
-                            } else {
-                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data), "画板");
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            LogUtil.e("发送UDP数据失败");
+                        if (isStopSendUdpData) {
+                            send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "画板");
+                            stopSendUdpData();
+                        } else {
+                            send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data), "画板");
                         }
                     }
                 }
@@ -1196,23 +1202,27 @@ public class TreeView extends View {
     }
 
 
-    private void send(String destip, int port, byte[] udpByteData, String type) throws
-            IOException {
-        InetAddress address = InetAddress.getByName(destip);
-        byte[] send_head_data = ByteUtil.getHeadByteData(udpByteData);
+    private void send(String destip, int port, byte[] udpByteData, String type) {
+        LogUtil.e(type + "开始发送UDP数据");
+        try {
+            InetAddress address = InetAddress.getByName(destip);
+            byte[] send_head_data = ByteUtil.getHeadByteData(udpByteData);
 //        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
 //        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
-        byte[] send_data = ByteUtil.byteMerger(send_head_data, udpByteData);
-//        LogUtil.e("send_data:" + byte2hex(send_data));
-        // 2.创建数据报，包含发送的数据信息
-        DatagramPacket packet = new DatagramPacket(send_data, send_data.length, address, port);
-        // 3.创建DatagramSocket对象
-        DatagramSocket socket = new DatagramSocket();
-        // 4.向服务器端发送数据报
-        socket.send(packet);
-        // 5.关闭资源
-        socket.close();
-        LogUtil.e(type + "发送UDP数据成功");
+            byte[] send_data = ByteUtil.byteMerger(send_head_data, udpByteData);
+//            LogUtil.e("send_data:" + byte2hex(send_data));
+            // 2.创建数据报，包含发送的数据信息
+            DatagramPacket packet = new DatagramPacket(send_data, send_data.length, address, port);
+            // 3.创建DatagramSocket对象
+            DatagramSocket socket = new DatagramSocket();
+            // 4.向服务器端发送数据报
+            socket.send(packet);
+            // 5.关闭资源
+            socket.close();
+            LogUtil.e(type + "发送UDP数据成功");
+        } catch (Exception e) {
+            LogUtil.e(type + "发送UDP数据报错");
+        }
     }
 
     public String byte2hex(byte[] bytes) {

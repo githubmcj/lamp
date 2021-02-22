@@ -887,7 +887,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             switch (msg.what) {
                 case 0:
                     for (int i = 0; i < lamps.getLampSettings().size(); i++) {
-                        if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null) {
+                        if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null && lamps.getLampSettings().get(i).isChose()) {
                             if (choseDeviceName == null || !choseDeviceName.equals(lamps.getLampSettings().get(i).getName())) {
                                 isChangeDevice = true;
                                 choseDeviceName = lamps.getLampSettings().get(i).getName();

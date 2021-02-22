@@ -35,7 +35,7 @@ public class TreeFragment extends BaseLazyFragment {
         tree.setModelName(model.getName());
         tree.setMirror(model.getMirror());
         tree.setSpeed(model.getSpeed());
-        tree.setModel(model.getModeArr(), model.getLight(), false);
+        tree.setModel(model.getModeArr(), model.getLight(), true);
         tree.requestLayout();
 
 //        setTcpData(model.getModeArr());

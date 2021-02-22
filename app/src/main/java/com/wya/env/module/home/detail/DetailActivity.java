@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
@@ -142,7 +143,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         typeLamp = getIntent().getIntExtra("typeLamp", 1);
         creatTime = getIntent().getStringExtra("createTime");
         modeType = getIntent().getIntExtra("modeType", 0);
-        if(modeType == 1){
+        if (modeType == 1) {
             modeArr = (List<DoodlePattern>) getIntent().getSerializableExtra("modeArr");
         }
         copyModeColor = (List<CopyModeColor>) getIntent().getSerializableExtra("copyModeColor");
@@ -245,7 +246,8 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
     private void setType() {
         for (int i = 0; i < lamps.getLampSettings().size(); i++) {
-            if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null) {
+            if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null && lamps.getLampSettings().get(i).isChose()) {
+//                Toast.makeText(this, "蓝牙：" + lamps.getLampSettings().get(i).getName() + "\n灯：" + lamps.getLampSettings().get(i).getDeviceName() + "\nsize：" + lamps.getLampSettings().get(i).getSize() + "\nrow：" + lamps.getLampSettings().get(i).getRow() + "\ncolumn：" + lamps.getLampSettings().get(i).getColumn(), Toast.LENGTH_LONG).show();
                 switch (lamps.getLampSettings().get(i).getName().substring(5, 6)) {
                     case "C":
                         lightType = 0;
@@ -707,7 +709,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             default:
                 break;
         }
-        if(modeType == 1){
+        if (modeType == 1) {
             lampModel.setModeArr(modeArr);
             lampModel.setName(title);
         }

@@ -143,7 +143,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 }
                 lampSettings.get(position).setChose(true);
                 myLampAdapter.notifyDataSetChanged();
-                SaveSharedPreferences.save(getActivity(),CommonValue.COLOR_TYPE, lampSettings.get(position).getColorType());
+                SaveSharedPreferences.save(getActivity(), CommonValue.COLOR_TYPE, lampSettings.get(position).getColorType());
                 showLoading();
                 myLampAdapter.toLinkTcp(true);
                 saveInfoLamp(lampSettings);
@@ -410,13 +410,13 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         LogUtil.e(size + "---" + column + "-----" + row);
                         for (int i = 0; i < lampSettings.size(); i++) {
                             if (lampSettings.get(i).getIp() != null && lampSettings.get(i).getIp().equals(ip)) {
-                                if(row > 0){
+                                if (row > 0) {
                                     lampSettings.get(i).setRow(row);
                                 }
-                                if(column > 0){
+                                if (column > 0) {
                                     lampSettings.get(i).setColumn(column);
                                 }
-                                if(size > 0){
+                                if (size > 0) {
                                     lampSettings.get(i).setSize(size);
                                 }
                                 myLampAdapter.setNewData(lampSettings);
@@ -489,7 +489,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
 //            sendData();
 //        }
     }
-
 
 
     @Override

@@ -1077,8 +1077,19 @@ public class LampView extends View {
     public byte[] getUdpByteData(HashMap<String, Doodle> data) {
         byte[] upd_data;
         if (colorType == 0x04) {
-            upd_data = new byte[1 + 2 + 2 + 4 * size];
-            for (int i = 0; i < size; i++) {
+            upd_data = new byte[1 + 2 + 2 + 4 * data.size()];
+            upd_data[0] = 0x01;
+            upd_data[1] = 0x00;
+            upd_data[2] = 0x00;
+            byte[] len = ByteUtil.intToByteArray(data.size());
+            if (len.length == 1) {
+                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+                upd_data[4] = 0x00;
+            } else if (len.length == 2) {
+                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+                upd_data[4] = ByteUtil.intToByteArray(data.size())[1];
+            }
+            for (int i = 0; i < data.size(); i++) {
                 String color = data.get(String.valueOf(i)).getColor();
                 boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
                 if (isTwinkle) {
@@ -1102,13 +1113,19 @@ public class LampView extends View {
             }
 
         } else {
-            upd_data = new byte[1 + 2 + 2 + 3 * size];
+            upd_data = new byte[1 + 2 + 2 + 3 * data.size()];
             upd_data[0] = 0x01;
             upd_data[1] = 0x00;
             upd_data[2] = 0x00;
-            upd_data[3] = ByteUtil.intToByteArray(size)[0];
-            upd_data[4] = ByteUtil.intToByteArray(size)[1];
-            for (int i = 0; i < size; i++) {
+            byte[] len = ByteUtil.intToByteArray(data.size());
+            if (len.length == 1) {
+                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+                upd_data[4] = 0x00;
+            } else if (len.length == 2) {
+                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+                upd_data[4] = ByteUtil.intToByteArray(data.size())[1];
+            }
+            for (int i = 0; i < data.size(); i++) {
                 String color = data.get(String.valueOf(i)).getColor();
                 boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
                 if (isTwinkle) {

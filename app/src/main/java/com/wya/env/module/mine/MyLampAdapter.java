@@ -164,6 +164,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     /**
      * 连接tcp
      */
+    private int lightType;
+
     public void toLinkTcp(boolean isClick) {
         this.isClick = isClick;
         for (int i = 0; i < data.size(); i++) {
@@ -172,6 +174,16 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 position = i;
                 deviceName = data.get(i).getDeviceName();
                 name = data.get(i).getName();
+                switch (name.substring(5, 6)) {
+                    case "C":
+                        lightType = 0;
+                        break;
+                    case "T":
+                        lightType = 1;
+                        break;
+                    default:
+                        break;
+                }
                 lampSetting = data.get(i);
                 initEasySocket(ip);
             }
@@ -194,7 +206,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
         } else {
             helper.setGone(R.id.ll_add, false);
-            helper.setText(R.id.name, item.getDeviceName());
+            helper.setText(R.id.name, item.getDeviceName() );
             if (item.isChose() && App.getInstance().isTcpConnected()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
                 helper.getView(R.id.img_open).setEnabled(true);
@@ -571,8 +583,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             toStartHeart();
             getLampOpenState();
             getLampTimerState();
-            frameNum = 0;
-            getConfigFile(frameNum);
+            if (lightType == 1) {
+                frameNum = 0;
+                getConfigFile(frameNum);
+            }
 //            openFileRead();
             App.getInstance().setTcpConnected(true);
             eventtDeviceName = new EventtDeviceName();
@@ -873,7 +887,6 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                         SaveSharedPreferences.save(context, CommonValue.CONFIGFILE, config_str);
                         treeData = new Gson().fromJson(config_str, TreeData.class);
                         setSizeRowColumn(treeData);
-
                     } else {
                         if (frameNum == 0) {
                             byte[] body = new byte[originReadData.getBodyData().length - 6];
