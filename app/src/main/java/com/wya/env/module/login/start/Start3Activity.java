@@ -23,17 +23,17 @@ public class Start3Activity extends BaseActivity {
 
     @Override
     protected void initView() {
-        showToolBar(false);
+        initShowToolBar(false);
         next.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_start3;
     }
 
     @OnClick(R.id.next)
     public void onViewClicked() {
-        startActivity(new Intent(Start3Activity.this, SearchDeviceByBleActivity.class));
+        startActivity(new Intent(Start3Activity.this, SearchDeviceActivity.class));
     }
 }

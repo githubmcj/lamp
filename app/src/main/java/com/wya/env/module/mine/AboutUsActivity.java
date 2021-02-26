@@ -43,7 +43,7 @@ public class AboutUsActivity extends BaseActivity {
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_about_us;
     }
 

@@ -26,11 +26,11 @@ public class NoFoundDeviceActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        showToolBar(false);
+        initShowToolBar(false);
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_no_found_wifi;
     }
 

@@ -68,7 +68,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
 
     @Override
     protected void initView() {
-        showToolBar(false);
+        initShowToolBar(false);
         loginPresent.mView = this;
         initGoogle();
         initFacebook();
@@ -145,7 +145,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresent> implements Logi
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.login_activity;
     }
 

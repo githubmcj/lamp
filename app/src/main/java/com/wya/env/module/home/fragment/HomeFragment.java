@@ -28,6 +28,7 @@ import com.wya.env.bean.doodle.SaveModel;
 import com.wya.env.bean.event.EventCustomLampModel;
 import com.wya.env.bean.event.EventFavarite;
 import com.wya.env.bean.event.EventSaveSuccess;
+import com.wya.env.bean.event.EventSendUpd;
 import com.wya.env.bean.event.EventtDeviceName;
 import com.wya.env.bean.home.AddModel;
 import com.wya.env.bean.home.MusicSuccess;
@@ -75,8 +76,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     @BindView(R.id.recyclerView_l)
     RecyclerView recyclerViewL;
-    @BindView(R.id.lamp_view)
-    LampView lampView;
     @BindView(R.id.name)
     TextView name;
     @BindView(R.id.tv_local)
@@ -144,14 +143,17 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     public void onStart() {
         super.onStart();
         if (isVisible()) {
-            initSendData();
+//            initSendData();
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        lampView.toStopSendUdpModeData(true, false);
+        if(udpView != null){
+            udpView.toStopSendUdpModeData(true, false);
+            udpView = null;
+        }
     }
 
     @Override
@@ -180,9 +182,22 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 break;
             default:
                 break;
-
         }
     }
+
+
+    private LampView udpView;
+    private EventSendUpd eventSendUpd;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventSendUpd eventSendUpd) {
+        if (udpView == null) {
+            udpView = new LampView(getActivity());
+        }
+        this.eventSendUpd = eventSendUpd;
+        initSendData();
+    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventtDeviceName eventtDeviceName) {
@@ -207,10 +222,11 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     /**
      * 复制
+     *
      * @param old
      * @return
      */
-    private   Object copy(Object old) {
+    private Object copy(Object old) {
         Object clazz = null;
         try {
             // 写入字节流
@@ -364,12 +380,16 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         setAction(action);
     }
 
+
     private void initSendData() {
-        for (int i = 0; i < lampModelsL.size(); i++) {
-            if (lampModelsL.get(i).isChose() == 1) {
-                lampView.setMirror(lampModelsL.get(i).getMirror());
-                lampView.setModel(lampModelsL.get(i).getModeArr(), lampModelsL.get(i).getLight(), true);
-            }
+        if (eventSendUpd != null && eventSendUpd.getLampModel() != null && eventSendUpd.getLampModel().getModeArr().size() > 0) {
+            udpView.setColorType(SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE));
+            udpView.setSize(eventSendUpd.getLampModel().getSize());
+            udpView.setColumn(eventSendUpd.getLampModel().getColumn());
+            udpView.setModelName(eventSendUpd.getLampModel().getName());
+            udpView.setMirror(eventSendUpd.getLampModel().getMirror());
+            udpView.setSpeed(eventSendUpd.getLampModel().getSpeed());
+            udpView.setModel(eventSendUpd.getLampModel().getModeArr(), eventSendUpd.getLampModel().getLight(), true);
         }
     }
 
@@ -542,7 +562,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     @Override
     protected void initView() {
         homeFragmentPresenter.mView = this;
-        lampView.setFocusable(false);
         EventBus.getDefault().register(this);
         typeLamp = 0;
         setButton(typeLamp);
@@ -560,11 +579,13 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 getLocalData(false);
                 getNetData();
             } else {
-                initSendData();
+//                initSendData();
             }
         } else {
-            lampView.toStopSendUdpModeData(true, true);
-            lampView.stopSendUdpData();
+            if(udpView != null){
+                udpView.toStopSendUdpModeData(true, true);
+                udpView.stopSendUdpData();
+            }
         }
     }
 

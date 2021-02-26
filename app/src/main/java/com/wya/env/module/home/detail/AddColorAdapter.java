@@ -48,9 +48,19 @@ public class AddColorAdapter extends BaseQuickAdapter<CopyModeColor, BaseViewHol
             helper.setGone(R.id.add, false);
             ((Circle) helper.getView(R.id.circle)).setmColor(ColorUtil.hex2Int(item.getShowColor()));
         }
+        if(helper.getAdapterPosition() == chose_position){
+            helper.setGone(R.id.chose, true);
+        } else {
+            helper.setGone(R.id.chose, false);
+        }
     }
 
     public void setChoseColors(int position) {
         chose_position = position;
+    }
+
+    public void setChoseIndex(int index) {
+        chose_position = index;
+        notifyDataSetChanged();
     }
 }

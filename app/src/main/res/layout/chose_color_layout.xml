@@ -31,7 +31,7 @@
         <com.wya.env.view.ColorPickerView
             android:id="@+id/picker2"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="110dp"
             android:layout_alignParentTop="true"
             android:background="#ffffff"
             android:paddingTop="0dp"
@@ -42,7 +42,7 @@
         <com.wya.env.view.ColorPickerView
             android:id="@+id/picker1"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="110dp"
             android:layout_alignParentTop="true"
             android:background="#ffffff"
             app:indicatorColor="#ffffff"
@@ -85,11 +85,11 @@
                 android:text="CANCEL"
                 android:textSize="@dimen/sp_14"
                 android:textStyle="bold"
-                app:buttonBackGroundColor="@color/white"
-                app:buttonBackGroundColorPress="@color/white"
-                app:buttonFillet="true"
-                app:buttonRadius="10dp"
-                app:buttonTextColor="@color/app_blue" />
+                app:backColor="@color/white"
+                app:backColorPress="@color/white"
+                app:fillet="true"
+                app:wya_button_radius="10"
+                app:textColor="@color/app_blue" />
 
             <com.wya.uikit.button.WYAButton
                 android:id="@+id/create"
@@ -103,11 +103,11 @@
                 android:text="CREATE"
                 android:textSize="@dimen/sp_14"
                 android:textStyle="bold"
-                app:buttonBackGroundColor="@color/white"
-                app:buttonBackGroundColorPress="@color/white"
-                app:buttonFillet="true"
-                app:buttonRadius="10dp"
-                app:buttonTextColor="@color/app_blue" />
+                app:backColor="@color/white"
+                app:backColorPress="@color/white"
+                app:fillet="true"
+                app:wya_button_radius="10"
+                app:textColor="@color/app_blue" />
 
 
         </TableRow>

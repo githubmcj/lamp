@@ -17,7 +17,7 @@ public class RegisterProtocolActivity extends BaseActivity {
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_register_protocol;
     }
 }

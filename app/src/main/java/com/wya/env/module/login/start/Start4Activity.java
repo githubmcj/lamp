@@ -35,7 +35,7 @@ public class Start4Activity extends BaseActivity {
 
     @Override
     protected void initView() {
-        showToolBar(false);
+        initShowToolBar(false);
         name = getIntent().getStringExtra("name");
         tvContent.setText("Now you can enjoy the full capabilities of your " + name + ".\nLet's start your wonderful journey!");
 
@@ -64,7 +64,7 @@ public class Start4Activity extends BaseActivity {
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_start4;
     }
 

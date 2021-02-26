@@ -1,1 +1,1 @@
-include ':app', ':easysocket'
+include ':app', ':easysocket','helper', 'utils', 'uikit'

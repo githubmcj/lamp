@@ -132,7 +132,7 @@ public class SearchDeviceActivity extends BaseActivity {
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_search_device;
     }
 

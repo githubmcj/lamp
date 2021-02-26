@@ -42,8 +42,8 @@ public class StartUpActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        showToolBar(false);
-        setBackgroundColor(R.color.white, true);
+        initShowToolBar(false);
+        initToolBarBgColor(getResources().getColor(R.color.white), true);
         //是否登录
         boolean isLogin = SaveSharedPreferences.getBoolean(this, CommonValue.IS_LOGIN);
         if (isLogin) {
@@ -66,7 +66,7 @@ public class StartUpActivity extends BaseActivity {
 
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.start_up_activity;
     }
 

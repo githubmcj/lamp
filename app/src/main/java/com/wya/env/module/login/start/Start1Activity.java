@@ -5,14 +5,19 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
+import com.wya.env.bean.doodle.LampSetting;
+import com.wya.utils.utils.LogUtil;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -21,6 +26,9 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import pub.devrel.easypermissions.EasyPermissions;
 
 /**
@@ -37,10 +45,11 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
     ImageView img;
 
     private boolean isBlue;
+    private List<LampSetting> lampSettings = new ArrayList<>();
 
     @Override
     protected void initView() {
-        showToolBar(false);
+        initShowToolBar(false);
         next.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
         checkBlueStatus();
         isBlue = false;
@@ -60,6 +69,82 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //断开所有设备
+        Ble.getInstance().disconnectAll();
+        lampSettings.clear();
+        Ble.getInstance().startScan(scanCallback);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Ble.getInstance().cancelCallback(scanCallback);
+    }
+
+
+
+    private BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
+        @Override
+        public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+            LogUtil.e("onLeScan");
+            if (device.getBleName() != null && device.getBleName().contains("Delight")) {
+//                    synchronized (Ble.getInstance().getLocker()) {
+                LogUtil.e(device.getBleAddress() + "------" + device.getBleName() + "--" + device.getBleAlias());
+                boolean add = true;
+                for (int i = 0; i < lampSettings.size(); i++) {
+                    if (TextUtils.equals(lampSettings.get(i).getAddress(), device.getBleAddress())) {
+                        add = false;
+                        break;
+                    }
+                }
+                LogUtil.e(lampSettings.size() + "-------------" + add);
+                if (add) {
+                    //连接设备
+                    LampSetting lampSetting = new LampSetting();
+                    lampSetting.setAddress(device.getBleAddress());
+                    lampSetting.setName(device.getBleName());
+                    lampSetting.setDeviceName(device.getBleName());
+                    lampSettings.add(lampSetting);
+                    Ble<BleDevice> ble = Ble.getInstance();
+                    if (ble.isScanning()) {
+                        ble.stopScan();
+                    }
+                    startActivity(new Intent(Start1Activity.this, Start5Activity.class).putExtra("device", device));
+//                        deviceAdapter.notifyDataSetChanged();
+                }
+//                    }
+            }
+
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            LogUtil.e("onStart");
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            if (lampSettings != null && lampSettings.size() > 0) {
+                LogUtil.e("搜到设备" + lampSettings.size() + "台");
+            } else {
+                LogUtil.e("无设备");
+                startActivity(new Intent(Start1Activity.this, NoFoundDeviceActivity.class));
+            }
+            LogUtil.e("onStop");
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+            LogUtil.e("onScanFailed: " + errorCode);
+        }
+    };
+
     //检查蓝牙是否支持及打开
     private void checkBlueStatus() {
         String[] perms = {
@@ -72,7 +157,7 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
 
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_start1;
     }
 

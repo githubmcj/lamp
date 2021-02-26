@@ -2,7 +2,6 @@ package com.wya.env.base;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
@@ -28,20 +27,21 @@ public abstract class BaseActivity extends BaseToolBarActivity {
     public WYALoadingDialog loadingDialog;
     private boolean mIsSwipeBack = false;
     private GestureDetector mGestureDetector;
-    
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getLayoutId());
+        setContentView(getLayoutID());
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initToolBar();
         unbinder = ButterKnife.bind(this);
         loadingDialog = new WYALoadingDialog(this, false, true);
         loadingDialog.setText("loading...");
         initView();
+        setSwipeBackEnable(false);
 //        initGesture();
     }
-    
+
     private void initGesture() {
         DisplayMetrics outMetrics = new DisplayMetrics();
         this.getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
@@ -56,26 +56,16 @@ public abstract class BaseActivity extends BaseToolBarActivity {
     }
 
     private void initToolBar() {
-        setBackgroundColor(R.color.white, true);
-        setTitleColor(getResources().getColor(R.color.color_33));
-        showLeftIcon(true);
-        setTitleSize(18);
-        setLeftIcon(R.drawable.fanhui);
+        initToolBarBgColor(getResources().getColor(R.color.white), true);
+        initToolBarTitle("", 18, getResources().getColor(R.color.color_33), true);
+        initImgLeft(R.drawable.fanhui, true);
     }
-    
+
     /**
      * 初始化view
      */
     protected abstract void initView();
-    
-    /**
-     * 获取布局id
-     *
-     * @return
-     */
-    @Override
-    protected abstract int getLayoutId();
-    
+
     public void showShort(String msg) {
         try {
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
@@ -101,5 +91,5 @@ public abstract class BaseActivity extends BaseToolBarActivity {
         }
         super.onDestroy();
     }
-    
+
 }

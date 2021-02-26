@@ -46,4 +46,5 @@ public interface CommonValue {
     String ROW = "row";
     
     String COLOR_TYPE = "color_type";
+    String IP = "ip";
 }

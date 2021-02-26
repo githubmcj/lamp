@@ -18,6 +18,7 @@ import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.common.CommonValue;
 import com.wya.env.util.ByteUtil;
+import com.wya.env.util.SaveSharedPreferences;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
@@ -481,12 +482,12 @@ public class LampView extends View {
                             try {
                                 if (isStopSendUdpModeData) {
                                     if (toClean) {
-                                        send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "模板");
+                                        send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "模板");
                                         LogUtil.e("清除灯数据成功");
                                     }
                                     stopSendUdpModeData();
                                 } else {
-                                    send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()), "模板");
+                                    send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()), "模板");
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -1177,10 +1178,10 @@ public class LampView extends View {
                         addMode++;
                         try {
                             if (isStopSendUdpData) {
-                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "画板");
+                                send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "画板");
                                 stopSendUdpData();
                             } else {
-                                send("255.255.255.255", CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data), "画板");
+                                send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data), "画板");
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -1197,6 +1198,7 @@ public class LampView extends View {
 
 
     private void send(String destip, int port, byte[] udpByteData, String type) throws IOException {
+        LogUtil.e(destip);
         InetAddress address = InetAddress.getByName(destip);
         byte[] send_head_data = ByteUtil.getHeadByteData(udpByteData);
 //        LogUtil.e("udpByteData:" + byte2hex(udpByteData));

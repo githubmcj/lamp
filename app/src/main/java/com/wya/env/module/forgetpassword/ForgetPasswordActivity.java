@@ -45,7 +45,7 @@ public class ForgetPasswordActivity extends BaseMvpActivity<ForgetPasswordPresen
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_forget_password;
     }
 

@@ -17,6 +17,7 @@ import com.easysocket.utils.LogUtil;
 import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
+import com.wya.env.bean.doodle.CopyModeColor;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.event.EventCustomLampModel;
@@ -217,6 +218,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     private com.wya.env.view.ColorPickerView pickerW;
     private top.defaults.colorpicker.ColorPickerView colorPickerView;
     private int w;
+    private int colorType;
 
     @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab_add, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.img_mirror, R.id.img_del, R.id.img_all})
     public void onViewClicked(View view) {
@@ -250,6 +252,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 getColorIndex(color_index);
                 break;
             case R.id.tab_add:
+                colorType = SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE);
                 choseColorDialog = new WYACustomDialog.Builder(getActivity())
                         .setLayoutId(R.layout.chose_color_layout, new CustomListener() {
                             @Override
@@ -261,11 +264,25 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 circle.setColor(show_color);
                                 picker1 = v.findViewById(R.id.picker1);
                                 pickerW = v.findViewById(R.id.picker2);
+                                if (colorType == 0x00) {
+                                    pickerW.setVisibility(View.GONE);
+                                } else if (colorType == 0x04) {
+                                    pickerW.setVisibility(View.VISIBLE);
+                                }
                                 picker1.setOnColorPickerChangeListener(new com.wya.env.view.ColorPickerView.OnColorPickerChangeListener() {
                                     @Override
                                     public void onColorChanged(com.wya.env.view.ColorPickerView picker, int color, int progress) {
-                                        pickerW.setColors(Color.rgb(254, 240, 214), color);
-                                        chose_color = ColorUtil.int2Hex2(color);
+                                        if (colorType == 0) {
+                                            w = 255;
+                                            chose_color = ColorUtil.int2Hex2(color);
+                                            show_color = ColorUtil.int2Hex(color);
+                                            circle.setColor(show_color);
+                                        } else if (colorType == 0x04) {
+                                            pickerW.setColors(Color.rgb(254, 240, 214), color);
+                                            chose_color = ColorUtil.int2Hex2(color);
+                                        }
+
+
                                     }
 
                                     @Override
@@ -579,52 +596,63 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
 
 
     private void toCleanChose() {
-
-        color_index = 0;
-        chose_color = null;
-        isTwinkle = false;
         switch (lightType) {
             case 0:
                 lampView.clean();
-                lampView.setChoseColor(chose_color, w);
-                lampView.setShowColor(chose_color);
-                lampView.setTwinkle(isTwinkle);
                 break;
             case 1:
                 lampTreeView.clean();
-                lampTreeView.setChoseColor(chose_color, w);
-                lampTreeView.setShowColor(chose_color);
-                lampTreeView.setTwinkle(isTwinkle);
                 break;
             default:
                 break;
         }
-
-        getColorIndex(color_index);
-        if (isTwinkle) {
-            imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
-        } else {
-            imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
-        }
-        isMirror = 0;
-        switch (lightType) {
-            case 0:
-                lampView.setMirror(isMirror);
-                break;
-            case 1:
-                lampTreeView.setMirror(isMirror);
-                break;
-            default:
-                break;
-        }
-        if (isMirror == 1) {
-            imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
-        } else {
-            imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_lef));
-        }
-        painter_type = 0;
-        setPainter(painter_type);
-        etName.setText("");
+//
+//
+//        color_index = 0;
+//        chose_color = null;
+//        isTwinkle = false;
+//        switch (lightType) {
+//            case 0:
+//                lampView.clean();
+//                lampView.setChoseColor(chose_color, w);
+//                lampView.setShowColor(chose_color);
+//                lampView.setTwinkle(isTwinkle);
+//                break;
+//            case 1:
+//                lampTreeView.clean();
+//                lampTreeView.setChoseColor(chose_color, w);
+//                lampTreeView.setShowColor(chose_color);
+//                lampTreeView.setTwinkle(isTwinkle);
+//                break;
+//            default:
+//                break;
+//        }
+//
+//        getColorIndex(color_index);
+//        if (isTwinkle) {
+//            imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuodianji));
+//        } else {
+//            imgTwinkle.setImageDrawable(this.getResources().getDrawable(R.drawable.sahnshuomoren));
+//        }
+//        isMirror = 0;
+//        switch (lightType) {
+//            case 0:
+//                lampView.setMirror(isMirror);
+//                break;
+//            case 1:
+//                lampTreeView.setMirror(isMirror);
+//                break;
+//            default:
+//                break;
+//        }
+//        if (isMirror == 1) {
+//            imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_right));
+//        } else {
+//            imgMirror.setImageDrawable(this.getResources().getDrawable(R.drawable.mirror_lef));
+//        }
+//        painter_type = 0;
+//        setPainter(painter_type);
+//        etName.setText("");
     }
 
 
@@ -916,6 +944,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                     default:
                                         break;
                                 }
+                                color_index = 1;
+                                getColorIndex(color_index);
                             }
                         }
                     }

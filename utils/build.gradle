@@ -1,0 +1,34 @@
+apply plugin: 'com.android.library'
+
+def buildConfig = rootProject.extensions.getByName("ext")
+def supportDepends = rootProject.ext.supportDepends
+def depends = rootProject.ext.depends
+
+android {
+
+    compileSdkVersion buildConfig.getAt("compileSdkVersion")
+    buildToolsVersion buildConfig.getAt("buildToolsVersion")
+
+    defaultConfig {
+        minSdkVersion buildConfig.getAt("minSdkVersion")
+        targetSdkVersion buildConfig.getAt("targetSdkVersion")
+        versionCode 1
+        versionName "0.1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation supportDepends.appcompat_v7
+    api depends.zxing
+    api depends.aria_core
+    annotationProcessor depends.aria_compiler
+}

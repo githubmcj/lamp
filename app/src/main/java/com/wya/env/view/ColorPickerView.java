@@ -378,9 +378,11 @@ public class ColorPickerView extends View {
         int radius = 3;
         paintForIndicator.setShadowLayer(radius, 0, 0, Color.GRAY);
         paintForIndicator.setStyle(Paint.Style.STROKE);
-        paintForIndicator.setStrokeWidth(3);
+        paintForIndicator.setStrokeCap(Paint.Cap.ROUND);
+        paintForIndicator.setStrokeWidth(15);
         Canvas c = new Canvas(bitmapForIndicator);
-        c.drawCircle(mRadius, mRadius, mRadius - radius, paintForIndicator);
+        c.drawLine(mRadius, mRadius + mRadius - 5 - radius, mRadius, radius + 5, paintForIndicator);
+//        c.drawCircle(mRadius, mRadius, mRadius - radius, paintForIndicator);
 
         needReDrawIndicator = false;
     }
@@ -397,7 +399,6 @@ public class ColorPickerView extends View {
         } else {
             r = bitmapForColor.getWidth() / 2;
         }
-        r = 10;
         // 先绘制黑色背景，否则有 alpha 时绘制不正常
         paint.setColor(Color.BLACK);
         c.drawRoundRect(rf, r, r, paint);

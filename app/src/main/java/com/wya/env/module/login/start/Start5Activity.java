@@ -51,7 +51,7 @@ public class Start5Activity extends BaseActivity {
 
     @Override
     protected void initView() {
-        showToolBar(false);
+        initShowToolBar(false);
         address = getIntent().getStringExtra("address");
 
         bleDevice = getIntent().getParcelableExtra("device");
@@ -111,8 +111,7 @@ public class Start5Activity extends BaseActivity {
                             case (byte) 0x82:
                                 if (characteristic.getValue()[9] == 0) {
                                     LogUtil.e("打开热点成功");
-                                    startActivity(new Intent(Start5Activity.this, SearchDeviceActivity.class));
-                                    Start5Activity.this.finish();
+                                    startActivity(new Intent(Start5Activity.this, Start2Activity.class));
                                 } else {
                                     LogUtil.e("打开热点失败");
                                 }
@@ -237,7 +236,7 @@ public class Start5Activity extends BaseActivity {
 
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_start5;
     }
 

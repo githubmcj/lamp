@@ -284,11 +284,11 @@ public class LinkActivity extends BaseActivity {
         if (butSubmit != null) {
             butSubmit.setEnabled(isConnected);
             if (isConnected) {
-                butSubmit.setBackGroundColor(getResources().getColor(R.color.app_blue));
-                butSubmit.setBackGroundColorPress(getResources().getColor(R.color.app_blue));
+                butSubmit.setBackColor(getResources().getColor(R.color.app_blue));
+                butSubmit.setBackColorPress(getResources().getColor(R.color.app_blue));
             } else {
-                butSubmit.setBackGroundColor(getResources().getColor(R.color.c999999));
-                butSubmit.setBackGroundColorPress(getResources().getColor(R.color.c999999));
+                butSubmit.setBackColor(getResources().getColor(R.color.c999999));
+                butSubmit.setBackColorPress(getResources().getColor(R.color.c999999));
             }
         }
     }
@@ -298,7 +298,7 @@ public class LinkActivity extends BaseActivity {
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_link;
     }
 

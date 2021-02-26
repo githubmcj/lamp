@@ -41,11 +41,17 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        showToolBar(false);
+        initShowToolBar(false);
         initFragment();
         setToolBar();
         getSwipeBackLayout().setEnableGesture(false);
     }
+
+    @Override
+    protected int getLayoutID() {
+        return R.layout.main_activity;
+    }
+
 
     private void toLinkTcp() {
         fragment2.toLinkTcp();
@@ -104,11 +110,6 @@ public class MainActivity extends BaseActivity {
             }
             return true;
         });
-    }
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.main_activity;
     }
 
     /**

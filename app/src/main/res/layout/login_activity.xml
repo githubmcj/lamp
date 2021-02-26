@@ -130,11 +130,11 @@
             android:padding="@dimen/dp_10"
             android:text="@string/login"
             android:textSize="@dimen/sp_18"
-            app:buttonBackGroundColor="@color/app_blue"
-            app:buttonBackGroundColorPress="@color/app_blue"
-            app:buttonFillet="true"
-            app:buttonRadius="10dp"
-            app:buttonTextColor="@color/white" />
+            app:backColor="@color/app_blue"
+            app:backColorPress="@color/app_blue"
+            app:fillet="true"
+            app:wya_button_radius="10"
+            app:textColor="@color/white" />
 
         <TableRow
             android:layout_width="match_parent"

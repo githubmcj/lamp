@@ -13,7 +13,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
@@ -27,6 +26,7 @@ import com.wya.env.bean.doodle.EventAddMode;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.event.EventApply;
 import com.wya.env.bean.event.EventFavarite;
+import com.wya.env.bean.event.EventSendUpd;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.bean.login.Lamps;
@@ -181,6 +181,21 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         } else {
             imgDel.setVisibility(View.VISIBLE);
         }
+
+        setLeftOnclickListener(new onLeftOnclickListener() {
+            @Override
+            public void onLeftClick(View view) {
+                EventSendUpd eventSendUpd = new EventSendUpd();
+                eventSendUpd.setLampModel(mLampModel);
+                EventBus.getDefault().post(eventSendUpd);
+                finish();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     private Handler handler = new Handler() {
@@ -270,7 +285,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     }
 
     @Override
-    protected int getLayoutId() {
+    protected int getLayoutID() {
         return R.layout.activity_detail;
     }
 
@@ -517,19 +532,33 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private ColorPickerView picker1;
     private ColorPickerView pickerW;
     private top.defaults.colorpicker.ColorPickerView colorPickerView;
+    private int colorType;
 
     private void showAddColorDialog() {
+        colorType = SaveSharedPreferences.getInt(this, CommonValue.COLOR_TYPE);
         addColorDialog = new WYACustomDialog.Builder(this)
                 .setLayoutId(R.layout.add_color_layout, new CustomListener() {
                     @Override
                     public void customLayout(View v) {
                         picker1 = v.findViewById(R.id.picker1);
                         pickerW = v.findViewById(R.id.picker2);
+                        if (colorType == 0x00) {
+                            pickerW.setVisibility(View.GONE);
+                        } else if (colorType == 0x04) {
+                            pickerW.setVisibility(View.VISIBLE);
+                        }
                         picker1.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
                             @Override
                             public void onColorChanged(ColorPickerView picker, int color, int progress) {
-                                pickerW.setColors(Color.rgb(254, 240, 214), color);
-                                choseColor = ColorUtil.int2Hex2(color);
+                                if (colorType == 0) {
+                                    w = 255;
+                                    choseColor = ColorUtil.int2Hex2(color);
+                                    add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex2(color), w, choseColor));
+                                    addColorAdapter.setNewData(add_colors);
+                                } else if (colorType == 0x04) {
+                                    pickerW.setColors(Color.rgb(254, 240, 214), color);
+                                    choseColor = ColorUtil.int2Hex2(color);
+                                }
                             }
 
                             @Override
@@ -582,15 +611,27 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                                 if (position == add_colors.size() - 1) {
                                     if (position != data_colors.get(0).size() - 1) {
-                                        index++;
-                                        add_colors.add(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
+                                        if (colorType == 0x00) {
+                                            index = position;
+                                            add_colors.add(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 255, ColorUtil.int2Hex(picker1.getColor())));
+                                        } else if (colorType == 0x04) {
+                                            add_colors.add(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
+                                        }
                                     } else {
                                         if (TextUtils.isEmpty(add_colors.get(add_colors.size() - 1).getShowColor())) {
-                                            index++;
-                                            add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
+                                            index = position;
+                                            if (colorType == 0x00) {
+                                                add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 255, ColorUtil.int2Hex(picker1.getColor())));
+                                            } else if (colorType == 0x04) {
+                                                add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
+                                            }
                                         }
                                     }
                                     addColorAdapter.setNewData(add_colors);
+                                    addColorAdapter.setChoseIndex(index);
+                                } else {
+                                    index = position;
+                                    addColorAdapter.setChoseIndex(index);
                                 }
                             }
                         });

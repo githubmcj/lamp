@@ -40,11 +40,11 @@
         android:padding="@dimen/dp_10"
         android:text="START USING APP"
         android:textSize="@dimen/sp_18"
-        app:buttonBackGroundColor="@color/app_blue"
-        app:buttonBackGroundColorPress="@color/app_blue_press"
-        app:buttonFillet="true"
-        app:buttonRadius="5dp"
-        app:buttonTextColor="@color/white" />
+        app:backColor="@color/app_blue"
+        app:backColorPress="@color/app_blue_press"
+        app:fillet="true"
+        app:wya_button_radius="5"
+        app:textColor="@color/white" />
 
     <com.wya.uikit.button.WYAButton
         android:id="@+id/add"
@@ -57,10 +57,10 @@
         android:padding="@dimen/dp_10"
         android:text="ADD ANOTHER DEVICE"
         android:textSize="@dimen/sp_18"
-        app:buttonBackGroundColor="@color/app_blue"
-        app:buttonBackGroundColorPress="@color/app_blue_press"
-        app:buttonFillet="true"
-        app:buttonRadius="5dp"
-        app:buttonTextColor="@color/white" />
+        app:backColor="@color/app_blue"
+        app:backColorPress="@color/app_blue_press"
+        app:fillet="true"
+        app:wya_button_radius="5"
+        app:textColor="@color/white" />
 
 </RelativeLayout>

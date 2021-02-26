@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.wya.uikit.imagepicker.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_picture"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/image_placeholder" />
+
+
+    <CheckBox
+        android:id="@+id/check_box"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:checked="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:button="@null"
+        android:gravity="bottom"
+        android:padding="8dp"
+        android:drawableRight="@drawable/picture_checkbox_selector"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#22000000"/>
+
+    <LinearLayout
+        android:id="@+id/video_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_alignParentBottom="true"
+        android:padding="5dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/image_picker_video" />
+
+        <TextView
+            android:id="@+id/video_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="10:00"
+            android:textSize="12sp"
+            android:layout_marginLeft="5dp"/>
+    </LinearLayout>
+
+</com.wya.uikit.imagepicker.SquareRelativeLayout>

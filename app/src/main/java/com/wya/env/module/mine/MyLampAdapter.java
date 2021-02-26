@@ -206,7 +206,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
         } else {
             helper.setGone(R.id.ll_add, false);
-            helper.setText(R.id.name, item.getDeviceName() );
+            helper.setText(R.id.name, item.getDeviceName());
             if (item.isChose() && App.getInstance().isTcpConnected()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
                 helper.getView(R.id.img_open).setEnabled(true);
@@ -215,6 +215,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 //                    EventBus.getDefault().post(lampSetting);
 //                    isClick = false;
 //                }
+                SaveSharedPreferences.save(context, CommonValue.IP, item.getIp());
             } else {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
                 helper.getView(R.id.img_open).setEnabled(false);
