@@ -20,6 +20,7 @@ import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.CopyModeColor;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.event.EventCustomLampModel;
 import com.wya.env.bean.event.EventSaveSuccess;
 import com.wya.env.bean.login.Lamps;
@@ -170,15 +171,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     }
 
     private void initData() {
+        colorType = SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE);
         chose_light = 100;
         switch (lightType) {
             case 0:
                 lampView.setChoseColor(chose_color, w);
                 lampView.setShowColor(show_color);
+                lampView.setColorType(colorType);
                 break;
             case 1:
                 lampTreeView.setChoseColor(chose_color, w);
                 lampTreeView.setShowColor(show_color);
+                lampTreeView.setColorType(colorType);
                 break;
             default:
                 break;
@@ -252,7 +256,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 getColorIndex(color_index);
                 break;
             case R.id.tab_add:
-                colorType = SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE);
                 choseColorDialog = new WYACustomDialog.Builder(getActivity())
                         .setLayoutId(R.layout.chose_color_layout, new CustomListener() {
                             @Override
@@ -855,6 +858,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
+        colorType = SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE);
         if (!hidden) {
             toCleanChose();
             setType();
@@ -862,10 +866,12 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 case 0:
                     lampView.startSendUpdData();
                     lampView.startTwinkle();
+                    lampView.setColorType(colorType);
                     break;
                 case 1:
                     lampTreeView.startSendUpdData();
                     lampTreeView.startTwinkle();
+                    lampTreeView.setColorType(colorType);
                     break;
                 default:
                     break;
@@ -875,10 +881,12 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 case 0:
                     lampView.toStopSendUdpData(true);
                     lampView.stopTwinkle();
+                    lampView.setColorType(colorType);
                     break;
                 case 1:
                     lampTreeView.toStopSendUdpData(true);
                     lampTreeView.stopTwinkle();
+                    lampTreeView.setColorType(colorType);
                     break;
                 default:
                     break;
@@ -906,6 +914,10 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             }
         }).start();
     }
+
+//    public void onMessageEvent(LampSetting lampSetting) {
+//        LogUtil.e("设备更换");
+//    }
 
 
     private Handler handler = new Handler() {

@@ -10,7 +10,7 @@ import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.TreeView;
 
 import butterknife.BindView;
-import butterknife.Unbinder;
+
 @SuppressLint("ValidFragment")
 public class TreeFragment extends BaseLazyFragment {
     @BindView(R.id.tree)

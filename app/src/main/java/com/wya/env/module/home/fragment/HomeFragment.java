@@ -97,6 +97,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     TextView submit;
     @BindView(R.id.up_down)
     TableRow upDown;
+    @BindView(R.id.lamp_view)
+    LampView udpView;
     private LampModelAdapter adapterL;
     private LampModelAdapter adapterC;
     private LampModelAdapter adapterF;
@@ -150,9 +152,9 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     @Override
     public void onStop() {
         super.onStop();
-        if(udpView != null){
+        if (eventSendUpd != null) {
             udpView.toStopSendUdpModeData(true, false);
-            udpView = null;
+            eventSendUpd = null;
         }
     }
 
@@ -186,14 +188,11 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     }
 
 
-    private LampView udpView;
     private EventSendUpd eventSendUpd;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventSendUpd eventSendUpd) {
-        if (udpView == null) {
-            udpView = new LampView(getActivity());
-        }
+        LogUtil.e("EventSendUpd");
         this.eventSendUpd = eventSendUpd;
         initSendData();
     }
@@ -245,9 +244,10 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(LampSetting lampSetting) {
-//        getLocalData(true);
-//        getNetData();
-//        initRecyclerView();
+        LogUtil.e("设备更换");
+        udpView.toStopSendUdpModeData(true, false);
+        udpView.stopSendUdpData();
+        eventSendUpd = null;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -382,10 +382,13 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
 
     private void initSendData() {
+        LogUtil.e("initSend");
         if (eventSendUpd != null && eventSendUpd.getLampModel() != null && eventSendUpd.getLampModel().getModeArr().size() > 0) {
-            udpView.setColorType(SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE));
+            LogUtil.e("initSend2");
+            udpView.setColorType(SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE, 0));
             udpView.setSize(eventSendUpd.getLampModel().getSize());
             udpView.setColumn(eventSendUpd.getLampModel().getColumn());
+            udpView.setClean(false);
             udpView.setModelName(eventSendUpd.getLampModel().getName());
             udpView.setMirror(eventSendUpd.getLampModel().getMirror());
             udpView.setSpeed(eventSendUpd.getLampModel().getSpeed());
@@ -579,10 +582,10 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 getLocalData(false);
                 getNetData();
             } else {
-//                initSendData();
+                initSendData();
             }
         } else {
-            if(udpView != null){
+            if (eventSendUpd != null) {
                 udpView.toStopSendUdpModeData(true, true);
                 udpView.stopSendUdpData();
             }

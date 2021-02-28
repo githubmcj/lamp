@@ -143,7 +143,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 }
                 lampSettings.get(position).setChose(true);
                 myLampAdapter.notifyDataSetChanged();
-                SaveSharedPreferences.save(getActivity(), CommonValue.COLOR_TYPE, lampSettings.get(position).getColorType());
+                SaveSharedPreferences.save(getActivity(), CommonValue.COLOR_TYPE, Integer.valueOf(lampSettings.get(position).getColorType()).intValue());
                 showLoading();
                 myLampAdapter.toLinkTcp(true);
                 saveInfoLamp(lampSettings);
@@ -237,12 +237,14 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                     Bundle bundle = new Bundle();
                     switch (data[8]) {
                         case (byte) 0x80:
+                            LogUtil.e(ByteUtil.bytesToHex(data) + "----------");
                             msg.what = 1;
                             bundle.putString("ip", ip);
                             bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(22, 24) + bytesToHex(data).substring(20, 22), 16));
                             bundle.putString("name", new String(getNameData(data)));
                             bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
                             bundle.putString("colorType", bytesToHex(data).substring(18, 20));
+                            LogUtil.e(bytesToHex(data).substring(18, 20)+ "----------colorType");
                             msg.setData(bundle);
                             handler.sendMessage(msg);
                             break;

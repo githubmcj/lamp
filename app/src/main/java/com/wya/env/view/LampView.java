@@ -430,6 +430,7 @@ public class LampView extends View {
 
     public void setModel(List<DoodlePattern> modeArr, int light, boolean toShow) {
         LogUtil.e("toShow=============" + toShow);
+        LogUtil.e("toShow=============" + modeArr.size());
         this.size = modeArr.get(0).getSize();
         this.light = light;
         mHeight = (size / column) * (lamp_size + 2 * lamp_margin);
@@ -442,6 +443,7 @@ public class LampView extends View {
                 if (toShow) {
                     isStopSendUdpData = false;
                     sendUdpMessage();
+                    LogUtil.e("=============1");
                     stopSendUdpModeData();
                 }
             } else {
@@ -450,6 +452,7 @@ public class LampView extends View {
                 if (toShow) {
                     isStopSendUdpData = false;
                     sendUdpMessage();
+                    LogUtil.e("=============2");
                     stopSendUdpModeData();
                 }
             }
@@ -468,6 +471,8 @@ public class LampView extends View {
     private void toShowModel(boolean toShow) {
         addMode = 0;
         isStopSendUdpModeData = false;
+        LogUtil.e("开始发送模板数据");
+        LogUtil.e(toShow + "=--------------" + isStopSendUdpModeData + "---" + (modelExecutorService == null));
         if (modelExecutorService == null) {
             modelExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("toShowModel").daemon(true).build());
@@ -475,16 +480,19 @@ public class LampView extends View {
                 @Override
                 public void run() {
                     if (addMode != -1) {
+
                         data = modeArr.get(addMode % modeArr.size()).getLight_status();
                         addMode++;
                         postInvalidate();
                         if (toShow) {
                             try {
+                                LogUtil.e("isStopSendUdpModeData:" + isStopSendUdpModeData);
                                 if (isStopSendUdpModeData) {
                                     if (toClean) {
                                         send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "模板");
                                         LogUtil.e("清除灯数据成功");
                                     }
+                                    LogUtil.e("=============3");
                                     stopSendUdpModeData();
                                 } else {
                                     send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()), "模板");
@@ -1077,6 +1085,7 @@ public class LampView extends View {
      */
     public byte[] getUdpByteData(HashMap<String, Doodle> data) {
         byte[] upd_data;
+        LogUtil.e("colorType:" + colorType);
         if (colorType == 0x04) {
             upd_data = new byte[1 + 2 + 2 + 4 * data.size()];
             upd_data[0] = 0x01;
@@ -1166,6 +1175,7 @@ public class LampView extends View {
     private void sendUdpMessage() {
         stopSendUdpData();
         sendUdpDataAdd = 0;
+        LogUtil.e("开始发送数据");
         if (udpExecutorService == null) {
             udpExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("udpExecutorService").daemon(true).build());
@@ -1198,13 +1208,13 @@ public class LampView extends View {
 
 
     private void send(String destip, int port, byte[] udpByteData, String type) throws IOException {
-        LogUtil.e(destip);
+        LogUtil.e(destip + "----------------------");
         InetAddress address = InetAddress.getByName(destip);
         byte[] send_head_data = ByteUtil.getHeadByteData(udpByteData);
 //        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
 //        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
         byte[] send_data = ByteUtil.byteMerger(send_head_data, udpByteData);
-//        LogUtil.e("send_data:" + byte2hex(send_data));
+        LogUtil.e("send_data:" + byte2hex(send_data));
         // 2.创建数据报，包含发送的数据信息
         DatagramPacket packet = new DatagramPacket(send_data, send_data.length, address, port);
         // 3.创建DatagramSocket对象
@@ -1273,8 +1283,13 @@ public class LampView extends View {
     public void setSpeed(int speed) {
         this.speed = speed;
         modelFrameTime = 200 * speed;
+        LogUtil.e("=============4");
         stopSendUdpModeData();
 //        toStopSendUdpModeData(true, false);
+    }
+
+    public void setClean(boolean clean) {
+        clean = true;
     }
 }
 

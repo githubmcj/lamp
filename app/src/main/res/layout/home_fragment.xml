@@ -22,6 +22,21 @@
         android:layout_height="wrap_content"
         android:background="@color/white">
 
+        <com.wya.env.view.LampView
+            android:id="@+id/lamp_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/dp_30"
+            android:layout_marginBottom="@dimen/dp_30"
+            android:visibility="invisible"
+            app:bg_color="@color/white"
+            app:margin_left="@dimen/dp_30"
+            app:margin_right="@dimen/dp_30"
+            app:size="300">
+
+        </com.wya.env.view.LampView>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

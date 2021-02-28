@@ -185,18 +185,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         setLeftOnclickListener(new onLeftOnclickListener() {
             @Override
             public void onLeftClick(View view) {
-                EventSendUpd eventSendUpd = new EventSendUpd();
-                eventSendUpd.setLampModel(mLampModel);
-                EventBus.getDefault().post(eventSendUpd);
                 finish();
             }
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
 
     private Handler handler = new Handler() {
         @Override
@@ -1647,6 +1640,9 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        EventSendUpd eventSendUpd = new EventSendUpd();
+        eventSendUpd.setLampModel(mLampModel);
+        EventBus.getDefault().post(eventSendUpd);
     }
 
 }

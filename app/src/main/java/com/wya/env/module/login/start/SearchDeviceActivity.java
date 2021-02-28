@@ -188,8 +188,6 @@ public class SearchDeviceActivity extends BaseActivity {
 //    }
 
 
-
-
     private void sendData(int type) {
         LogUtil.e("发送广播");
         byte[] send_data;
@@ -285,8 +283,10 @@ public class SearchDeviceActivity extends BaseActivity {
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
                             String colorType = msg.getData().getString("colorType");
+                            LogUtil.e(has + "========" + ip + "-----" + name + "-------" + size + "-------" + deviceName + "-------" + colorType + "-------");
                             if (lampSettings.get(i).getName().equals(name) && !TextUtils.isEmpty(deviceName) && size > 0) {
                                 tvSearching.setVisibility(View.GONE);
+                                LogUtil.e("重复" + lampSettings.size());
                                 has = true;
                                 lampSettings.get(i).setName(name);
                                 lampSettings.get(i).setIp(ip);
@@ -303,7 +303,9 @@ public class SearchDeviceActivity extends BaseActivity {
                             int size = msg.getData().getInt("size");
                             String deviceName = msg.getData().getString("deviceName");
                             String colorType = msg.getData().getString("colorType");
+                            LogUtil.e(has + "========" + ip + "-----" + name + "-------" + size + "-------" + deviceName + "-------" + colorType + "-------");
                             if (!TextUtils.isEmpty(deviceName) && size > 0) {
+                                LogUtil.e("新增" + lampSettings.size());
                                 tvSearching.setVisibility(View.GONE);
                                 LampSetting lampSetting = new LampSetting();
                                 lampSetting.setName(name);
