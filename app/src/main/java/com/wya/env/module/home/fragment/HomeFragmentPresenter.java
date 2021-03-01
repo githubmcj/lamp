@@ -53,6 +53,10 @@ public class HomeFragmentPresenter extends BasePresent<HomeFragmentView> {
                     mView.onUpLoadModelResult();
                 }
             }
+
+            @Override
+            public void onComplete() {
+            }
         });
     }
 

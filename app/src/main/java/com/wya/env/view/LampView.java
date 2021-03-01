@@ -415,6 +415,7 @@ public class LampView extends View {
             choseColor = "#000000";
         }
         this.w = w;
+        LogUtil.e("----w:" + w);
         this.choseColor = choseColor;
     }
 
@@ -1028,6 +1029,7 @@ public class LampView extends View {
         for (int i = 0; i < data.size(); i++) {
             data.get(String.valueOf(i)).setColor("#000000");
             data.get(String.valueOf(i)).setShowColor("#000000");
+            data.get(String.valueOf(i)).setW(0);
             data.get(String.valueOf(i)).setFlash(0);
         }
         postInvalidate();
@@ -1102,6 +1104,8 @@ public class LampView extends View {
             for (int i = 0; i < data.size(); i++) {
                 String color = data.get(String.valueOf(i)).getColor();
                 boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                LogUtil.e("send_W:" + data.get(String.valueOf(i)).getW());
+                LogUtil.e("send_W2:" + ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0]);
                 if (isTwinkle) {
                     if (Math.random() * 10 < 4) {
                         upd_data[i * 4 + 5] = 0x00;

@@ -1064,8 +1064,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     }
 
     private void sendFrameApplyData(LampModel lampModel, int index, int lampIndex) {
-        bodyData = applyMode(lampModel.getModeArr().get(index), lampModel.getMirror(), lampModel.getColumn(), lampModel.getSize(), index, lampModel.getSpeed(), lampIndex);
-        EasySocket.getInstance().upBytes(bodyData);
+        try{
+            bodyData = applyMode(lampModel.getModeArr().get(index), lampModel.getMirror(), lampModel.getColumn(), lampModel.getSize(), index, lampModel.getSpeed(), lampIndex);
+            EasySocket.getInstance().upBytes(bodyData);
+        } catch (Exception e){
+
+        }
     }
 
     private byte[] applyMode(DoodlePattern doodlePattern, int isMirror, int column, int size, int index, int speed, int lampIndex) {

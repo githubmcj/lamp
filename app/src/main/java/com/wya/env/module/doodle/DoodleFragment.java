@@ -345,6 +345,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 sure.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        color_index = 0;
+                                        getColorIndex(color_index);
                                         switch (lightType) {
                                             case 0:
                                                 lampView.setChoseColor(chose_color, w);
@@ -357,8 +359,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                             default:
                                                 break;
                                         }
-                                        color_index = 0;
-                                        getColorIndex(color_index);
                                         choseColorDialog.dismiss();
                                     }
                                 });
@@ -492,6 +492,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             case R.id.ll_clean:
                 if (painter_type == 3) {
                     painter_type = 0;
+                    switch (lightType) {
+                        case 0:
+                            lampView.setChoseColor(chose_color, w);
+                            lampView.setShowColor(chose_color);
+                            break;
+                        case 1:
+                            lampTreeView.setChoseColor(chose_color, w);
+                            lampTreeView.setShowColor(chose_color);
+                            break;
+                        default:
+                            break;
+                    }
                 } else {
                     painter_type = 3;
                 }
@@ -730,11 +742,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachudianji));
             switch (lightType) {
                 case 0:
-                    lampView.setChoseColor("#000000", w);
+                    lampView.setChoseColor("#000000", 0);
                     lampView.setShowColor("#000000");
                     break;
                 case 1:
-                    lampTreeView.setChoseColor("#000000", w);
+                    lampTreeView.setChoseColor("#000000", 0);
                     lampTreeView.setShowColor("#000000");
                     break;
                 default:
@@ -763,7 +775,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         circle5.setCircle_chose(false);
         circle6.setCircle_chose(false);
         circle7.setCircle_chose(false);
-        w = 0;
         switch (color_index) {
             case 1:
                 chose_color = "#EA1318";
@@ -798,7 +809,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         }
         switch (lightType) {
             case 0:
-                lampView.setChoseColor(chose_color, w);
+                lampView.setChoseColor(chose_color, 0);
                 lampView.setShowColor(chose_color);
                 if (painter_type == 0 || painter_type == 3) {
                     lampView.setPaintBold(false);
@@ -807,7 +818,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 }
                 break;
             case 1:
-                lampTreeView.setChoseColor(chose_color, w);
+                lampTreeView.setChoseColor(chose_color, 0);
                 lampTreeView.setShowColor(chose_color);
                 if (painter_type == 0 || painter_type == 3) {
                     lampTreeView.setPaintBold(false);

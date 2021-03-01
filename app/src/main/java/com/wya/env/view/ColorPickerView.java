@@ -391,6 +391,7 @@ public class ColorPickerView extends View {
 
         Canvas c = new Canvas(bitmapForColor);
         RectF rf = new RectF(0, 0, bitmapForColor.getWidth(), bitmapForColor.getHeight());
+        RectF rf2 = new RectF(1, 1, bitmapForColor.getWidth() - 2, bitmapForColor.getHeight() - 2);
 
         // 圆角大小
         int r;
@@ -400,11 +401,11 @@ public class ColorPickerView extends View {
             r = bitmapForColor.getWidth() / 2;
         }
         // 先绘制黑色背景，否则有 alpha 时绘制不正常
-        paint.setColor(Color.BLACK);
+        paint.setColor(Color.GRAY);
         c.drawRoundRect(rf, r, r, paint);
 
         paint.setShader(linearGradient);
-        c.drawRoundRect(rf, r, r, paint);
+        c.drawRoundRect(rf2, r, r, paint);
         paint.setShader(null);
 
         needReDrawColorTable = false;

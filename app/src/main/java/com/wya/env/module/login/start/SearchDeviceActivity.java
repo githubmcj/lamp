@@ -285,7 +285,9 @@ public class SearchDeviceActivity extends BaseActivity {
                             String colorType = msg.getData().getString("colorType");
                             LogUtil.e(has + "========" + ip + "-----" + name + "-------" + size + "-------" + deviceName + "-------" + colorType + "-------");
                             if (lampSettings.get(i).getName().equals(name) && !TextUtils.isEmpty(deviceName) && size > 0) {
-                                tvSearching.setVisibility(View.GONE);
+                                if (tvSearching != null) {
+                                    tvSearching.setVisibility(View.GONE);
+                                }
                                 LogUtil.e("重复" + lampSettings.size());
                                 has = true;
                                 lampSettings.get(i).setName(name);

@@ -1032,6 +1032,7 @@ public class TreeView extends View {
         for (int i = 0; i < data.size(); i++) {
             data.get(String.valueOf(i)).setColor("#000000");
             data.get(String.valueOf(i)).setShowColor("#000000");
+            data.get(String.valueOf(i)).setW(0);
             data.get(String.valueOf(i)).setFlash(0);
         }
         postInvalidate();

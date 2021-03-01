@@ -359,6 +359,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
     private WYACustomDialog editDialog;
     private LampColorAdapter lampColorAdapter;
+    private boolean isShow = false;
 
     private void showEditDialog() {
         editDialog = new WYACustomDialog.Builder(this)
@@ -370,6 +371,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         mSeekBar.post(new Runnable() {
                             @Override
                             public void run() {
+                                isShow = true;
                                 chose_speed = lampModel.getSpeed();
                                 mSeekBar.setProgress(6 - lampModel.getSpeed());
 
@@ -385,6 +387,16 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 //                                } else {
 //                                    treeFragment.setSpeed(lampModel.getSpeed());
 //                                }
+
+                                isShow = true;
+                                mLampModel = getChoseModels(copyModeIndex, lightType);
+                                if (lightType == 0) {
+                                    curtainFragment.setSpeed(chose_speed);
+                                    curtainFragment.setLampModel(mLampModel);
+                                } else {
+                                    treeFragment.setSpeed(chose_speed);
+                                    treeFragment.setLampModel(mLampModel);
+                                }
                             }
 
                             @Override
@@ -416,6 +428,16 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                                 } else {
                                     choseColorPosition = position;
                                     lampColorAdapter.setChoseColors(position);
+
+                                    mLampModel = getChoseModels(copyModeIndex, lightType);
+                                    mLampModel.setCopyModeColor(data_colors.get(choseColorPosition));
+                                    if (lightType == 0) {
+                                        curtainFragment.setSpeed(chose_speed);
+                                        curtainFragment.setLampModel(mLampModel);
+                                    } else {
+                                        treeFragment.setSpeed(chose_speed);
+                                        treeFragment.setLampModel(mLampModel);
+                                    }
                                 }
                             }
                         });
@@ -424,6 +446,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         cancel.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                isShow = false;
                                 editDialog.dismiss();
                             }
                         });
@@ -431,6 +454,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         sure.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                isShow = false;
                                 choseCopyModeColor = data_colors.get(choseColorPosition);
                                 showSave();
                                 editDialog.dismiss();
@@ -440,6 +464,44 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 })
                 .build();
         editDialog.show();
+    }
+
+    private LampModel getChoseModels(int copyModeIndex, int type) {
+        switch (copyModeIndex) {
+            case 0:
+                lampModel = getModel1(type);
+                break;
+            case 1:
+                lampModel = getModel2(type);
+                break;
+            case 2:
+                lampModel = getModel3(type);
+                break;
+            case 3:
+                lampModel = getModel4(type);
+                break;
+            case 4:
+                lampModel = getModel5(type);
+                break;
+            case 5:
+                lampModel = getModel6(type);
+                break;
+            case 6:
+                lampModel = getModel7(type);
+                break;
+            case 7:
+                lampModel = getModel8(type);
+                break;
+            case 8:
+                lampModel = getModel9(type);
+                break;
+            case 9:
+                lampModel = getModel10(type);
+                break;
+            default:
+                break;
+        }
+        return lampModel;
     }
 
     private void showSave() {
@@ -604,14 +666,21 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                                 if (position == add_colors.size() - 1) {
                                     if (position != data_colors.get(0).size() - 1) {
+                                        index = position;
                                         if (colorType == 0x00) {
-                                            index = position;
                                             add_colors.add(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 255, ColorUtil.int2Hex(picker1.getColor())));
                                         } else if (colorType == 0x04) {
                                             add_colors.add(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
                                         }
                                     } else {
                                         if (TextUtils.isEmpty(add_colors.get(add_colors.size() - 1).getShowColor())) {
+                                            index = position;
+                                            if (colorType == 0x00) {
+                                                add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 255, ColorUtil.int2Hex(picker1.getColor())));
+                                            } else if (colorType == 0x04) {
+                                                add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
+                                            }
+                                        } else {
                                             index = position;
                                             if (colorType == 0x00) {
                                                 add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 255, ColorUtil.int2Hex(picker1.getColor())));
@@ -770,10 +839,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel10(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Bright Delightlux");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#0000FF,#00FF00,#FF0000"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#0000FF,#00FF00,#FF0000"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -839,10 +912,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel9(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Glow");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#FF0000,#00FF00,#FF00FF,#000000,#007FFF,#0000FF,#8B00FF"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#FF0000,#00FF00,#FF00FF,#000000,#007FFF,#0000FF,#8B00FF"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -886,10 +963,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
 
         LampModel lampModel = new LampModel();
         lampModel.setName("Vertical");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#FAFF00,#00FF00,#007FFF,#0000FF,#8B00FF"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#FAFF00,#00FF00,#007FFF,#0000FF,#8B00FF"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -930,10 +1011,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel7(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Sunset");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#00FF00"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#00FF00"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -1065,10 +1150,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel6(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Updown");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#000000,#00FF00,#007FFF,#000000,#8B00FF"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#000000,#00FF00,#007FFF,#000000,#8B00FF"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -1107,10 +1196,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel5(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Horizontal Flag");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#FAFF00,#00FF00,#007FFF,#0000FF,#8B00FF"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#FAFF00,#00FF00,#007FFF,#0000FF,#8B00FF"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -1148,10 +1241,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel4(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Sparkles");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#F99601,#ff0000"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#F99601,#ff0000"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -1222,10 +1319,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel1(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Diagonal");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#F2E93F"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#F2E93F"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -1293,10 +1394,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel2(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Fireworks");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#0000ff,#ffffff"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#0000ff,#ffffff"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
@@ -1425,10 +1530,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private LampModel getModel3(int type) {
         LampModel lampModel = new LampModel();
         lampModel.setName("Waves");
-        if (modeType == 2 && !isCopy) {
-            lampModel.setCopyModeColor(copyModeColor);
+        if (isShow) {
+            lampModel.setCopyModeColor(data_colors.get(choseColorPosition));
         } else {
-            lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#0000ff"));
+            if (modeType == 2 && !isCopy) {
+                lampModel.setCopyModeColor(copyModeColor);
+            } else {
+                lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#0000ff"));
+            }
         }
         colors = lampModel.getCopyModeColor();
         lampModel.setSpeed(speed);
