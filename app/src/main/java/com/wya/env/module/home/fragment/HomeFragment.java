@@ -131,6 +131,9 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     int size;
     int row;
 
+    private int colorType;
+
+
 
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
@@ -420,7 +423,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         LogUtil.e("initSend");
         if (eventSendUpd != null && eventSendUpd.getLampModel() != null && eventSendUpd.getLampModel().getModeArr().size() > 0) {
             LogUtil.e("initSend2");
-            udpView.setColorType(SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE, 0));
+            colorType = getColorType();
+            udpView.setColorType(colorType);
             udpView.setSize(eventSendUpd.getLampModel().getSize());
             udpView.setColumn(eventSendUpd.getLampModel().getColumn());
             udpView.setClean(false);
@@ -429,6 +433,15 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             udpView.setSpeed(eventSendUpd.getLampModel().getSpeed());
             udpView.setModel(eventSendUpd.getLampModel().getModeArr(), eventSendUpd.getLampModel().getLight(), true);
         }
+    }
+
+    private int getColorType() {
+        for (int i = 0; i < lamps.getLampSettings().size(); i++) {
+            if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null && lamps.getLampSettings().get(i).isChose()) {
+                colorType = Integer.valueOf(lamps.getLampSettings().get(i).getColorType());
+            }
+        }
+        return colorType;
     }
 
     private void getNetData() {

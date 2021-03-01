@@ -208,14 +208,15 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     setType();
                     fragmentManager = getSupportFragmentManager();
                     fragmentTransaction = fragmentManager.beginTransaction();
+                    colorType = getColorType();
                     if (lightType == 0) {
                         mLampModel = getModels(copyModeIndex, lightType);
-                        curtainFragment = new CurtainFragment(mLampModel);
+                        curtainFragment = new CurtainFragment(mLampModel, colorType);
                         fragmentTransaction.add(R.id.view, curtainFragment);
                         fragmentTransaction.show(curtainFragment).commit();
                     } else {
                         mLampModel = getModels(copyModeIndex, lightType);
-                        treeFragment = new TreeFragment(mLampModel);
+                        treeFragment = new TreeFragment(mLampModel, colorType);
                         fragmentTransaction.add(R.id.view, treeFragment);
                         fragmentTransaction.show(treeFragment).commit();
                     }
@@ -590,7 +591,6 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private int colorType;
 
     private void showAddColorDialog() {
-        colorType = SaveSharedPreferences.getInt(this, CommonValue.COLOR_TYPE);
         addColorDialog = new WYACustomDialog.Builder(this)
                 .setLayoutId(R.layout.add_color_layout, new CustomListener() {
                     @Override
@@ -731,6 +731,15 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 })
                 .build();
         addColorDialog.show();
+    }
+
+    private int getColorType() {
+        for (int i = 0; i < lamps.getLampSettings().size(); i++) {
+            if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null && lamps.getLampSettings().get(i).isChose()) {
+                colorType = Integer.valueOf(lamps.getLampSettings().get(i).getColorType());
+            }
+        }
+        return colorType;
     }
 
     /**

@@ -17,9 +17,12 @@ public class TreeFragment extends BaseLazyFragment {
     TreeView tree;
     private LampModel model;
 
+    private int colorType;
 
-    public TreeFragment(LampModel model) {
+
+    public TreeFragment(LampModel model, int colorType) {
         this.model = model;
+        this.colorType = colorType;
     }
 
     @Override
@@ -29,7 +32,7 @@ public class TreeFragment extends BaseLazyFragment {
 
     @Override
     protected void initView() {
-        tree.setColorType(SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE));
+        tree.setColorType(colorType);
         tree.setSize(model.getSize());
         tree.setColumn(model.getColumn());
         tree.setModelName(model.getName());

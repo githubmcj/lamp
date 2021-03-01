@@ -24,8 +24,11 @@ public class CurtainFragment extends BaseLazyFragment {
     LampView curtain;
     private LampModel model;
 
-    public CurtainFragment(LampModel model) {
+    private int colorType;
+
+    public CurtainFragment(LampModel model, int colorType) {
         this.model = model;
+        this.colorType = colorType;
     }
 
 
@@ -36,7 +39,7 @@ public class CurtainFragment extends BaseLazyFragment {
 
     @Override
     protected void initView() {
-        curtain.setColorType(SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE));
+        curtain.setColorType(colorType);
         curtain.setSize(model.getSize());
         curtain.setColumn(model.getColumn());
         curtain.setShape(0);
@@ -46,6 +49,7 @@ public class CurtainFragment extends BaseLazyFragment {
         curtain.setSpeed(model.getSpeed());
         curtain.setModel(model.getModeArr(), model.getLight(), true);
     }
+
 
     @Override
     public void onStart() {

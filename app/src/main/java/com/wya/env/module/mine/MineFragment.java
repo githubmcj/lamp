@@ -143,7 +143,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                 }
                 lampSettings.get(position).setChose(true);
                 myLampAdapter.notifyDataSetChanged();
-                SaveSharedPreferences.save(getActivity(), CommonValue.COLOR_TYPE, Integer.valueOf(lampSettings.get(position).getColorType()).intValue());
                 showLoading();
                 myLampAdapter.toLinkTcp(true);
                 saveInfoLamp(lampSettings);

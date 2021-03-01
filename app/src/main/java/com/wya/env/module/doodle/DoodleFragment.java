@@ -17,10 +17,8 @@ import com.easysocket.utils.LogUtil;
 import com.google.gson.Gson;
 import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
-import com.wya.env.bean.doodle.CopyModeColor;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
-import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.event.EventCustomLampModel;
 import com.wya.env.bean.event.EventSaveSuccess;
 import com.wya.env.bean.login.Lamps;
@@ -171,7 +169,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     }
 
     private void initData() {
-        colorType = SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE);
         chose_light = 100;
         switch (lightType) {
             case 0:
@@ -366,8 +363,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                         })
                         .build();
                 choseColorDialog.show();
-                
-                
+
+
 //
 //                choseColorDialog = new WYACustomDialog.Builder(getActivity())
 //                        .title("")
@@ -676,10 +673,10 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         lampModel.setName(etName.getText().toString());
         lampModel.setModeType(1);
         lampModel.setLightType(lightType);
-        lampModel.setCreatTime(System.currentTimeMillis()+"custom");
+        lampModel.setCreatTime(System.currentTimeMillis() + "custom");
         lampModel.setChose(0);
         DoodlePattern doodlePattern = new DoodlePattern();
-        if(lightType == 1){
+        if (lightType == 1) {
             doodlePattern.setLight_status(lampTreeView.getSaveData());
             doodlePattern.setSize(lampTreeView.getSize());
             List<DoodlePattern> doodlePatterns = new ArrayList<>();
@@ -859,7 +856,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventSaveSuccess eventSaveSuccess) {
         LogUtil.e("SUCCESS");
-        if(eventSaveSuccess.isSuccess()){
+        if (eventSaveSuccess.isSuccess()) {
             hideLoading();
             toCleanChose();
         }
@@ -869,7 +866,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-        colorType = SaveSharedPreferences.getInt(getActivity(), CommonValue.COLOR_TYPE);
+        LogUtil.e(colorType + "-------------");
         if (!hidden) {
             toCleanChose();
             setType();
@@ -943,7 +940,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 isChangeDevice = true;
                                 choseDeviceName = lamps.getLampSettings().get(i).getName();
                             }
-                            if(isChangeDevice){
+                            if (isChangeDevice) {
+                                colorType = Integer.valueOf(lamps.getLampSettings().get(i).getColorType());
                                 switch (lamps.getLampSettings().get(i).getName().substring(5, 6)) {
                                     case "C":
                                         lightType = 0;
@@ -959,7 +957,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                         lightType = 1;
                                         lampTreeView.setVisibility(View.VISIBLE);
                                         lampView.setVisibility(View.GONE);
-                                        if(!TextUtils.isEmpty(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE))){
+                                        if (!TextUtils.isEmpty(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE))) {
                                             lampTreeView.setConfigData(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE));
                                             lampTreeView.requestLayout();
                                         }

@@ -1037,7 +1037,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     private int colorType;
 
     public void apply(LampModel lampModel) {
-        colorType = SaveSharedPreferences.getInt(context, CommonValue.COLOR_TYPE);
+        colorType = getColorType();
         eventApply = new EventApply();
         eventApply.setStatus(0);
         EventBus.getDefault().post(eventApply);
@@ -1045,6 +1045,15 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         index = 0;
         modeDataFinish = false;
         sendApplyData(lampModel, index);
+    }
+
+    private int getColorType() {
+        for (int i = 0; i < lamps.getLampSettings().size(); i++) {
+            if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null && lamps.getLampSettings().get(i).isChose()) {
+                colorType = Integer.valueOf(lamps.getLampSettings().get(i).getColorType());
+            }
+        }
+        return colorType;
     }
 
 
