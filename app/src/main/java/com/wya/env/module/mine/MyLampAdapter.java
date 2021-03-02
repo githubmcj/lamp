@@ -185,6 +185,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                         break;
                 }
                 lampSetting = data.get(i);
+                LogUtil.e("LinkIP:" + ip);
+                try {
+                    EasySocket.getInstance().destroyConnection();
+                } catch (Exception e) {
+
+                }
                 initEasySocket(ip);
             }
         }
@@ -206,6 +212,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
         } else {
             helper.setGone(R.id.ll_add, false);
+//            helper.setText(R.id.name, item.getDeviceName() + "\n" + item.getColumn() + "*" + item.getRow() + "--" + item.getSize() + "\n" + item.getIp() + "---" + item.getColorType() + "--" + item.getName().substring(5, 6));
             helper.setText(R.id.name, item.getDeviceName());
             if (item.isChose() && App.getInstance().isTcpConnected()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
@@ -1048,9 +1055,9 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     }
 
     private int getColorType() {
-        for (int i = 0; i < lamps.getLampSettings().size(); i++) {
-            if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null && lamps.getLampSettings().get(i).isChose()) {
-                colorType = Integer.valueOf(lamps.getLampSettings().get(i).getColorType());
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i) != null && data.get(i).getName() != null && data.get(i).isChose()) {
+                colorType = Integer.valueOf(data.get(i).getColorType());
             }
         }
         return colorType;
@@ -1073,10 +1080,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     }
 
     private void sendFrameApplyData(LampModel lampModel, int index, int lampIndex) {
-        try{
+        try {
             bodyData = applyMode(lampModel.getModeArr().get(index), lampModel.getMirror(), lampModel.getColumn(), lampModel.getSize(), index, lampModel.getSpeed(), lampIndex);
             EasySocket.getInstance().upBytes(bodyData);
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
     }

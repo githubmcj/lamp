@@ -1216,7 +1216,7 @@ public class LampView extends View {
 //        LogUtil.e("udpByteData:" + byte2hex(udpByteData));
 //        LogUtil.e("send_head_data:" + byte2hex(send_head_data));
         byte[] send_data = ByteUtil.byteMerger(send_head_data, udpByteData);
-        LogUtil.e("send_data:" + byte2hex(send_data));
+//        LogUtil.e("send_data:" + byte2hex(send_data));
         // 2.创建数据报，包含发送的数据信息
         DatagramPacket packet = new DatagramPacket(send_data, send_data.length, address, port);
         // 3.创建DatagramSocket对象

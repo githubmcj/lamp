@@ -37,6 +37,7 @@ import com.wya.env.view.AvatarImageView;
 import com.wya.utils.utils.LogUtil;
 import com.wya.utils.utils.ScreenUtil;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -48,6 +49,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -81,6 +84,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     TableRow tabExit;
 
     private List<LampSetting> lampSettings = new ArrayList<>();
+    private List<LampSetting> enp_lampSettings = new ArrayList<>();
     private MyLampAdapter myLampAdapter;
     private LoginInfo loginInfo;
     private String loc_ip;
@@ -95,10 +99,52 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         initUserInfo();
         initLampInfo();
         initRecyclerView();
-        showLoading();
-        sendData(1);
-        sendData(2);
+
+        getDevices();
+//        sendData(1);
+//        sendData(2);
     }
+
+    ScheduledExecutorService modelExecutorService;
+    private int addMode = 0;
+
+    private void getDevices() {
+        loc_ip = getIpAddressString();
+        addMode = 0;
+        if (modelExecutorService == null) {
+            modelExecutorService = new ScheduledThreadPoolExecutor(1,
+                    new BasicThreadFactory.Builder().namingPattern("getDivice").daemon(true).build());
+        }
+        modelExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.e("addMode----------" + addMode);
+                addMode++;
+                if (addMode < 30) {
+                    sendData(1);
+                } else {
+                    stopSendUdpModeData();
+                    handler.sendEmptyMessage(5);
+                    if (lampSettings != null && lampSettings.size() > 1) {
+                        LogUtil.e("搜到设备" + (lampSettings.size() - 1) + "台");
+                    } else {
+                        LogUtil.e("无设备");
+//                        startActivity(new Intent(getActivity(), NoFoundDeviceActivity.class));
+                    }
+                }
+            }
+        }, 0, 200, TimeUnit.MILLISECONDS);
+    }
+
+    public void stopSendUdpModeData() {
+        if (modelExecutorService != null) {
+            LogUtil.e("停止发送数据");
+            modelExecutorService.shutdownNow();
+        }
+        // 非单例模式，置空防止重复的任务
+        modelExecutorService = null;
+    }
+
 
     /**
      * 初始化灯数据
@@ -187,8 +233,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
         switch (view.getId()) {
             case R.id.tab_refresh:
                 showLoading();
-                sendData(1);
-                sendData(2);
+                getDevices();
                 break;
             case R.id.tab_exit:
                 showLoading();
@@ -243,7 +288,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             bundle.putString("name", new String(getNameData(data)));
                             bundle.putString("deviceName", new String(getDeviceNameData(data)).trim());
                             bundle.putString("colorType", bytesToHex(data).substring(18, 20));
-                            LogUtil.e(bytesToHex(data).substring(18, 20)+ "----------colorType");
+                            LogUtil.e(bytesToHex(data).substring(18, 20) + "----------colorType");
                             msg.setData(bundle);
                             handler.sendMessage(msg);
                             break;
@@ -400,7 +445,8 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             myLampAdapter.setNewData(lampSettings);
                         }
                     }
-                    hideLoading();
+                    sendData(2);
+//                    hideLoading();
                     break;
                 case 2:
                     if (lampSettings != null && lampSettings.size() > 0) {
@@ -427,11 +473,15 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                     }
                     break;
                 case 0:
-                    hideLoading();
                     if (lampSettings != null && lampSettings.size() > 0) {
                         return;
                     }
                     LogUtil.e("未搜索到设备");
+                    break;
+
+                case 5:
+                    hideLoading();
+                    LogUtil.e("搜索结束");
                     break;
                 default:
                     hideLoading();
