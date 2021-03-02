@@ -79,7 +79,6 @@ public class StartUpActivity extends BaseActivity {
                 break;
             case R.id.but_sign:
                 startActivity(new Intent(StartUpActivity.this, RegisterActivity.class));
-                finish();
                 break;
             default:
                 break;

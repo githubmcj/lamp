@@ -1269,7 +1269,7 @@ public class TreeView extends View {
         modelExecutorService = null;
     }
 
-    public void setAllColor(String chose_color) {
+    public void setAllColor(String chose_color, int w) {
         for (int i = 0; i < data.size(); i++) {
             data.get(String.valueOf(i)).setColor(chose_color);
             data.get(String.valueOf(i)).setShowColor(chose_color);

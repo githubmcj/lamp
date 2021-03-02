@@ -31,7 +31,7 @@
         android:layout_height="@dimen/dp_200"
         android:gravity="center"
         android:padding="@dimen/dp_10"
-        android:text="Conneting to Delightlux Device"
+        android:text="Connecting to Deluxlight Device"
         android:textColor="@color/app_blue"
         android:textSize="30sp"></TextView>
 
@@ -41,7 +41,8 @@
         android:gravity="center"
         android:layout_alignParentBottom="true"
         android:padding="@dimen/dp_10"
-        android:text="Please place your mobile phone close to the Delightlux device.\nPress and hold the button for 5 sec and let go, the Status LED will turns to sparkling Orange."
+        android:text="Press and hold the button for 5 sec and the Status LED will turns to sparkling Blue.\nPlease place your mobile phone close to the Deluxlight device
+"
         android:textColor="@color/c666666"
         android:textSize="14sp"></TextView>
 

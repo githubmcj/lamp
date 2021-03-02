@@ -1104,8 +1104,6 @@ public class LampView extends View {
             for (int i = 0; i < data.size(); i++) {
                 String color = data.get(String.valueOf(i)).getColor();
                 boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
-                LogUtil.e("send_W:" + data.get(String.valueOf(i)).getW());
-                LogUtil.e("send_W2:" + ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0]);
                 if (isTwinkle) {
                     if (Math.random() * 10 < 4) {
                         upd_data[i * 4 + 5] = 0x00;
@@ -1116,13 +1114,13 @@ public class LampView extends View {
                         upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                         upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                         upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                        upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                        upd_data[i * 4 + 8] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
                     }
                 } else {
                     upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                     upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                     upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                    upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                    upd_data[i * 4 + 8] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
                 }
             }
 
@@ -1271,11 +1269,12 @@ public class LampView extends View {
         modelExecutorService = null;
     }
 
-    public void setAllColor(String chose_color) {
+    public void setAllColor(String chose_color, int w) {
         for (int i = 0; i < data.size(); i++) {
             data.get(String.valueOf(i)).setColor(chose_color);
             data.get(String.valueOf(i)).setShowColor(chose_color);
             data.get(String.valueOf(i)).setFlash(0);
+            data.get(String.valueOf(i)).setW(w);
         }
         postInvalidate();
     }

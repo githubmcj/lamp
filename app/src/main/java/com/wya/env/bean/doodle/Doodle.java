@@ -3,6 +3,7 @@ package com.wya.env.bean.doodle;
 import android.graphics.Color;
 
 import com.wya.env.util.ColorUtil;
+import com.wya.utils.utils.LogUtil;
 
 import java.io.Serializable;
 

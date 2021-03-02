@@ -31,7 +31,7 @@
         android:layout_height="@dimen/dp_200"
         android:gravity="center"
         android:padding="@dimen/dp_10"
-        android:text="WelCome to the Word of\nDelightlux"
+        android:text="Welcome to the World of Deluxlight"
         android:textColor="@color/app_blue"
         android:textSize="30sp"></TextView>
 
@@ -41,7 +41,7 @@
         android:layout_below="@id/title"
         android:padding="@dimen/dp_10"
         android:gravity="center|left"
-        android:text="It seems like that you are not connected to your device yet.\n\nTo keep going on, go to WiFi setting of your smart device and connect to the WiFi network named Delightlux-xxxxxxxx"
+        android:text="To properly use the direct WiFi connection, you must go to WiFi setting of your smart device and select our Wifi network named Deluxlight-xxxxxxxxx"
         android:textColor="@color/c666666"
         android:textSize="14sp"></TextView>
 

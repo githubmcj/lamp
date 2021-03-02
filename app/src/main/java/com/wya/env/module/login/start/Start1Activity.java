@@ -3,10 +3,8 @@ package com.wya.env.module.login.start;
 import android.Manifest;
 import android.content.Intent;
 import android.graphics.Paint;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,7 +22,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
@@ -51,7 +48,6 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
     protected void initView() {
         initShowToolBar(false);
         next.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
-        checkBlueStatus();
         isBlue = false;
         ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1,
                 new BasicThreadFactory.Builder().namingPattern("show_blue").daemon(true).build());
@@ -66,16 +62,12 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
                 }
             }
         }, 0, 1, TimeUnit.SECONDS);
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        //断开所有设备
-        Ble.getInstance().disconnectAll();
-        lampSettings.clear();
-        Ble.getInstance().startScan(scanCallback);
+        checkBlueStatus();
     }
 
     @Override
@@ -83,7 +75,6 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
         super.onStop();
         Ble.getInstance().cancelCallback(scanCallback);
     }
-
 
 
     private BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
@@ -152,6 +143,11 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
                 Manifest.permission.ACCESS_FINE_LOCATION};
         if (!EasyPermissions.hasPermissions(this, perms)) {
             EasyPermissions.requestPermissions(this, "In order to scan Bluetooth Le device more accurately, please turn on GPS positioning", 1, perms);
+        } else {
+            //断开所有设备
+            Ble.getInstance().disconnectAll();
+            lampSettings.clear();
+            Ble.getInstance().startScan(scanCallback);
         }
     }
 
@@ -170,15 +166,22 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        LogUtil.e("onRequestPermissionsResult");
+
     }
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-
+        LogUtil.e("onPermissionsGranted");
+        //断开所有设备
+        Ble.getInstance().disconnectAll();
+        lampSettings.clear();
+        Ble.getInstance().startScan(scanCallback);
     }
 
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-
+        LogUtil.e("onPermissionsDenied");
+        finish();
     }
 }

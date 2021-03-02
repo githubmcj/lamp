@@ -134,7 +134,6 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private int colorType;
 
 
-
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
         homeFragmentPresenter.mView = this;
@@ -668,16 +667,17 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
 
     private boolean hasChose;
+
     @Override
     public void onUpLoadModelResult() {
         hasChose = false;
         for (int i = 0; i < lampModelsL.size(); i++) {
-            if(lampModelsL.get(i).isChose() == 1){
+            if (lampModelsL.get(i).isChose() == 1) {
                 hasChose = true;
                 break;
             }
         }
-        if(!hasChose){
+        if (!hasChose) {
             hideLoading();
             setAction(false);
             getNetData();
@@ -968,7 +968,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setCopyModeIndex(9);
         lampModel.setSpeed(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0009");
-        lampModel.setCopyModeColor(setCopyModeColor("#FF00FF, #FFFFFF, #000000"));
+        lampModel.setCopyModeColor(setCopyModeColor("#FF00FF,#FFFFFF,#000000"));
         setModeLamp10(lampModel);
         return lampModel;
     }
@@ -1006,7 +1006,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setSpeed(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0008");
         lampModel.setName("Glow");
-        lampModel.setCopyModeColor(setCopyModeColor("#FF0000, #00FF00, #FFFFFF, #000000, #007FFF, #0000FF, #8B00FF"));
+        lampModel.setCopyModeColor(setCopyModeColor("#FF0000,#00FF00,#FFFFFF,#000000,#007FFF,#0000FF,#8B00FF"));
         setModeLamp9(lampModel);
         return lampModel;
     }
@@ -1042,7 +1042,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setSpeed(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0007");
         lampModel.setName("Vertical");
-        lampModel.setCopyModeColor(setCopyModeColor("#FA0000, #FAA500, #FAFF00, #00FF00, #007FFF, #0000FF, #8B00FF"));
+        lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#FAFF00,#00FF00,#007FFF,#0000FF,#8B00FF"));
         setModeLamp8(lampModel);
         return lampModel;
 
@@ -1170,7 +1170,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setSpeed(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0006");
         lampModel.setName("Sunset");
-        lampModel.setCopyModeColor(setCopyModeColor("#FA0000, #FAA500, #00FF00"));
+        lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#00FF00"));
         setModeLamp7(lampModel);
         return lampModel;
     }
@@ -1204,7 +1204,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setSpeed(1);
         lampModel.setCopyModeIndex(5);
         lampModel.setCreatTime(System.currentTimeMillis() + "0005");
-        lampModel.setCopyModeColor(setCopyModeColor("#FA0000, #FAA500, #000000, #00FF00, #007FFF, #0000FF, #8B00FF"));
+        lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#000000,#00FF00,#007FFF,#0000FF,#8B00FF"));
         setModeLamp6(lampModel);
         return lampModel;
     }
@@ -1237,7 +1237,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setCopyModeIndex(4);
         lampModel.setSpeed(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0004");
-        lampModel.setCopyModeColor(setCopyModeColor("#FA0000, #FAA500, #FAFF00, #00FF00, #007FFF, #0000FF, #8B00FF"));
+        lampModel.setCopyModeColor(setCopyModeColor("#FA0000,#FAA500,#FAFF00,#00FF00,#007FFF,#0000FF,#8B00FF"));
         setModeLamp5(lampModel);
         return lampModel;
     }
@@ -1300,7 +1300,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setCopyModeIndex(3);
         lampModel.setSpeed(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0003");
-        lampModel.setCopyModeColor(setCopyModeColor("#F99601, #ff0000"));
+        lampModel.setCopyModeColor(setCopyModeColor("#F99601,#ff0000"));
         setModeLamp4(lampModel);
         return lampModel;
     }
@@ -1368,7 +1368,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setCopyModeIndex(1);
         lampModel.setSpeed(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0001");
-        lampModel.setCopyModeColor(setCopyModeColor("#ff0000, #00ff00, #0000ff, #ffffff"));
+        lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#0000ff,#ffffff"));
         setModeLamp2(lampModel);
         return lampModel;
     }
@@ -1482,7 +1482,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         lampModel.setCopyModeIndex(2);
         lampModel.setSpeed(1);
         lampModel.setCreatTime(System.currentTimeMillis() + "0002");
-        lampModel.setCopyModeColor(setCopyModeColor("#ff0000, #00ff00, #0000ff"));
+        lampModel.setCopyModeColor(setCopyModeColor("#ff0000,#00ff00,#0000ff"));
         setModeLamp3(lampModel);
         return lampModel;
     }
@@ -1721,7 +1721,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     private void downLoad() {
         showLoading();
         for (int i = 0; i < lampModelsC.size(); i++) {
-            if(lampModelsC.get(i).isChose() == 1){
+            if (lampModelsC.get(i).isChose() == 1) {
                 lampModelsC.get(i).setChose(0);
                 lampModelsL.add(lampModelsL.size() - 1, lampModelsC.get(i));
             }
@@ -1742,7 +1742,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private void upLoad() {
         for (int i = 0; i < lampModelsL.size(); i++) {
-            if(lampModelsL.get(i).isChose() == 1){
+            if (lampModelsL.get(i).isChose() == 1) {
                 lampModelsL.get(i).setChose(0);
                 homeFragmentPresenter.upLoadModel(new Gson().toJson(lampModelsL.get(i)));
             }

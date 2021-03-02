@@ -67,7 +67,7 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
     @Override
     protected void initView() {
         setTitle(getResources().getString(R.string.register));
-        initTvLeft("Back", getResources().getColor(R.color.black), 14, true);
+        initTvLeft("Back", R.color.black, 14, true);
         isRead = true;
         isRead2 = true;
         registerPresent = new RegisterPresent();

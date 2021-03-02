@@ -555,10 +555,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             case R.id.img_all:
                 switch (lightType) {
                     case 0:
-                        lampView.setAllColor(chose_color);
+                        if (color_index == 0) {
+                            lampView.setAllColor(chose_color, w);
+                        } else {
+                            lampView.setAllColor(chose_color, 0);
+                        }
                         break;
                     case 1:
-                        lampTreeView.setAllColor(chose_color);
+                        if (color_index == 0) {
+                            lampTreeView.setAllColor(chose_color, w);
+                        } else {
+                            lampTreeView.setAllColor(chose_color, 0);
+                        }
                         break;
                     default:
                         break;

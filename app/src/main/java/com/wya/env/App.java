@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatDelegate;
 
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
+import com.squareup.leakcanary.LeakCanary;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.wya.env.common.CommonValue;
 import com.wya.env.manager.ActivityManager;
@@ -81,7 +82,6 @@ public class App extends Application {
 //        }
 //        LeakCanary.install(this);
         CrashReport.initCrashReport(getApplicationContext(), "83d282ad6a", false);
-
 
     }
 
