@@ -643,6 +643,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         picker1.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
                             @Override
                             public void onColorChanged(ColorPickerView picker, int color, int progress) {
+                                if (progress <= 20) {
+                                    color = Color.WHITE;
+                                } else if (progress >= 230) {
+                                    color = Color.BLACK;
+                                }
                                 if (colorType == 0) {
                                     w = 255;
                                     choseColor = ColorUtil.int2Hex2(color);
@@ -667,14 +672,16 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         pickerW.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
                             @Override
                             public void onColorChanged(ColorPickerView picker, int color, int progress) {
-                                if (progress < 15) {
+                                if (progress <= 20) {
                                     w = 0;
-                                } else if (progress > 240) {
+                                    Color.rgb(254, 240, 214);
+                                } else if (progress >= 230) {
                                     w = 255;
+                                    color = Color.parseColor(choseColor);
                                 } else {
                                     w = progress;
                                 }
-
+                                w = 255 - w;
                                 add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex2(color), w, choseColor));
                                 addColorAdapter.setNewData(add_colors);
                             }
@@ -740,7 +747,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         colorPickerView.subscribe(new ColorObserver() {
                             @Override
                             public void onColor(int color, boolean fromUser, boolean shouldPropagate) {
-                                picker1.setColors(Color.WHITE, color, Color.TRANSPARENT);
+                                picker1.setColors(Color.WHITE, color, Color.BLACK);
                             }
                         });
                         colorPickerView.setInitialColor(Color.WHITE);
@@ -1121,7 +1128,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors.get(2).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
@@ -1136,13 +1143,13 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 if (a < c && b > c) {
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
                         doodle.setColor(colors.get(1).getShowColor());
-                        doodle.setFlash(1);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors.get(2).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
@@ -1154,7 +1161,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
                         doodle.setColor(colors.get(1).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
@@ -1163,25 +1170,25 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 if (a > b && b < c) {
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(colors.get(2).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c && (double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
                         doodle.setColor(colors.get(0).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b && (double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
                         doodle.setColor(colors.get(1).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b) {
                         doodle.setColor(colors.get(2).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }

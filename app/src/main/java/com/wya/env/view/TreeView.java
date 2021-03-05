@@ -418,6 +418,9 @@ public class TreeView extends View {
             choseColor = "#000000";
         }
         this.w = w;
+        if(w == 255){
+            showColor = "#FEF0D6";
+        }
         this.choseColor = choseColor;
     }
 
@@ -429,7 +432,9 @@ public class TreeView extends View {
                 showColor = choseColor;
             }
         }
-        LogUtil.e("showColor:" + showColor);
+        if(w == 255){
+            showColor = "#FEF0D6";
+        }
         this.showColor = showColor;
     }
 
@@ -916,6 +921,9 @@ public class TreeView extends View {
     }
 
     public void setAllColor(String chose_color, String show_color, int w) {
+        if (w == 255) {
+            show_color = "#FEF0D6";
+        }
         for (int i = 0; i < data.size(); i++) {
             data.get(String.valueOf(i)).setColor(chose_color);
             data.get(String.valueOf(i)).setShowColor(show_color);

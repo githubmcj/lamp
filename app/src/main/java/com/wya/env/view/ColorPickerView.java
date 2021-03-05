@@ -401,7 +401,7 @@ public class ColorPickerView extends View {
             r = bitmapForColor.getWidth() / 2;
         }
         // 先绘制黑色背景，否则有 alpha 时绘制不正常
-        paint.setColor(Color.GRAY);
+        paint.setColor(Color.BLACK);
         c.drawRoundRect(rf, r, r, paint);
 
         paint.setShader(linearGradient);

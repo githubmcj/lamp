@@ -1086,7 +1086,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(lampModel.getCopyModeColor().get(2).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
@@ -1101,13 +1101,13 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 if (a < c && b > c) {
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b) {
                         doodle.setColor(lampModel.getCopyModeColor().get(1).getShowColor());
-                        doodle.setFlash(1);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b && (double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(lampModel.getCopyModeColor().get(2).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
@@ -1119,7 +1119,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
                         doodle.setColor(lampModel.getCopyModeColor().get(1).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
@@ -1128,25 +1128,25 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 if (a > b && b < c) {
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= c) {
                         doodle.setColor(lampModel.getCopyModeColor().get(2).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < c && (double) (row - 1 - j % row) / (double) (j / row + 1) >= a) {
                         doodle.setColor(lampModel.getCopyModeColor().get(0).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) >= b && (double) (row - 1 - j % row) / (double) (j / row + 1) < a) {
                         doodle.setColor(lampModel.getCopyModeColor().get(1).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }
                     if ((double) (row - 1 - j % row) / (double) (j / row + 1) < b) {
                         doodle.setColor(lampModel.getCopyModeColor().get(2).getShowColor());
-                        doodle.setFlash(2);
+                        doodle.setFlash(0);
 
                         light_status.put(String.valueOf(j), doodle);
                     }

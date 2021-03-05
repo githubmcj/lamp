@@ -258,6 +258,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 picker1.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
                                     @Override
                                     public void onColorChanged(ColorPickerView picker, int color, int progress) {
+                                        if (progress <= 20) {
+                                            color = Color.WHITE;
+                                        } else if (progress >= 230) {
+                                            color = Color.BLACK;
+                                        }
                                         if (colorType == 0) {
                                             w = 255;
                                             chose_color = ColorUtil.int2Hex2(color);
@@ -267,8 +272,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                             pickerW.setColors(Color.rgb(254, 240, 214), color);
                                             chose_color = ColorUtil.int2Hex2(color);
                                         }
-
-
                                     }
 
                                     @Override
@@ -284,10 +287,12 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 pickerW.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
                                     @Override
                                     public void onColorChanged(ColorPickerView picker, int color, int progress) {
-                                        if (progress < 15) {
+                                        if (progress <= 20) {
                                             w = 0;
-                                        } else if (progress > 240) {
+                                            Color.rgb(254, 240, 214);
+                                        } else if (progress >= 230) {
                                             w = 255;
+                                            color = Color.parseColor(chose_color);
                                         } else {
                                             w = progress;
                                         }
@@ -314,7 +319,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 colorPickerView.subscribe(new ColorObserver() {
                                     @Override
                                     public void onColor(int color, boolean fromUser, boolean shouldPropagate) {
-                                        picker1.setColors(Color.WHITE, color, Color.TRANSPARENT);
+                                        picker1.setColors(Color.WHITE, color, Color.BLACK);
                                     }
                                 });
                                 colorPickerView.setInitialColor(Color.WHITE);
@@ -330,6 +335,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 sure.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        LogUtil.e(chose_color + "-----" + w + "--------" + show_color);
                                         color_index = 0;
                                         getColorIndex(color_index);
                                         switch (lightType) {

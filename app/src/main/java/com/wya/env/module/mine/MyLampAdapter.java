@@ -1219,7 +1219,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 headData[3] = len[1];
             }
         }
-        if (idIndex == 0) {
+        if (lampIndex == 0) {
             byte[] time = ByteUtil.intToByteArray(speed);
             if (time.length == 1) {
                 headData[8] = time[0];
