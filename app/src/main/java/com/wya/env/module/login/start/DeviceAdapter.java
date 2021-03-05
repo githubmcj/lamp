@@ -1,11 +1,8 @@
 package com.wya.env.module.login.start;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.view.View;
@@ -18,7 +15,6 @@ import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.common.CommonValue;
 import com.wya.env.util.SaveSharedPreferences;
-import com.wya.uikit.pickerview.CustomTimePicker;
 
 import java.util.List;
 
@@ -44,6 +40,7 @@ public class DeviceAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void convert(BaseViewHolder helper, LampSetting item) {
+//        helper.setText(R.id.name, item.getDeviceName() + ":" + item.getSize() + "=" + item.getColumn() + "*" + item.getRow());
         helper.setText(R.id.name, item.getDeviceName());
         helper.getView(R.id.edit).setOnClickListener(new View.OnClickListener() {
             @Override

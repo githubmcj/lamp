@@ -27,6 +27,7 @@ import com.wya.env.common.CommonValue;
 import com.wya.env.util.ColorUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.Circle;
+import com.wya.env.view.ColorPickerView;
 import com.wya.env.view.LampView;
 import com.wya.env.view.TreeView;
 import com.wya.uikit.button.WYAButton;
@@ -254,9 +255,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 } else if (colorType == 0x04) {
                                     pickerW.setVisibility(View.VISIBLE);
                                 }
-                                picker1.setOnColorPickerChangeListener(new com.wya.env.view.ColorPickerView.OnColorPickerChangeListener() {
+                                picker1.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
                                     @Override
-                                    public void onColorChanged(com.wya.env.view.ColorPickerView picker, int color, int progress) {
+                                    public void onColorChanged(ColorPickerView picker, int color, int progress) {
                                         if (colorType == 0) {
                                             w = 255;
                                             chose_color = ColorUtil.int2Hex2(color);
@@ -271,18 +272,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                     }
 
                                     @Override
-                                    public void onStartTrackingTouch(com.wya.env.view.ColorPickerView picker) {
+                                    public void onStartTrackingTouch(ColorPickerView picker) {
 
                                     }
 
                                     @Override
-                                    public void onStopTrackingTouch(com.wya.env.view.ColorPickerView picker) {
+                                    public void onStopTrackingTouch(ColorPickerView picker) {
 
                                     }
                                 });
-                                pickerW.setOnColorPickerChangeListener(new com.wya.env.view.ColorPickerView.OnColorPickerChangeListener() {
+                                pickerW.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
                                     @Override
-                                    public void onColorChanged(com.wya.env.view.ColorPickerView picker, int color, int progress) {
+                                    public void onColorChanged(ColorPickerView picker, int color, int progress) {
                                         if (progress < 15) {
                                             w = 0;
                                         } else if (progress > 240) {
@@ -290,6 +291,8 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                         } else {
                                             w = progress;
                                         }
+                                        w = 255 - w;
+//                                        chose_color = ColorUtil.int2Hex(color);
                                         show_color = ColorUtil.int2Hex(color);
                                         circle.setColor(show_color);
 //                                        add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex2(color), w, choseColor));
@@ -297,12 +300,12 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                     }
 
                                     @Override
-                                    public void onStartTrackingTouch(com.wya.env.view.ColorPickerView picker) {
+                                    public void onStartTrackingTouch(ColorPickerView picker) {
 
                                     }
 
                                     @Override
-                                    public void onStopTrackingTouch(com.wya.env.view.ColorPickerView picker) {
+                                    public void onStopTrackingTouch(ColorPickerView picker) {
 
                                     }
                                 });
@@ -443,10 +446,10 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 }
                 switch (lightType) {
                     case 0:
-                        lampView.setPaintBold(false);
+                        lampView.setPaintBold(true);
                         break;
                     case 1:
-                        lampTreeView.setPaintBold(false);
+                        lampTreeView.setPaintBold(true);
                         break;
                     default:
                         break;
@@ -541,16 +544,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 switch (lightType) {
                     case 0:
                         if (color_index == 0) {
-                            lampView.setAllColor(chose_color, w);
+                            lampView.setAllColor(chose_color, show_color, w);
                         } else {
-                            lampView.setAllColor(chose_color, 0);
+                            show_color = chose_color;
+                            lampView.setAllColor(chose_color, show_color, 0);
                         }
                         break;
                     case 1:
                         if (color_index == 0) {
-                            lampTreeView.setAllColor(chose_color, w);
+                            lampTreeView.setAllColor(chose_color, show_color, w);
                         } else {
-                            lampTreeView.setAllColor(chose_color, 0);
+                            show_color = chose_color;
+                            lampTreeView.setAllColor(chose_color, show_color, 0);
                         }
                         break;
                     default:
@@ -799,8 +804,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         }
         switch (lightType) {
             case 0:
+                show_color = chose_color;
                 lampView.setChoseColor(chose_color, 0);
-                lampView.setShowColor(chose_color);
+                lampView.setShowColor(show_color);
                 if (painter_type == 0 || painter_type == 3) {
                     lampView.setPaintBold(false);
                     painter_type = 2;
@@ -808,8 +814,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 }
                 break;
             case 1:
+                show_color = chose_color;
                 lampTreeView.setChoseColor(chose_color, 0);
-                lampTreeView.setShowColor(chose_color);
+                lampTreeView.setShowColor(show_color);
                 if (painter_type == 0 || painter_type == 3) {
                     lampTreeView.setPaintBold(false);
                     painter_type = 2;
@@ -919,7 +926,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             public void run() {
                 lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
                 isChangeDevice = false;
-                if(toStart){
+                if (toStart) {
                     handler.sendEmptyMessage(1);
                 } else {
                     handler.sendEmptyMessage(0);

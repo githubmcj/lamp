@@ -421,7 +421,11 @@ public class LampView extends View {
 
     public void setShowColor(String showColor) {
         if (showColor == null) {
-            showColor = "#000000";
+            if (choseColor == null) {
+                showColor = "#000000";
+            } else {
+                showColor = choseColor;
+            }
         }
         this.showColor = showColor;
     }
@@ -1269,10 +1273,10 @@ public class LampView extends View {
         modelExecutorService = null;
     }
 
-    public void setAllColor(String chose_color, int w) {
+    public void setAllColor(String chose_color, String show_color, int w) {
         for (int i = 0; i < data.size(); i++) {
             data.get(String.valueOf(i)).setColor(chose_color);
-            data.get(String.valueOf(i)).setShowColor(chose_color);
+            data.get(String.valueOf(i)).setShowColor(show_color);
             data.get(String.valueOf(i)).setFlash(0);
             data.get(String.valueOf(i)).setW(w);
         }

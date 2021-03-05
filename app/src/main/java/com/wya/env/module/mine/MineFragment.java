@@ -84,7 +84,6 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     TableRow tabExit;
 
     private List<LampSetting> lampSettings = new ArrayList<>();
-    private List<LampSetting> enp_lampSettings = new ArrayList<>();
     private MyLampAdapter myLampAdapter;
     private LoginInfo loginInfo;
     private String loc_ip;
@@ -381,18 +380,20 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                                 has = true;
                                 lampSettings.get(i).setName(name);
                                 lampSettings.get(i).setIp(ip);
-                                lampSettings.get(i).setSize(size);
+                                if (lampSettings.get(i).getName().substring(5, 6).equals("C")) {
+                                    lampSettings.get(i).setSize(size);
+                                }
                                 lampSettings.get(i).setDeviceName(deviceName);
                                 lampSettings.get(i).setColorType(colorType);
                                 if (i == (lampSettings.size() - 1) && lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                     lampSettings.add(new LampSetting());
                                 }
-                                myLampAdapter.setNewData(lampSettings);
+                                myLampAdapter.notifyDataSetChanged();
                             } else {
                                 if (i == (lampSettings.size() - 1) && lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                     lampSettings.add(new LampSetting());
                                 }
-                                myLampAdapter.setNewData(lampSettings);
+                                myLampAdapter.notifyDataSetChanged();
                             }
                         }
                         if (!has) {
@@ -405,19 +406,21 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                                 LampSetting lampSetting = new LampSetting();
                                 lampSetting.setName(name);
                                 lampSetting.setIp(ip);
-                                lampSetting.setSize(size);
+                                if (name.substring(5, 6).equals("C")) {
+                                    lampSetting.setSize(size);
+                                }
                                 lampSetting.setDeviceName(deviceName);
                                 lampSetting.setColorType(colorType);
                                 lampSettings.add(lampSetting);
                                 if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                     lampSettings.add(new LampSetting());
                                 }
-                                myLampAdapter.setNewData(lampSettings);
+                                myLampAdapter.notifyDataSetChanged();
                             } else {
                                 if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                     lampSettings.add(new LampSetting());
                                 }
-                                myLampAdapter.setNewData(lampSettings);
+                                myLampAdapter.notifyDataSetChanged();
                             }
                         }
                     } else {
@@ -430,19 +433,21 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                             LampSetting lampSetting = new LampSetting();
                             lampSetting.setName(name);
                             lampSetting.setIp(ip);
-                            lampSetting.setSize(size);
+                            if (name.substring(5, 6).equals("C")) {
+                                lampSetting.setSize(size);
+                            }
                             lampSetting.setDeviceName(deviceName);
                             lampSetting.setColorType(colorType);
                             lampSettings.add(lampSetting);
                             if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                 lampSettings.add(new LampSetting());
                             }
-                            myLampAdapter.setNewData(lampSettings);
+                            myLampAdapter.notifyDataSetChanged();
                         } else {
                             if (lampSettings.get(lampSettings.size() - 1).getName() != null) {
                                 lampSettings.add(new LampSetting());
                             }
-                            myLampAdapter.setNewData(lampSettings);
+                            myLampAdapter.notifyDataSetChanged();
                         }
                     }
                     sendData(2);
@@ -457,16 +462,18 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
                         LogUtil.e(size + "---" + column + "-----" + row);
                         for (int i = 0; i < lampSettings.size(); i++) {
                             if (lampSettings.get(i).getIp() != null && lampSettings.get(i).getIp().equals(ip)) {
-                                if (row > 0) {
-                                    lampSettings.get(i).setRow(row);
+                                if (lamps.getLampSettings().get(i).getName().substring(5, 6).equals("C")) {
+                                    if (row > 0) {
+                                        lampSettings.get(i).setRow(row);
+                                    }
+                                    if (column > 0) {
+                                        lampSettings.get(i).setColumn(column);
+                                    }
+                                    if (size > 0) {
+                                        lampSettings.get(i).setSize(size);
+                                    }
                                 }
-                                if (column > 0) {
-                                    lampSettings.get(i).setColumn(column);
-                                }
-                                if (size > 0) {
-                                    lampSettings.get(i).setSize(size);
-                                }
-                                myLampAdapter.setNewData(lampSettings);
+                                myLampAdapter.notifyDataSetChanged();
                                 break;
                             }
                         }
@@ -535,10 +542,9 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-//        if (!hidden) {
-//            showLoading();
-//            sendData();
-//        }
+        if (hidden) {
+            saveInfoLamp(lampSettings);
+        }
     }
 
 
@@ -550,6 +556,7 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     @Override
     public void onStop() {
         super.onStop();
+        saveInfoLamp(lampSettings);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -571,6 +578,10 @@ public class MineFragment extends BaseMvpFragment<MineFragmentPresenter> impleme
     public void onMessageEvent(TcpFail event) {
         try {
             Toast.makeText(getActivity(), "The mobile phone and device are not in the agreed network segment, please check and then reconnect", Toast.LENGTH_SHORT).show();
+            for (int i = 0; i < lampSettings.size(); i++) {
+                lampSettings.get(i).setChose(false);
+            }
+            myLampAdapter.notifyDataSetChanged();
             hideLoading();
         } catch (Exception e) {
 

@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
@@ -175,7 +176,11 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 handler.sendEmptyMessage(0);
             }
         }).start();
-        setMusic();
+        try {
+            setMusic();
+        } catch (Exception e) {
+
+        }
         if (modeType == 0) {
             imgDel.setVisibility(View.GONE);
         } else {
@@ -205,23 +210,27 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                     break;
                 case 1:
                     v_ok = true;
-                    setType();
-                    fragmentManager = getSupportFragmentManager();
-                    fragmentTransaction = fragmentManager.beginTransaction();
-                    colorType = getColorType();
-                    if (lightType == 0) {
-                        mLampModel = getModels(copyModeIndex, lightType);
-                        curtainFragment = new CurtainFragment(mLampModel, colorType);
-                        fragmentTransaction.add(R.id.view, curtainFragment);
-                        fragmentTransaction.show(curtainFragment).commit();
+                    if (setType()) {
+                        fragmentManager = getSupportFragmentManager();
+                        fragmentTransaction = fragmentManager.beginTransaction();
+                        colorType = getColorType();
+                        if (lightType == 0) {
+                            mLampModel = getModels(copyModeIndex, lightType);
+                            curtainFragment = new CurtainFragment(mLampModel, colorType);
+                            fragmentTransaction.add(R.id.view, curtainFragment);
+                            fragmentTransaction.show(curtainFragment).commit();
+                        } else {
+                            mLampModel = getModels(copyModeIndex, lightType);
+                            treeFragment = new TreeFragment(mLampModel, colorType);
+                            fragmentTransaction.add(R.id.view, treeFragment);
+                            fragmentTransaction.show(treeFragment).commit();
+                        }
+                        if (v_ok && f_ok) {
+                            hideLoading();
+                        }
                     } else {
-                        mLampModel = getModels(copyModeIndex, lightType);
-                        treeFragment = new TreeFragment(mLampModel, colorType);
-                        fragmentTransaction.add(R.id.view, treeFragment);
-                        fragmentTransaction.show(treeFragment).commit();
-                    }
-                    if (v_ok && f_ok) {
-                        hideLoading();
+                        Toast.makeText(DetailActivity.this, "please connect device", Toast.LENGTH_SHORT).show();
+                        DetailActivity.this.finish();
                     }
                     break;
                 default:
@@ -253,28 +262,54 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         EventBus.getDefault().post(musicModel);
     }
 
-    private void setType() {
+    private boolean hasDevice;
+
+    private boolean setType() {
+        hasDevice = false;
         for (int i = 0; i < lamps.getLampSettings().size(); i++) {
             if (lamps.getLampSettings().get(i) != null && lamps.getLampSettings().get(i).getName() != null && lamps.getLampSettings().get(i).isChose()) {
 //                Toast.makeText(this, "蓝牙：" + lamps.getLampSettings().get(i).getName() + "\n灯：" + lamps.getLampSettings().get(i).getDeviceName() + "\nsize：" + lamps.getLampSettings().get(i).getSize() + "\nrow：" + lamps.getLampSettings().get(i).getRow() + "\ncolumn：" + lamps.getLampSettings().get(i).getColumn(), Toast.LENGTH_LONG).show();
+                hasDevice = true;
                 switch (lamps.getLampSettings().get(i).getName().substring(5, 6)) {
                     case "C":
                         lightType = 0;
                         size = lamps.getLampSettings().get(i).getSize();
                         column = lamps.getLampSettings().get(i).getColumn();
-                        row = size / column;
+                        check(i);
                         break;
                     case "T":
                         lightType = 1;
                         size = lamps.getLampSettings().get(i).getSize();
                         column = lamps.getLampSettings().get(i).getColumn();
-                        row = size / column;
                         data_str = SaveSharedPreferences.getString(this, CommonValue.CONFIGFILE);
+                        if (column == 0 && !TextUtils.isEmpty(data_str)) {
+                            treeData = new Gson().fromJson(data_str, TreeData.class);
+                            column = treeData.getLampXnumber();
+                            size = treeData.getLampTotalNumber();
+                        }
+                        check(i);
                         break;
                     default:
                         break;
                 }
+                break;
             }
+        }
+        return hasDevice;
+    }
+
+    private void check(int i) {
+        if (size == 0 || column == 0) {
+            lamps.getLampSettings().remove(i);
+            Toast.makeText(this, "please check device", Toast.LENGTH_SHORT).show();
+            SaveSharedPreferences.save(this, CommonValue.LAMPS, new Gson().toJson(lamps));
+            hasDevice = false;
+        } else {
+            lamps.getLampSettings().get(i).setColumn(column);
+            lamps.getLampSettings().get(i).setSize(size);
+            lamps.getLampSettings().get(i).setRow(size / column);
+            SaveSharedPreferences.save(this, CommonValue.LAMPS, new Gson().toJson(lamps));
+            row = size / column;
         }
     }
 
@@ -310,6 +345,9 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
             case 1:
                 break;
             case 2:
+                hideLoading();
+                break;
+            case 3:
                 hideLoading();
                 break;
             default:
@@ -725,6 +763,18 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                                 addColorDialog.dismiss();
                                 data_colors.add(data_colors.size() - 1, deepCopy(add_colors));
                                 lampColorAdapter.setNewData(data_colors);
+
+                                choseColorPosition = data_colors.size() - 2;
+                                lampColorAdapter.setChoseColors(choseColorPosition);
+                                mLampModel = getChoseModels(copyModeIndex, lightType);
+                                mLampModel.setCopyModeColor(data_colors.get(choseColorPosition));
+                                if (lightType == 0) {
+                                    curtainFragment.setSpeed(chose_speed);
+                                    curtainFragment.setLampModel(mLampModel);
+                                } else {
+                                    treeFragment.setSpeed(chose_speed);
+                                    treeFragment.setLampModel(mLampModel);
+                                }
                             }
                         });
                     }

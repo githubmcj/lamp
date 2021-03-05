@@ -621,6 +621,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 getLocalData(false);
                 getNetData();
             } else {
+                lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
                 initSendData();
             }
         } else {

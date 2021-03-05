@@ -186,18 +186,19 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 }
                 lampSetting = data.get(i);
                 LogUtil.e("LinkIP:" + ip);
-                try {
-                    EasySocket.getInstance().destroyConnection();
-                } catch (Exception e) {
-
+                if (isClick) {
+                    try {
+                        EasySocket.getInstance().destroyConnection();
+                    } catch (Exception e) {
+                        initEasySocket(ip);
+                    }
+                } else {
+                    initEasySocket(ip);
                 }
-                initEasySocket(ip);
             }
         }
     }
 
-
-    private boolean off;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -207,6 +208,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             RxView.clicks(helper.getView(R.id.ll_add))
                     .throttleFirst(500, TimeUnit.MILLISECONDS)
                     .subscribe(Observable -> {
+                        try {
+                            EasySocket.getInstance().destroyConnection();
+                        } catch (Exception e) {
+                        }
                         context.startActivity(new Intent(context, Start1Activity.class));
                     });
 
@@ -229,10 +234,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 helper.getView(R.id.img_time_open).setEnabled(false);
             }
             if (item.isOpen()) {
-                off = false;
                 helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.dengguang));
             } else {
-                off = true;
                 helper.setImageDrawable(R.id.img_open, context.getResources().getDrawable(R.drawable.morenshebei));
             }
 
@@ -499,7 +502,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      */
     private void initEasySocket(String ip) {
         LogUtil.e(ip + "==================" + getIpAddressString());
-        if ((ip.split("\\.")[1].equals(getIpAddressString().split("\\.")[1])) && (ip.split("\\.")[0].equals(getIpAddressString().split("\\.")[0]))) {
+        if ((ip.split("\\.")[1].equals(getIpAddressString().split("\\.")[1])) && (ip.split("\\.")[0].equals(getIpAddressString().split("\\.")[0])) && (ip.split("\\.")[2].equals(getIpAddressString().split("\\.")[2]))) {
+            LogUtil.e("===========连接ip=======" + ip);
             // socket配置
             EasySocketOptions options = new EasySocketOptions.Builder()
                     .setSocketAddress(new SocketAddress(ip, TCP_PORT))
@@ -510,6 +514,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             options.setMaxResponseDataMb(1000000);
             options.setMaxWriteBytes(1472);
             options.setHeartbeatFreq(4000);
+
 
             // 初始化EasySocket
             EasySocket.getInstance()
@@ -591,6 +596,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             toStartHeart();
             getLampOpenState();
             getLampTimerState();
+            LogUtil.e("lightType:" + lightType);
             if (lightType == 1) {
                 frameNum = 0;
                 getConfigFile(frameNum);
@@ -636,14 +642,18 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             super.onSocketDisconnect(socketAddress, isNeedReconnect);
             LogUtil.d("socket断开连接，是否需要重连：" + isNeedReconnect);
             LogUtil.d("socket连接被断开");
-            App.getInstance().setTcpConnected(false);
-            eventtDeviceName = new EventtDeviceName();
-            eventtDeviceName.setDeviceName(null);
-            EventBus.getDefault().post(eventtDeviceName);
-            MyLampAdapter.this.notifyDataSetChanged();
-            hide = new Hide();
-            hide.setHide(true);
-            EventBus.getDefault().post(hide);
+            if (isClick) {
+                initEasySocket(ip);
+            } else {
+                App.getInstance().setTcpConnected(false);
+                eventtDeviceName = new EventtDeviceName();
+                eventtDeviceName.setDeviceName(null);
+                EventBus.getDefault().post(eventtDeviceName);
+                MyLampAdapter.this.notifyDataSetChanged();
+                hide = new Hide();
+                hide.setHide(true);
+                EventBus.getDefault().post(hide);
+            }
         }
 
         /**
@@ -843,45 +853,52 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 }
                 break;
             case (byte) 0x8b:
+                LogUtil.e("apply 返回数据:" + ByteUtil.byte2hex(originReadData.getBodyData()));
                 if (originReadData.getBodyData()[1] == 0) {
-                    LogUtil.e("成功");
+                    LogUtil.e("apply成功");
                     if (!frameDataFinish && !modeDataFinish) {
-                        LogUtil.e("当前帧和模板数还没传完");
-                        LogUtil.e(lampIndex + "----" + index);
+                        LogUtil.e("apply 当前帧和模板数还没传完");
+                        LogUtil.e(lampIndex + "--apply--" + index);
                         lampIndex++;
+                        idIndex++;
                         eventApply = new EventApply();
                         eventApply.setStatus(1);
                         EventBus.getDefault().post(eventApply);
                         sendFrameApplyData(lampModel, index, lampIndex);
                     } else if (frameDataFinish && !modeDataFinish) {
-                        LogUtil.e("当前帧传完，模板数还没传完");
-                        LogUtil.e(lampIndex + "----" + index);
+                        LogUtil.e("apply 当前帧传完，模板数还没传完");
+                        LogUtil.e(lampIndex + "--apply--" + index);
                         lampIndex = 0;
                         index++;
+                        idIndex++;
                         eventApply = new EventApply();
                         eventApply.setStatus(1);
                         EventBus.getDefault().post(eventApply);
                         sendApplyData(lampModel, index);
                     } else if (frameDataFinish && modeDataFinish) {
-                        LogUtil.e("全部传完");
-                        LogUtil.e(lampIndex + "----" + index);
+                        LogUtil.e("apply 全部传完");
+                        LogUtil.e(lampIndex + "--apply--" + index);
                         eventApply = new EventApply();
                         eventApply.setStatus(2);
+                        idIndex++;
                         EventBus.getDefault().post(eventApply);
+                        Toast.makeText(context, "success", Toast.LENGTH_SHORT).show();
                     } else if (!frameDataFinish && modeDataFinish) {
-                        LogUtil.e("最后一个模板的帧");
-                        LogUtil.e(lampIndex + "----" + index);
+                        LogUtil.e("apply 最后一个模板的帧");
+                        LogUtil.e(lampIndex + "--apply--" + index);
                         lampIndex++;
+                        idIndex++;
                         eventApply = new EventApply();
                         eventApply.setStatus(1);
                         EventBus.getDefault().post(eventApply);
                         sendFrameApplyData(lampModel, index, lampIndex);
                     }
                 } else {
-                    hide = new Hide();
-                    hide.setHide(true);
-                    EventBus.getDefault().post(hide);
-                    LogUtil.e("失败");
+                    eventApply = new EventApply();
+                    eventApply.setStatus(3);
+                    EventBus.getDefault().post(eventApply);
+                    Toast.makeText(context, "apply fail code:" + ByteUtil.byte2hex(originReadData.getBodyData()), Toast.LENGTH_SHORT).show();
+                    LogUtil.e("apply失败");
                 }
                 break;
             case (byte) 0x90:
@@ -915,12 +932,17 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 //                    System.arraycopy(originReadData.getBodyData(), 4, body, 0, originReadData.getBodyData().length - 6);
 //                    String config_str = new String(body, Charset.forName(EasySocket.getInstance().getOptions().getCharsetName()));
 //                    LogUtil.e("json：" + config_str);
-                } else if (originReadData.getBodyData()[3] == 1) {
-                    LogUtil.e("失败");
-                } else if (originReadData.getBodyData()[3] == 3) {
-                    LogUtil.e("App已经打开一个文件");
                 } else {
-                    LogUtil.e("失败");
+                    lamps = new Gson().fromJson(SaveSharedPreferences.getString(context, CommonValue.LAMPS), Lamps.class);
+                    for (int i = 0; i < lamps.getLampSettings().size(); i++) {
+                        if (lamps.getLampSettings().get(i).isChose()) {
+                            lamps.getLampSettings().remove(i);
+                            break;
+                        }
+                    }
+                    SaveSharedPreferences.save(context, CommonValue.LAMPS, new Gson().toJson(lamps));
+                    this.setNewData(lamps.getLampSettings());
+                    LogUtil.e("配置文件获取失败");
                 }
                 break;
             default:
@@ -931,16 +953,18 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
     private Lamps lamps;
 
     private void setSizeRowColumn(TreeData treeData) {
-        lamps = new Gson().fromJson(SaveSharedPreferences.getString(context, CommonValue.LAMPS), Lamps.class);
-        for (int i = 0; i < lamps.getLampSettings().size(); i++) {
-            if (lamps.getLampSettings().get(i).isChose()) {
-                lamps.getLampSettings().get(i).setRow(treeData.getLampYnumber());
-                lamps.getLampSettings().get(i).setColumn(treeData.getLampXnumber());
-                lamps.getLampSettings().get(i).setSize(treeData.getLampTotalNumber());
+        LogUtil.e("配置文件：" + treeData.getLampXnumber() + "-------" + treeData.getLampXnumber() + "------" + treeData.getLampTotalNumber());
+//        lamps = new Gson().fromJson(SaveSharedPreferences.getString(context, CommonValue.LAMPS), Lamps.class);
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i).isChose()) {
+                data.get(i).setRow(treeData.getLampYnumber());
+                data.get(i).setColumn(treeData.getLampXnumber());
+                data.get(i).setSize(treeData.getLampTotalNumber());
                 break;
             }
         }
-        SaveSharedPreferences.save(context, CommonValue.LAMPS, new Gson().toJson(lamps));
+        notifyDataSetChanged();
+//        SaveSharedPreferences.save(context, CommonValue.LAMPS, new Gson().toJson(lamps));
     }
 
     private void openFileRead() {
@@ -1026,12 +1050,17 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      * 获取灯光声控状态
      */
     private void getLampMusicState() {
-        bodyData = getLampState((byte) 0x00);
-        EasySocket.getInstance().upBytes(bodyData);
+        try {
+            bodyData = getLampState((byte) 0x00);
+            EasySocket.getInstance().upBytes(bodyData);
+        } catch (Exception e) {
+
+        }
     }
 
     private int index;
     private int lampIndex;
+    private int idIndex;
     /**
      * 一帧是否传完
      */
@@ -1050,6 +1079,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         EventBus.getDefault().post(eventApply);
         this.lampModel = lampModel;
         index = 0;
+        idIndex = 0;
         modeDataFinish = false;
         sendApplyData(lampModel, index);
     }
@@ -1074,31 +1104,30 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             lampIndex = 0;
             frameDataFinish = false;
             sendFrameApplyData(lampModel, index, lampIndex);
-//            bodyData = applyMode(lampModel.getModeArr().get(index), lampModel.getMirror(), lampModel.getColumn(), lampModel.getSize(), -1, lampModel.getSpeed());
         }
-        LogUtil.e(frameDataFinish + "-----" + modeDataFinish + "-----" + index + "-----" + lampIndex + "-----");
+//        LogUtil.e("apply:" + frameDataFinish + "-----" + modeDataFinish + "-----" + index + "-----" + lampIndex + "-----");
     }
 
     private void sendFrameApplyData(LampModel lampModel, int index, int lampIndex) {
         try {
-            bodyData = applyMode(lampModel.getModeArr().get(index), lampModel.getMirror(), lampModel.getColumn(), lampModel.getSize(), index, lampModel.getSpeed(), lampIndex);
+            bodyData = applyMode(lampModel.getModeArr().get(index), lampModel.getMirror(), lampModel.getColumn(), index, lampModel.getSpeed(), lampIndex);
             EasySocket.getInstance().upBytes(bodyData);
         } catch (Exception e) {
-
+            eventApply = new EventApply();
+            eventApply.setStatus(3);
+            EventBus.getDefault().post(eventApply);
+            Toast.makeText(context, "fail", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private byte[] applyMode(DoodlePattern doodlePattern, int isMirror, int column, int size, int index, int speed, int lampIndex) {
+
+    private byte[] applyMode(DoodlePattern doodlePattern, int isMirror, int column, int index, int speed, int lampIndex) {
         byte[] headData = new byte[10];
         headData[0] = 0x0b;
         headData[1] = (byte) 0xff;
-        if (off) {
-            modeDataFinish = true;
-            frameDataFinish = true;
-        }
         byte[] lampData;
-        if (size % 300 == 0) {
-            if (lampIndex < size / 300 - 1) {// 当前帧的前面组灯 300 * N
+        if (doodlePattern.getLight_status().size() % 300 == 0) {
+            if (lampIndex < doodlePattern.getLight_status().size() / 300 - 1) {// 当前帧的前面组灯 300 * N
                 lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, 300);
                 byte[] start = ByteUtil.intToByteArray(lampIndex * 300);
                 if (start.length == 1) {
@@ -1118,7 +1147,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 }
             } else { // 当前帧的最后几个灯
                 frameDataFinish = true;
-                lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, size - lampIndex * 300);
+                lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, doodlePattern.getLight_status().size() - lampIndex * 300);
                 byte[] start = ByteUtil.intToByteArray(lampIndex * 300);
                 if (start.length == 1) {
                     headData[4] = start[0];
@@ -1127,7 +1156,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     headData[4] = start[0];
                     headData[5] = start[1];
                 }
-                byte[] siz = ByteUtil.intToByteArray(size - lampIndex * 300);
+                byte[] siz = ByteUtil.intToByteArray(doodlePattern.getLight_status().size() - lampIndex * 300);
                 if (siz.length == 1) {
                     headData[6] = siz[0];
                     headData[7] = 0x00;
@@ -1137,7 +1166,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 }
             }
         } else {
-            if (lampIndex < size / 300) {// 当前帧的前面组灯 300 * N
+            if (lampIndex < doodlePattern.getLight_status().size() / 300) {// 当前帧的前面组灯 300 * N
                 lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, 300);
                 byte[] start = ByteUtil.intToByteArray(lampIndex * 300);
                 if (start.length == 1) {
@@ -1157,7 +1186,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 }
             } else { // 当前帧的最后几个灯
                 frameDataFinish = true;
-                lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, size - lampIndex * 300);
+                lampData = getUdpByteData(isMirror == 1 ? toMirror(doodlePattern.getLight_status(), column) : doodlePattern.getLight_status(), lampIndex * 300, doodlePattern.getLight_status().size() - lampIndex * 300);
                 byte[] start = ByteUtil.intToByteArray(lampIndex * 300);
                 if (start.length == 1) {
                     headData[4] = start[0];
@@ -1166,7 +1195,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     headData[4] = start[0];
                     headData[5] = start[1];
                 }
-                byte[] siz = ByteUtil.intToByteArray(size - lampIndex * 300);
+                byte[] siz = ByteUtil.intToByteArray(doodlePattern.getLight_status().size() - lampIndex * 300);
                 if (siz.length == 1) {
                     headData[6] = siz[0];
                     headData[7] = 0x00;
@@ -1181,7 +1210,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             headData[2] = (byte) 0xff;
             headData[3] = (byte) 0xff;
         } else {
-            byte[] len = ByteUtil.intToByteArray(index);
+            byte[] len = ByteUtil.intToByteArray(idIndex);
             if (len.length == 1) {
                 headData[2] = len[0];
                 headData[3] = 0x00;
@@ -1190,13 +1219,18 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 headData[3] = len[1];
             }
         }
-        byte[] time = ByteUtil.intToByteArray(speed);
-        if (time.length == 1) {
-            headData[8] = time[0];
+        if (idIndex == 0) {
+            byte[] time = ByteUtil.intToByteArray(speed);
+            if (time.length == 1) {
+                headData[8] = time[0];
+                headData[9] = 0x00;
+            } else if (time.length == 2) {
+                headData[8] = time[0];
+                headData[9] = time[1];
+            }
+        } else {
+            headData[8] = 0x00;
             headData[9] = 0x00;
-        } else if (time.length == 2) {
-            headData[8] = time[0];
-            headData[9] = time[1];
         }
         byte[] bodyData = ByteUtil.byteMerger(headData, lampData);
         byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
@@ -1214,6 +1248,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      * @return
      */
     public byte[] getUdpByteData(HashMap<String, Doodle> data, int start, int size) {
+        LogUtil.e("apply--getUdpByteData" + start + "---" + size + "--" + data.size());
         byte[] upd_data;
         if (colorType == 0x04) {
             upd_data = new byte[4 * size];
@@ -1222,21 +1257,21 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
                 if (isTwinkle) {
                     if (Math.random() * 10 < 4) {
-                        upd_data[i * 4 + 0] = 0x00;
-                        upd_data[i * 4 + 1] = 0x00;
-                        upd_data[i * 4 + 2] = 0x00;
-                        upd_data[i * 4 + 3] = 0x00;
+                        upd_data[(i - start) * 4 + 0] = 0x00;
+                        upd_data[(i - start) * 4 + 1] = 0x00;
+                        upd_data[(i - start) * 4 + 2] = 0x00;
+                        upd_data[(i - start) * 4 + 3] = 0x00;
                     } else {
-                        upd_data[i * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-                        upd_data[i * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-                        upd_data[i * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                        upd_data[i * 4 + 3] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                        upd_data[(i - start) * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                        upd_data[(i - start) * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                        upd_data[(i - start) * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                        upd_data[(i - start) * 4 + 3] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
                     }
                 } else {
-                    upd_data[i * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-                    upd_data[i * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-                    upd_data[i * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                    upd_data[i * 4 + 3] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                    upd_data[(i - start) * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                    upd_data[(i - start) * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                    upd_data[(i - start) * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                    upd_data[(i - start) * 4 + 3] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
                 }
             }
         } else {
@@ -1246,24 +1281,25 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
                 if (isTwinkle) {
                     if (Math.random() * 10 < 4) {
-                        upd_data[i * 3 + 0] = 0x00;
-                        upd_data[i * 3 + 1] = 0x00;
+                        upd_data[(i - start) * 3 + 0] = 0x00;
+                        upd_data[(i - start) * 3 + 1] = 0x00;
                         upd_data[i * 3 + 2] = 0x00;
                     } else {
-                        upd_data[i * 3 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-                        upd_data[i * 3 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-                        upd_data[i * 3 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                        upd_data[(i - start) * 3 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                        upd_data[(i - start) * 3 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                        upd_data[(i - start) * 3 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
                     }
                 } else {
-                    upd_data[i * 3 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-                    upd_data[i * 3 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-                    upd_data[i * 3 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                    upd_data[(i - start) * 3 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                    upd_data[(i - start) * 3 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                    upd_data[(i - start) * 3 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
                 }
             }
         }
 
         return upd_data;
     }
+
 
     HashMap<String, Doodle> mirror_doodles;
 
