@@ -1120,16 +1120,30 @@ public class LampView extends View {
                         upd_data[i * 4 + 7] = 0x00;
                         upd_data[i * 4 + 8] = 0x00;
                     } else {
+                        if (data.get(String.valueOf(i)).getW() == 255) {
+                            upd_data[i * 4 + 5] = 0x00;
+                            upd_data[i * 4 + 6] = 0x00;
+                            upd_data[i * 4 + 7] = 0x00;
+                            upd_data[i * 4 + 8] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
+                        } else {
+                            upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                            upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                            upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                            upd_data[i * 4 + 8] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
+                        }
+                    }
+                } else {
+                    if (data.get(String.valueOf(i)).getW() == 255) {
+                        upd_data[i * 4 + 5] = 0x00;
+                        upd_data[i * 4 + 6] = 0x00;
+                        upd_data[i * 4 + 7] = 0x00;
+                        upd_data[i * 4 + 8] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
+                    } else {
                         upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                         upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                         upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
                         upd_data[i * 4 + 8] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
                     }
-                } else {
-                    upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-                    upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-                    upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                    upd_data[i * 4 + 8] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
                 }
             }
 

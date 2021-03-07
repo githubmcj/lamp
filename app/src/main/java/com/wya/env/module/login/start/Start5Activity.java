@@ -60,6 +60,7 @@ public class Start5Activity extends BaseActivity {
                 .throttleFirst(500, TimeUnit.MILLISECONDS)
                 .subscribe(Observable -> {
                     Start5Activity.this.startActivity(new Intent(Start5Activity.this, LinkActivity.class).putExtra("device", bleDevice));
+                    finish();                                   
                 });
 
         RxView.clicks(add)

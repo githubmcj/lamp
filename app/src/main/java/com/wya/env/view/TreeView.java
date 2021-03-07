@@ -418,7 +418,7 @@ public class TreeView extends View {
             choseColor = "#000000";
         }
         this.w = w;
-        if(w == 255){
+        if (w == 255) {
             showColor = "#FEF0D6";
         }
         this.choseColor = choseColor;
@@ -432,7 +432,7 @@ public class TreeView extends View {
                 showColor = choseColor;
             }
         }
-        if(w == 255){
+        if (w == 255) {
             showColor = "#FEF0D6";
         }
         this.showColor = showColor;
@@ -764,16 +764,30 @@ public class TreeView extends View {
                         upd_data[i * 4 + 7] = 0x00;
                         upd_data[i * 4 + 8] = 0x00;
                     } else {
+                        if (data.get(String.valueOf(i)).getW() == 255) {
+                            upd_data[i * 4 + 5] = 0x00;
+                            upd_data[i * 4 + 6] = 0x00;
+                            upd_data[i * 4 + 7] = 0x00;
+                            upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                        } else {
+                            upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
+                            upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
+                            upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
+                            upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                        }
+                    }
+                } else {
+                    if (data.get(String.valueOf(i)).getW() == 255) {
+                        upd_data[i * 4 + 5] = (byte) 0x00;
+                        upd_data[i * 4 + 6] = (byte) 0x00;
+                        upd_data[i * 4 + 7] = (byte) 0x00;
+                        upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                    } else {
                         upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                         upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                         upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
                         upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
                     }
-                } else {
-                    upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
-                    upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
-                    upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                    upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
                 }
             }
         } else {

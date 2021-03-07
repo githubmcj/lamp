@@ -252,6 +252,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 pickerW = v.findViewById(R.id.picker2);
                                 if (colorType == 0x00) {
                                     pickerW.setVisibility(View.GONE);
+                                    w = 0;
                                 } else if (colorType == 0x04) {
                                     pickerW.setVisibility(View.VISIBLE);
                                 }
@@ -264,7 +265,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                             color = Color.BLACK;
                                         }
                                         if (colorType == 0) {
-                                            w = 255;
+                                            w = 0;
                                             chose_color = ColorUtil.int2Hex2(color);
                                             show_color = ColorUtil.int2Hex(color);
                                             circle.setColor(show_color);
@@ -776,6 +777,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         circle5.setCircle_chose(false);
         circle6.setCircle_chose(false);
         circle7.setCircle_chose(false);
+        if(color_index != 0){
+            w = 0;
+        }
         switch (color_index) {
             case 1:
                 chose_color = "#EA1318";
@@ -897,7 +901,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         if (!hidden) {
             toCleanChose();
             setType(true);
-
         } else {
             switch (lightType) {
                 case 0:
@@ -995,11 +998,17 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                             lampView.setChoseColor(chose_color, w);
                             lampView.setShowColor(show_color);
                             lampView.setColorType(colorType);
+                            if(colorType == 0){
+                                w = 0;
+                            }
                             break;
                         case 1:
                             lampTreeView.setChoseColor(chose_color, w);
                             lampTreeView.setShowColor(show_color);
                             lampTreeView.setColorType(colorType);
+                            if(colorType == 0){
+                                w = 0;
+                            }
                             break;
                         default:
                             break;

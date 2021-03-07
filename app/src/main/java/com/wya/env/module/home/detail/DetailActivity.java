@@ -637,6 +637,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         pickerW = v.findViewById(R.id.picker2);
                         if (colorType == 0x00) {
                             pickerW.setVisibility(View.GONE);
+                            w = 0;
                         } else if (colorType == 0x04) {
                             pickerW.setVisibility(View.VISIBLE);
                         }
@@ -649,7 +650,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                                     color = Color.BLACK;
                                 }
                                 if (colorType == 0) {
-                                    w = 255;
+                                    w = 0;
                                     choseColor = ColorUtil.int2Hex2(color);
                                     add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex2(color), w, choseColor));
                                     addColorAdapter.setNewData(add_colors);
@@ -713,7 +714,7 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                                     if (position != data_colors.get(0).size() - 1) {
                                         index = position;
                                         if (colorType == 0x00) {
-                                            add_colors.add(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 255, ColorUtil.int2Hex(picker1.getColor())));
+                                            add_colors.add(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 0, ColorUtil.int2Hex(picker1.getColor())));
                                         } else if (colorType == 0x04) {
                                             add_colors.add(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
                                         }
@@ -721,14 +722,14 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                                         if (TextUtils.isEmpty(add_colors.get(add_colors.size() - 1).getShowColor())) {
                                             index = position;
                                             if (colorType == 0x00) {
-                                                add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 255, ColorUtil.int2Hex(picker1.getColor())));
+                                                add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 0, ColorUtil.int2Hex(picker1.getColor())));
                                             } else if (colorType == 0x04) {
                                                 add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
                                             }
                                         } else {
                                             index = position;
                                             if (colorType == 0x00) {
-                                                add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 255, ColorUtil.int2Hex(picker1.getColor())));
+                                                add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(picker1.getColor()), 0, ColorUtil.int2Hex(picker1.getColor())));
                                             } else if (colorType == 0x04) {
                                                 add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex(pickerW.getColor()), w, ColorUtil.int2Hex(picker1.getColor())));
                                             }
