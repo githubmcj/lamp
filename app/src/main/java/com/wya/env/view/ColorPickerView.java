@@ -391,7 +391,7 @@ public class ColorPickerView extends View {
 
         Canvas c = new Canvas(bitmapForColor);
         RectF rf = new RectF(0, 0, bitmapForColor.getWidth(), bitmapForColor.getHeight());
-        RectF rf2 = new RectF(1, 1, bitmapForColor.getWidth() - 2, bitmapForColor.getHeight() - 2);
+        RectF rf2 = new RectF(1, 2, bitmapForColor.getWidth() - 2, bitmapForColor.getHeight() - 2);
 
         // 圆角大小
         int r;

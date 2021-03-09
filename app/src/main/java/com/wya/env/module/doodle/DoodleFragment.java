@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
+import android.widget.Toast;
 
 import com.easysocket.utils.LogUtil;
 import com.google.gson.Gson;
@@ -19,6 +21,8 @@ import com.wya.env.R;
 import com.wya.env.base.BaseMvpFragment;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.bean.event.EventConfigSuccess;
 import com.wya.env.bean.event.EventCustomLampModel;
 import com.wya.env.bean.event.EventSaveSuccess;
 import com.wya.env.bean.login.Lamps;
@@ -207,6 +211,10 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     private int w;
     private int colorType;
 
+    private String empChoseColor;
+    private String empShowColor;
+    private int empChoseW;
+
     @OnClick({R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4, R.id.tab5, R.id.tab6, R.id.tab7, R.id.tab_add, R.id.ll_bold_paint, R.id.ll_thin_paint, R.id.ll_clean, R.id.ll_twinkle, R.id.ll_save, R.id.img_mirror, R.id.img_del, R.id.img_all})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -244,15 +252,15 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                             @Override
                             public void customLayout(View v) {
                                 Circle circle = v.findViewById(R.id.circle);
-                                if (show_color == null) {
-                                    show_color = "#ffffff";
+                                if (empShowColor == null) {
+                                    empShowColor = "#ffffff";
                                 }
-                                circle.setColor(show_color);
+                                circle.setColor(empShowColor);
                                 picker1 = v.findViewById(R.id.picker1);
                                 pickerW = v.findViewById(R.id.picker2);
                                 if (colorType == 0x00) {
                                     pickerW.setVisibility(View.GONE);
-                                    w = 0;
+                                    empChoseW = 0;
                                 } else if (colorType == 0x04) {
                                     pickerW.setVisibility(View.VISIBLE);
                                 }
@@ -265,13 +273,13 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                             color = Color.BLACK;
                                         }
                                         if (colorType == 0) {
-                                            w = 0;
-                                            chose_color = ColorUtil.int2Hex2(color);
-                                            show_color = ColorUtil.int2Hex(color);
-                                            circle.setColor(show_color);
+                                            empChoseW = 0;
+                                            empChoseColor = ColorUtil.int2Hex2(color);
+                                            empShowColor = ColorUtil.int2Hex(color);
+                                            circle.setColor(empShowColor);
                                         } else if (colorType == 0x04) {
                                             pickerW.setColors(Color.rgb(254, 240, 214), color);
-                                            chose_color = ColorUtil.int2Hex2(color);
+                                            empChoseColor = ColorUtil.int2Hex2(color);
                                         }
                                     }
 
@@ -289,18 +297,18 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                     @Override
                                     public void onColorChanged(ColorPickerView picker, int color, int progress) {
                                         if (progress <= 20) {
-                                            w = 0;
+                                            empChoseW = 0;
                                             Color.rgb(254, 240, 214);
                                         } else if (progress >= 230) {
-                                            w = 255;
-                                            color = Color.parseColor(chose_color);
+                                            empChoseW = 255;
+                                            color = Color.parseColor(empShowColor);
                                         } else {
-                                            w = progress;
+                                            empChoseW = progress;
                                         }
-                                        w = 255 - w;
+                                        empChoseW = 255 - empChoseW;
 //                                        chose_color = ColorUtil.int2Hex(color);
-                                        show_color = ColorUtil.int2Hex(color);
-                                        circle.setColor(show_color);
+                                        empShowColor = ColorUtil.int2Hex(color);
+                                        circle.setColor(empShowColor);
 //                                        add_colors.set(index, new CopyModeColor(ColorUtil.int2Hex2(color), w, choseColor));
 //                                        addColorAdapter.setNewData(add_colors);
                                     }
@@ -336,7 +344,13 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                                 sure.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+
+                                        w = empChoseW;
+                                        chose_color = empChoseColor;
+                                        show_color = empShowColor;
+
                                         LogUtil.e(chose_color + "-----" + w + "--------" + show_color);
+
                                         color_index = 0;
                                         getColorIndex(color_index);
                                         switch (lightType) {
@@ -777,7 +791,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         circle5.setCircle_chose(false);
         circle6.setCircle_chose(false);
         circle7.setCircle_chose(false);
-        if(color_index != 0){
+        if (color_index != 0) {
             w = 0;
         }
         switch (color_index) {
@@ -888,9 +902,11 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
     public void onMessageEvent(EventSaveSuccess eventSaveSuccess) {
         LogUtil.e("SUCCESS");
         if (eventSaveSuccess.isSuccess()) {
-            hideLoading();
+            Toast.makeText(getActivity(), "success", Toast.LENGTH_SHORT).show();
             toCleanChose();
+            etName.setText("");
         }
+        hideLoading();
     }
 
 
@@ -950,6 +966,16 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
 //        LogUtil.e("设备更换");
 //        initData();
 //    }
+//
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventConfigSuccess eventConfigSuccess) {
+        if(lampTreeView != null){
+            if (!TextUtils.isEmpty(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE))) {
+                lampTreeView.setConfigData(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE));
+                lampTreeView.requestLayout();
+            }
+        }
+    }
 
 
     private Handler handler = new Handler() {
@@ -998,7 +1024,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                             lampView.setChoseColor(chose_color, w);
                             lampView.setShowColor(show_color);
                             lampView.setColorType(colorType);
-                            if(colorType == 0){
+                            if (colorType == 0) {
                                 w = 0;
                             }
                             break;
@@ -1006,7 +1032,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                             lampTreeView.setChoseColor(chose_color, w);
                             lampTreeView.setShowColor(show_color);
                             lampTreeView.setColorType(colorType);
-                            if(colorType == 0){
+                            if (colorType == 0) {
                                 w = 0;
                             }
                             break;

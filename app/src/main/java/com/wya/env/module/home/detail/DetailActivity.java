@@ -146,6 +146,9 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
         modeType = getIntent().getIntExtra("modeType", 0);
         if (modeType == 1) {
             modeArr = (List<DoodlePattern>) getIntent().getSerializableExtra("modeArr");
+            llEdit.setVisibility(View.GONE);
+        } else {
+            llEdit.setVisibility(View.VISIBLE);
         }
         copyModeColor = (List<CopyModeColor>) getIntent().getSerializableExtra("copyModeColor");
         copyModeIndex = getIntent().getIntExtra("copyModeIndex", 0);

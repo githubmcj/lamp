@@ -137,7 +137,7 @@ public class TreeView extends View {
 
         for (int i = 0; i < data.size(); i++) {
             if (isOnline) {
-                if (data.get(String.valueOf(i)) != null && data.get(String.valueOf(i)).getColor() != null && !data.get(String.valueOf(i)).getColor().equals("#000000")) {
+                if (data.get(String.valueOf(i)) != null && data.get(String.valueOf(i)).getColor() != null && !(data.get(String.valueOf(i)).getColor().equals("#000000") && data.get(String.valueOf(i)).getW() == 0)) {
                     if (data.get(String.valueOf(i)).isFlash() == 1) {
 //                        data.get(String.valueOf(j + size / column * i)).setLight(light);
                         lampPaint.setColor(data.get(String.valueOf(i)).getLampColor(light * 255 / 100));
@@ -368,7 +368,6 @@ public class TreeView extends View {
                                 light = light - 5;
                             }
                         }
-                        LogUtil.e("light:" + light);
                         add = 0;
                         postInvalidate();
                     }
@@ -660,7 +659,7 @@ public class TreeView extends View {
     private void setColor(float old_x, float old_y) {
         for (int i = 0; i < data.size(); i++) {
             if (Math.abs(old_x - data.get(String.valueOf(i)).getX() * (mWidth - lamp_size)) < (isPaintBold ? 1.5 * lamp_size : lamp_size) && Math.abs(old_y - data.get(String.valueOf(i)).getY() * mHeight) < (isPaintBold ? 1.5 * lamp_size : lamp_size)) {
-                if (!data.get(String.valueOf(i)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(i)).isFlash() == 1) != isTwinkle) {
+                if (!data.get(String.valueOf(i)).getColor().equalsIgnoreCase(choseColor) || (data.get(String.valueOf(i)).isFlash() == 1) != isTwinkle || data.get(String.valueOf(i)).getW() != w) {
                     data.get(String.valueOf(i)).setColor(choseColor);
                     data.get(String.valueOf(i)).setShowColor(showColor);
                     data.get(String.valueOf(i)).setW(w);
