@@ -229,11 +229,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
                 helper.getView(R.id.img_open).setEnabled(true);
                 helper.getView(R.id.img_time_open).setEnabled(true);
-//                if (isClick) {
-//                    EventBus.getDefault().post(lampSetting);
-//                    isClick = false;
-//                }
                 SaveSharedPreferences.save(context, CommonValue.IP, item.getIp());
+//                EventBus.getDefault().post(lampSetting);
             } else {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
                 helper.getView(R.id.img_open).setEnabled(false);
@@ -947,15 +944,15 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 //                    String config_str = new String(body, Charset.forName(EasySocket.getInstance().getOptions().getCharsetName()));
 //                    LogUtil.e("json：" + config_str);
                 } else {
-                    lamps = new Gson().fromJson(SaveSharedPreferences.getString(context, CommonValue.LAMPS), Lamps.class);
-                    for (int i = 0; i < lamps.getLampSettings().size(); i++) {
-                        if (lamps.getLampSettings().get(i).isChose()) {
-                            lamps.getLampSettings().remove(i);
-                            break;
-                        }
-                    }
-                    SaveSharedPreferences.save(context, CommonValue.LAMPS, new Gson().toJson(lamps));
-                    this.setNewData(lamps.getLampSettings());
+//                    lamps = new Gson().fromJson(SaveSharedPreferences.getString(context, CommonValue.LAMPS), Lamps.class);
+//                    for (int i = 0; i < lamps.getLampSettings().size(); i++) {
+//                        if (lamps.getLampSettings().get(i).isChose()) {
+//                            lamps.getLampSettings().remove(i);
+//                            break;
+//                        }
+//                    }
+//                    SaveSharedPreferences.save(context, CommonValue.LAMPS, new Gson().toJson(lamps));
+//                    this.setNewData(lamps.getLampSettings());
                     LogUtil.e("配置文件获取失败");
                 }
                 break;
@@ -1333,7 +1330,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                             upd_data[(i - start) * 4 + 1] = 0x00;
                             upd_data[(i - start) * 4 + 2] = 0x00;
                             upd_data[(i - start) * 4 + 3] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
-                        } else{
+                        } else {
                             upd_data[(i - start) * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                             upd_data[(i - start) * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                             upd_data[(i - start) * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
@@ -1346,7 +1343,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                         upd_data[(i - start) * 4 + 1] = 0x00;
                         upd_data[(i - start) * 4 + 2] = 0x00;
                         upd_data[(i - start) * 4 + 3] = Integer.valueOf(data.get(String.valueOf(i)).getW()).byteValue();
-                    } else{
+                    } else {
                         upd_data[(i - start) * 4 + 0] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                         upd_data[(i - start) * 4 + 1] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                         upd_data[(i - start) * 4 + 2] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));

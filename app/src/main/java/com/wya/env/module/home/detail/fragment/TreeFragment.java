@@ -2,12 +2,16 @@ package com.wya.env.module.home.detail.fragment;
 
 import android.annotation.SuppressLint;
 
+import com.easysocket.utils.LogUtil;
 import com.wya.env.R;
 import com.wya.env.base.BaseLazyFragment;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.event.EventSendUpd;
 import com.wya.env.common.CommonValue;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.TreeView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 
@@ -38,34 +42,27 @@ public class TreeFragment extends BaseLazyFragment {
         tree.setModelName(model.getName());
         tree.setMirror(model.getMirror());
         tree.setSpeed(model.getSpeed());
-        tree.setModel(model.getModeArr(), model.getLight(), true);
+        tree.setModel(model.getModeArr(), model.getLight(), false);
         tree.requestLayout();
-
-//        setTcpData(model.getModeArr());
+        setUdp();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        tree.setMirror(model.getMirror());
-        tree.setModel(model.getModeArr(), model.getLight(), true);
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        tree.toStopSendUdpModeData(true, true);
-        tree.stopSendUdpData();
+    private void setUdp() {
+        EventSendUpd eventSendUpd = new EventSendUpd();
+        eventSendUpd.setLampModel(model);
+        EventBus.getDefault().post(eventSendUpd);
     }
 
 
     public void setSpeed(int speed) {
+        this.model.setSpeed(speed);
         tree.setSpeed(speed);
+        setUdp();
     }
 
     public void setLampModel(LampModel mLampModel) {
         this.model = mLampModel;
-        tree.setModel(model.getModeArr(), model.getLight(), true);
+        tree.setModel(model.getModeArr(), model.getLight(), false);
+        setUdp();
     }
 }

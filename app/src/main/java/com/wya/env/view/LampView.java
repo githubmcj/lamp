@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
+import android.widget.Toast;
 
 import com.wya.env.R;
 import com.wya.env.bean.doodle.Doodle;
@@ -35,6 +36,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.ToLongBiFunction;
 
 /**
  * @date: 2020/7/18 9:13
@@ -1240,7 +1242,7 @@ public class LampView extends View {
         socket.send(packet);
         // 5.关闭资源
         socket.close();
-        LogUtil.e(type + "发送UDP数据成功");
+        LogUtil.e(type + "发送UDP数据成功" + isOnline);
     }
 
     public String byte2hex(byte[] bytes) {

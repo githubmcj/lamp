@@ -5,9 +5,12 @@ import android.annotation.SuppressLint;
 import com.wya.env.R;
 import com.wya.env.base.BaseLazyFragment;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.event.EventSendUpd;
 import com.wya.env.common.CommonValue;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 
@@ -47,31 +50,25 @@ public class CurtainFragment extends BaseLazyFragment {
         curtain.setModelName(model.getName());
         curtain.setMirror(model.getMirror());
         curtain.setSpeed(model.getSpeed());
-        curtain.setModel(model.getModeArr(), model.getLight(), true);
+        curtain.setModel(model.getModeArr(), model.getLight(), false);
+        setUdp();
     }
 
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        curtain.setMirror(model.getMirror());
-        curtain.setModel(model.getModeArr(), model.getLight(), true);
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        curtain.toStopSendUdpModeData(true, false);
-        curtain.stopSendUdpData();
+    private void setUdp() {
+        EventSendUpd eventSendUpd = new EventSendUpd();
+        eventSendUpd.setLampModel(model);
+        EventBus.getDefault().post(eventSendUpd);
     }
 
     public void setSpeed(int speed) {
+        this.model.setSpeed(speed);
         curtain.setSpeed(speed);
+        setUdp();
     }
 
     public void setLampModel(LampModel mLampModel) {
         this.model = mLampModel;
-        curtain.setModel(model.getModeArr(), model.getLight(), true);
+        curtain.setModel(model.getModeArr(), model.getLight(), false);
+        setUdp();
     }
 }

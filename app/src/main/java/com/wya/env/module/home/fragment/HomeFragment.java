@@ -133,6 +133,8 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private int colorType;
 
+    private boolean isChsoeDevice;
+
 
     @Override
     public void onFragmentVisibleChange(boolean isVisible) {
@@ -153,10 +155,10 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
     @Override
     public void onStop() {
         super.onStop();
-        if (eventSendUpd != null) {
-            udpView.toStopSendUdpModeData(true, false);
-            eventSendUpd = null;
-        }
+//        if (eventSendUpd != null) {
+//            udpView.toStopSendUdpModeData(true, false);
+//            eventSendUpd = null;
+//        }
     }
 
     @Override
@@ -243,13 +245,15 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
         return clazz;
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(LampSetting lampSetting) {
-        LogUtil.e("设备更换");
-        udpView.toStopSendUdpModeData(true, false);
-        udpView.stopSendUdpData();
-        eventSendUpd = null;
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onMessageEvent(LampSetting lampSetting) {
+//        LogUtil.e("设备更换");
+//        if(udpView != null){
+//            udpView.toStopSendUdpModeData(true, false);
+//            udpView.stopSendUdpData();
+//        }
+//        eventSendUpd = null;
+//    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventAddMode eventAddMode) throws CloneNotSupportedException {
@@ -420,6 +424,10 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     private void initSendData() {
         LogUtil.e("initSend");
+        if (udpView != null) {
+            udpView.toStopSendUdpModeData(true, true);
+            udpView.stopSendUdpData();
+        }
         if (eventSendUpd != null && eventSendUpd.getLampModel() != null && eventSendUpd.getLampModel().getModeArr().size() > 0) {
             LogUtil.e("initSend2");
             colorType = getColorType();
@@ -622,7 +630,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 getNetData();
             } else {
                 lamps = new Gson().fromJson(SaveSharedPreferences.getString(getActivity(), CommonValue.LAMPS), Lamps.class);
-                initSendData();
+//                initSendData();
             }
         } else {
             if (eventSendUpd != null) {

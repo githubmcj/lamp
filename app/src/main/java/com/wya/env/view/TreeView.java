@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.wya.env.R;
@@ -596,8 +597,8 @@ public class TreeView extends View {
         data.clear();
         for (int i = 0; i < treeDoodles.size(); i++) {
             Doodle doodle = new Doodle();
-            doodle.setColor("#ffffff");
-            doodle.setShowColor("#ffffff");
+            doodle.setColor("#000000");
+            doodle.setShowColor("#000000");
             doodle.setFlash(0);
             doodle.setAddr(treeDoodles.get(i).getAddr());
             doodle.setX(treeDoodles.get(i).getX());
@@ -886,9 +887,12 @@ public class TreeView extends View {
             socket.send(packet);
             // 5.关闭资源
             socket.close();
-            LogUtil.e(type + "发送UDP数据成功");
+//            if (mContext != null) {
+//                Toast.makeText(mContext, type + "发送UDP数据成功", Toast.LENGTH_SHORT).show();
+//            }
+            LogUtil.e(type + "发送UDP数据成功" + isOnline);
         } catch (Exception e) {
-            LogUtil.e(type + "发送UDP数据报错");
+            LogUtil.e(type + "发送UDP数据报错" + e.toString());
         }
     }
 

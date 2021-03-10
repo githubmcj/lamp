@@ -1819,9 +1819,6 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventSendUpd eventSendUpd = new EventSendUpd();
-        eventSendUpd.setLampModel(mLampModel);
-        EventBus.getDefault().post(eventSendUpd);
     }
 
 }
