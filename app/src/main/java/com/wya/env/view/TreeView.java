@@ -12,7 +12,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.wya.env.R;
@@ -30,6 +29,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -495,12 +495,12 @@ public class TreeView extends View {
                         if (toShow) {
                             if (isStopSendUdpModeData) {
                                 if (toClean) {
-                                    send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "模板");
+                                    sendFrame(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, cleanData(data), "模板");
                                     LogUtil.e("清除灯数据成功");
                                 }
                                 stopSendUdpModeData();
                             } else {
-                                send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status()), "模板");
+                                sendFrame(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, isMirror == 1 ? toMirror(modeArr.get(addMode % modeArr.size()).getLight_status()) : modeArr.get(addMode % modeArr.size()).getLight_status(), "模板");
                             }
                         }
                     }
@@ -735,28 +735,102 @@ public class TreeView extends View {
 
 
     /**
-     * 获取Udp实时数据
+     * 发送一帧数据
      *
+     * @param ip
+     * @param udpPort
+     * @param data
+     * @param type
+     */
+    private void sendFrame(String ip, int udpPort, HashMap<String, Doodle> data, String type) {
+        List<byte[]> sendData = new ArrayList<>();
+        LogUtil.e("new----------------1--" + sendData.size());
+        sendData = getSendUdpData(data);
+        LogUtil.e("new----------------" + sendData.size());
+        for (int i = 0; i < sendData.size(); i++) {
+            send(ip, udpPort, sendData.get(i), type);
+        }
+    }
+
+
+    /**
+     * 分包处理
+     *
+     * @param data
      * @return
      */
-    public byte[] getUdpByteData(HashMap<String, Doodle> data) {
+    private int frameNum = 0;
+    private List<byte[]> sendFrameData;
+
+    private List<byte[]> getSendUdpData(HashMap<String, Doodle> data) {
+        sendFrameData = new ArrayList<>();
+        if (data.size() % 300 == 0) {
+            frameNum = data.size() / 300;
+        } else {
+            frameNum = data.size() / 300 + 1;
+        }
+        for (int i = 0; i < frameNum; i++) {
+            sendFrameData.add(getUdpByteData(getFrameNumData(i, data), i));
+        }
+        return sendFrameData;
+    }
+
+    /**
+     * 分包，获取一个包数据
+     *
+     * @param index
+     * @param data
+     * @return
+     */
+    private List<Doodle> getFrameNumData(int index, HashMap<String, Doodle> data) {
+        List<Doodle> doodles = new ArrayList<>();
+        if (index == frameNum - 1) {
+            for (int i = 0; i < data.size() - index * 300; i++) {
+                doodles.add(data.get(String.valueOf(i + 300 * index)));
+            }
+        } else {
+            for (int i = 0; i < 300; i++) {
+                doodles.add(data.get(String.valueOf(i + 300 * index)));
+            }
+        }
+        return doodles;
+    }
+
+
+    /**
+     * 获取Udp实时数据
+     *
+     * @param data
+     * @param index 一帧的第几个包
+     * @return
+     */
+    public byte[] getUdpByteData(List<Doodle> data, int index) {
         byte[] upd_data;
+        LogUtil.e("colorType:" + colorType);
         if (colorType == 0x04) {
             upd_data = new byte[1 + 2 + 2 + 4 * data.size()];
             upd_data[0] = 0x01;
-            upd_data[1] = 0x00;
-            upd_data[2] = 0x00;
-            byte[] len = ByteUtil.intToByteArray(data.size());
-            if (len.length == 1) {
-                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+
+            byte[] start = ByteUtil.intToByteArray(index * 300);
+            if (start.length == 1) {
+                upd_data[1] = start[0];
+                upd_data[2] = 0x00;
+            } else if (start.length == 2) {
+                upd_data[1] = start[0];
+                upd_data[2] = start[1];
+            }
+
+            byte[] siz = ByteUtil.intToByteArray(data.size());
+            if (siz.length == 1) {
+                upd_data[3] = siz[0];
                 upd_data[4] = 0x00;
-            } else if (len.length == 2) {
-                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
-                upd_data[4] = ByteUtil.intToByteArray(data.size())[1];
+            } else if (siz.length == 2) {
+                upd_data[3] = siz[0];
+                upd_data[4] = siz[1];
             }
             for (int i = 0; i < data.size(); i++) {
-                String color = data.get(String.valueOf(i)).getColor();
-                boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                String color = data.get(i).getColor();
+                boolean isTwinkle = data.get(i).isFlash() == 1;
                 if (isTwinkle) {
                     if (Math.random() * 10 < 4) {
                         upd_data[i * 4 + 5] = 0x00;
@@ -764,48 +838,57 @@ public class TreeView extends View {
                         upd_data[i * 4 + 7] = 0x00;
                         upd_data[i * 4 + 8] = 0x00;
                     } else {
-                        if (data.get(String.valueOf(i)).getW() == 255) {
+                        if (data.get(i).getW() == 255) {
                             upd_data[i * 4 + 5] = 0x00;
                             upd_data[i * 4 + 6] = 0x00;
                             upd_data[i * 4 + 7] = 0x00;
-                            upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                            upd_data[i * 4 + 8] = Integer.valueOf(data.get(i).getW()).byteValue();
                         } else {
                             upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                             upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                             upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                            upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                            upd_data[i * 4 + 8] = Integer.valueOf(data.get(i).getW()).byteValue();
                         }
                     }
                 } else {
-                    if (data.get(String.valueOf(i)).getW() == 255) {
-                        upd_data[i * 4 + 5] = (byte) 0x00;
-                        upd_data[i * 4 + 6] = (byte) 0x00;
-                        upd_data[i * 4 + 7] = (byte) 0x00;
-                        upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                    if (data.get(i).getW() == 255) {
+                        upd_data[i * 4 + 5] = 0x00;
+                        upd_data[i * 4 + 6] = 0x00;
+                        upd_data[i * 4 + 7] = 0x00;
+                        upd_data[i * 4 + 8] = Integer.valueOf(data.get(i).getW()).byteValue();
                     } else {
                         upd_data[i * 4 + 5] = (byte) (0xff & Integer.parseInt(color.substring(1, 3), 16));
                         upd_data[i * 4 + 6] = (byte) (0xff & Integer.parseInt(color.substring(3, 5), 16));
                         upd_data[i * 4 + 7] = (byte) (0xff & Integer.parseInt(color.substring(5, 7), 16));
-                        upd_data[i * 4 + 8] = (byte) ByteUtil.intToByteArray(data.get(String.valueOf(i)).getW())[0];
+                        upd_data[i * 4 + 8] = Integer.valueOf(data.get(i).getW()).byteValue();
                     }
                 }
             }
+
         } else {
             upd_data = new byte[1 + 2 + 2 + 3 * data.size()];
             upd_data[0] = 0x01;
-            upd_data[1] = 0x00;
-            upd_data[2] = 0x00;
-            byte[] len = ByteUtil.intToByteArray(data.size());
-            if (len.length == 1) {
-                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
+
+            byte[] start = ByteUtil.intToByteArray(index * 300);
+            if (start.length == 1) {
+                upd_data[1] = start[0];
+                upd_data[2] = 0x00;
+            } else if (start.length == 2) {
+                upd_data[1] = start[0];
+                upd_data[2] = start[1];
+            }
+
+            byte[] siz = ByteUtil.intToByteArray(data.size());
+            if (siz.length == 1) {
+                upd_data[3] = siz[0];
                 upd_data[4] = 0x00;
-            } else if (len.length == 2) {
-                upd_data[3] = ByteUtil.intToByteArray(data.size())[0];
-                upd_data[4] = ByteUtil.intToByteArray(data.size())[1];
+            } else if (siz.length == 2) {
+                upd_data[3] = siz[0];
+                upd_data[4] = siz[1];
             }
             for (int i = 0; i < data.size(); i++) {
-                String color = data.get(String.valueOf(i)).getColor();
-                boolean isTwinkle = data.get(String.valueOf(i)).isFlash() == 1;
+                String color = data.get(i).getColor();
+                boolean isTwinkle = data.get(i).isFlash() == 1;
                 if (isTwinkle) {
                     if (Math.random() * 10 < 4) {
                         upd_data[i * 3 + 5] = 0x00;
@@ -825,7 +908,6 @@ public class TreeView extends View {
         }
         return upd_data;
     }
-
 
     public void startSendUpdData() {
         if (isOnline) {
@@ -854,10 +936,10 @@ public class TreeView extends View {
                     if (sendUdpDataAdd != -1) {
                         addMode++;
                         if (isStopSendUdpData) {
-                            send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(cleanData(data)), "画板");
+                            sendFrame(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, cleanData(data), "画板");
                             stopSendUdpData();
                         } else {
-                            send(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, getUdpByteData(isMirror == 1 ? toMirror(data) : data), "画板");
+                            sendFrame(SaveSharedPreferences.getString(mContext, CommonValue.IP, "255.255.255.255"), CommonValue.UDP_PORT, isMirror == 1 ? toMirror(data) : data, "画板");
                         }
                     }
                 }

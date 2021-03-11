@@ -48,6 +48,37 @@ public class LampModelAdapter extends BaseQuickAdapter<LampModel, BaseViewHolder
             helper.setGone(R.id.ll_custom, true);
             helper.setGone(R.id.ll_add, false);
             helper.setText(R.id.tv_custom, item.getName());
+            if (item.isChose() == 1) {
+                MusicModel musicModel = new MusicModel();
+                musicModel.setPosition(helper.getAdapterPosition());
+                musicModel.setMusic(item.isMusic());
+                musicModel.setClick(false);
+                EventBus.getDefault().post(musicModel);
+            }
+            if (item.isChose() == 1) {
+                helper.getView(R.id.ll_custom).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
+            } else {
+                helper.getView(R.id.ll_custom).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
+            }
+            if (item.isMusic() == 1) {
+                ((ImageView)helper.getView(R.id.img_music)).setImageDrawable(context.getResources().getDrawable(R.drawable.yinyueshibie));
+            } else {
+                ((ImageView)helper.getView(R.id.img_music)).setImageDrawable(context.getResources().getDrawable(R.drawable.yinyuemoren));
+            }
+            helper.getView(R.id.img_music).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (item.isChose() == 1) {
+                        MusicModel musicModel = new MusicModel();
+                        musicModel.setPosition(helper.getAdapterPosition());
+                        musicModel.setMusic(item.isMusic());
+                        musicModel.setClick(true);
+                        EventBus.getDefault().post(musicModel);
+                    } else {
+                        Toast.makeText(context, "Please select the mode first", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         } else {
             helper.setGone(R.id.ll_add, false);
             helper.setGone(R.id.ll_custom, false);

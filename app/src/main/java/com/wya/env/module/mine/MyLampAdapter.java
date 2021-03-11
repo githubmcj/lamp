@@ -223,8 +223,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
 
         } else {
             helper.setGone(R.id.ll_add, false);
-            helper.setText(R.id.name, item.getDeviceName() + "\n" + item.getColumn() + "*" + item.getRow() + "--" + item.getSize() + "\n" + item.getIp() + "---" + item.getColorType() + "--" + item.getName().substring(5, 6));
-//            helper.setText(R.id.name, item.getDeviceName());
+//            helper.setText(R.id.name, item.getDeviceName() + "\n" + item.getColumn() + "*" + item.getRow() + "--" + item.getSize() + "\n" + item.getIp() + "---" + item.getColorType() + "--" + item.getName().substring(5, 6));
+            helper.setText(R.id.name, item.getDeviceName());
             if (item.isChose() && App.getInstance().isTcpConnected()) {
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_chose_bg));
                 helper.getView(R.id.img_open).setEnabled(true);
@@ -232,6 +232,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 SaveSharedPreferences.save(context, CommonValue.IP, item.getIp());
 //                EventBus.getDefault().post(lampSetting);
             } else {
+                item.setChose(false);
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
                 helper.getView(R.id.img_open).setEnabled(false);
                 helper.getView(R.id.img_time_open).setEnabled(false);
@@ -1268,11 +1269,6 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 }
             }
         }
-
-//        if (modeDataFinish && frameDataFinish) {
-//            headData[2] = (byte) 0xff;
-//            headData[3] = (byte) 0xff;
-//        } else {
         byte[] len = ByteUtil.intToByteArray(idIndex);
         if (len.length == 1) {
             headData[2] = len[0];

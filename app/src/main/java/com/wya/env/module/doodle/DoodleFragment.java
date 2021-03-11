@@ -705,6 +705,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             lampModel.setSize(size);
             lampModel.setLightRow(row);
             lampModel.setColumn(column);
+            lampModel.setSpeed(1);
         } else {
             doodlePattern.setLight_status(lampView.getSaveData());
             doodlePattern.setSize(lampView.getSize());
@@ -715,6 +716,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             lampModel.setSize(size);
             lampModel.setLightRow(row);
             lampModel.setColumn(column);
+            lampModel.setSpeed(1);
         }
         EventCustomLampModel eventCustomLampModel = new EventCustomLampModel();
         eventCustomLampModel.setLampModel(lampModel);
