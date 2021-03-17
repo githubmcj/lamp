@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -20,6 +21,7 @@ import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
 import com.wya.env.bean.login.Lamps;
 import com.wya.env.common.CommonValue;
+import com.wya.env.manager.ActivityManager;
 import com.wya.env.util.ByteUtil;
 import com.wya.env.util.SaveSharedPreferences;
 import com.wya.uikit.button.WYAButton;
@@ -73,6 +75,12 @@ public class LinkActivity extends BaseActivity {
         });
         toConnectBle();
         open.setVisibility(View.GONE);
+        setLeftOnclickListener(new onLeftOnclickListener() {
+            @Override
+            public void onLeftClick(View view) {
+                ActivityManager.getInstance().popOthersActivity(Start1Activity.class);
+            }
+        });
     }
 
     private void toConnectBle() {
@@ -82,6 +90,17 @@ public class LinkActivity extends BaseActivity {
         }
         Ble.getInstance().connect(bleDevice, connectCallback);
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            ActivityManager.getInstance().popOthersActivity(Start1Activity.class);
+            return true;
+        }else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
 
     private BleConnectCallback<BleDevice> connectCallback = new BleConnectCallback<BleDevice>() {
         @Override
@@ -153,6 +172,7 @@ public class LinkActivity extends BaseActivity {
                             if (characteristic.getValue()[9] == 0) {
                                 LogUtil.e("连接wifi成功");
                                 startActivity(new Intent(LinkActivity.this, SearchDeviceActivity.class));
+                                ActivityManager.getInstance().popOthersActivity(Start5Activity.class);
                                 LinkActivity.this.finish();
                             } else {
                                 LogUtil.e("连接wifi失败");

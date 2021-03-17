@@ -52,7 +52,7 @@ public class AboutUsActivity extends BaseActivity {
         switch (view.getId()) {
             case R.id.img_hone:
             case R.id.tv_hone:
-                showPhone();
+//                showPhone();
                 break;
         }
     }

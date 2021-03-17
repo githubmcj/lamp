@@ -68,8 +68,6 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
     protected void initView() {
         setTitle(getResources().getString(R.string.register));
         initTvLeft("Back", R.color.black, 14, true);
-        isRead = true;
-        isRead2 = true;
         registerPresent = new RegisterPresent();
         registerPresent.mView = this;
         setRead(isRead);
@@ -83,13 +81,13 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(RegisterActivity.this, "Hello World", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(RegisterActivity.this, RegisterProtocolActivity.class).putExtra("type", 1));
             }
         };
         ClickableSpan clickableSpan2 = new ClickableSpan() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(RegisterActivity.this, "Hello World2", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(RegisterActivity.this, RegisterProtocolActivity.class).putExtra("type", 2));
             }
         };
         textSpanned.setSpan(clickableSpan,
@@ -138,9 +136,6 @@ public class RegisterActivity extends BaseMvpActivity<RegisterPresent> implement
                 isRead2 = !isRead2;
                 setRead2(isRead2);
                 break;
-//            case R.id.tv_register_protocol:
-//                startActivity(new Intent(RegisterActivity.this, RegisterProtocolActivity.class));
-//                break;
             case R.id.but_login:
                 if (TextUtils.isEmpty(userName.getText().toString())) {
                     showShort("please enter Full Name");

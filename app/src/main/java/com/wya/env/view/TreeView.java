@@ -277,6 +277,14 @@ public class TreeView extends View {
      */
     private int colorType = 0;
 
+    public int getW() {
+        return w;
+    }
+
+    public String getShowColor() {
+        return showColor;
+    }
+
     public int getColorType() {
         return colorType;
     }
@@ -414,6 +422,7 @@ public class TreeView extends View {
     }
 
     public void setChoseColor(String choseColor, int w) {
+        LogUtil.e(choseColor + "-----------choseColor---------" + w);
         if (choseColor == null) {
             choseColor = "#000000";
         }
@@ -425,6 +434,7 @@ public class TreeView extends View {
     }
 
     public void setShowColor(String showColor) {
+        LogUtil.e(showColor + "-----------showColor");
         if (showColor == null) {
             if (choseColor == null) {
                 showColor = "#000000";

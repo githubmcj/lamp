@@ -81,6 +81,7 @@ public class SearchDeviceActivity extends BaseActivity {
     ScheduledExecutorService modelExecutorService;
     private int addMode = 0;
 
+
     private void getDevices() {
         loc_ip = getIpAddressString();
         addMode = 0;
@@ -93,9 +94,8 @@ public class SearchDeviceActivity extends BaseActivity {
             public void run() {
                 LogUtil.e("addMode----------" + addMode);
                 addMode++;
-                if (addMode < 15) {
+                if (addMode < 10) {
                     sendData(1);
-                    sendData(2);
                 } else {
                     stopSendUdpModeData();
                     if (lampSettings != null && lampSettings.size() > 0) {
@@ -107,6 +107,14 @@ public class SearchDeviceActivity extends BaseActivity {
                 }
             }
         }, 0, 200, TimeUnit.MILLISECONDS);
+
+        setLeftOnclickListener(new onLeftOnclickListener() {
+            @Override
+            public void onLeftClick(View view) {
+                ActivityManager.getInstance().popOthersActivity(Start1Activity.class);
+            }
+        });
+
     }
 
     /**
@@ -148,8 +156,11 @@ public class SearchDeviceActivity extends BaseActivity {
             saveInfoLamp(lampSettings);
             loadingDialog.show();
             // 跳转到主界面
-            startActivity(new Intent(SearchDeviceActivity.this, MainActivity.class));
-            ActivityManager.getInstance().exitApp();
+
+            if(ActivityManager.getInstance().leaveActivity(SearchDeviceActivity.class)){
+                startActivity(new Intent(SearchDeviceActivity.this, MainActivity.class));
+                finish();
+            }
         });
     }
 
@@ -337,6 +348,7 @@ public class SearchDeviceActivity extends BaseActivity {
                             deviceAdapter.setNewData(lampSettings);
                         }
                     }
+                    sendData(2);
                     break;
                 case 2:
                     if (lampSettings != null && lampSettings.size() > 0) {

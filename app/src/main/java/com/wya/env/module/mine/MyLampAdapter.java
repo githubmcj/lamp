@@ -3,6 +3,7 @@ package com.wya.env.module.mine;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -214,10 +215,8 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             RxView.clicks(helper.getView(R.id.ll_add))
                     .throttleFirst(500, TimeUnit.MILLISECONDS)
                     .subscribe(Observable -> {
-                        try {
-                            EasySocket.getInstance().destroyConnection();
-                        } catch (Exception e) {
-                        }
+                        isClick = false;
+                        stopTcp();
                         context.startActivity(new Intent(context, Start1Activity.class));
                     });
 
@@ -232,7 +231,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                 SaveSharedPreferences.save(context, CommonValue.IP, item.getIp());
 //                EventBus.getDefault().post(lampSetting);
             } else {
-                item.setChose(false);
+                LogUtil.e(item.isChose() + "------------" + App.getInstance().isTcpConnected());
                 helper.getView(R.id.ll_item).setBackground(context.getResources().getDrawable(R.drawable.lamp_pattern_normal_bg));
                 helper.getView(R.id.img_open).setEnabled(false);
                 helper.getView(R.id.img_time_open).setEnabled(false);
@@ -262,7 +261,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                             ip = item.getIp();
                             position = helper.getAdapterPosition();
                             bodyData = getOpenLamp(!item.isOpen());
-                            EasySocket.getInstance().upBytes(bodyData);
+                            try {
+                                EasySocket.getInstance().upBytes(bodyData);
+                            } catch (Exception e) {
+
+                            }
                         } else {
                             Toast.makeText(context, "Device is Disconnect", Toast.LENGTH_SHORT).show();
                         }
@@ -278,7 +281,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                                 hide.setHide(false);
                                 EventBus.getDefault().post(hide);
                                 bodyData = getTimerTime(false, item.getS_hour(), item.getS_min(), item.getE_hour(), item.getE_min());
-                                EasySocket.getInstance().upBytes(bodyData);
+                                try {
+                                    EasySocket.getInstance().upBytes(bodyData);
+                                } catch (Exception e) {
+
+                                }
                             } else {
                                 toSendTime();
                                 openChoseTime(item);
@@ -291,9 +298,14 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             helper.getView(R.id.img_del).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    data.remove(helper.getAdapterPosition());
-                    stopTcp();
-                    MyLampAdapter.this.notifyDataSetChanged();
+                    if(data.get(helper.getAdapterPosition()).isChose()){
+                        isClick = false;
+                        data.remove(helper.getAdapterPosition());
+                        stopTcp();
+                    } else {
+                        data.remove(helper.getAdapterPosition());
+                        notifyDataSetChanged();
+                    }
                 }
             });
         }
@@ -402,7 +414,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                             item.setE_hour(e_hour);
                             item.setE_min(e_min);
                             bodyData = getTimerTime(true, s_hour, s_min, e_hour, e_min);
-                            EasySocket.getInstance().upBytes(bodyData);
+                            try {
+                                EasySocket.getInstance().upBytes(bodyData);
+                            } catch (Exception e) {
+
+                            }
                             wyaCustomDialog.dismiss();
                         }
                     });
@@ -595,15 +611,23 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         @Override
         public void onSocketConnSuccess(SocketAddress socketAddress) {
             super.onSocketConnSuccess(socketAddress);
-            LogUtil.d("连接成功");
+            LogUtil.d("连接成功" + EasySocket.getInstance());
             start_count = 0;
             toStartHeart();
             getLampOpenState();
             getLampTimerState();
             LogUtil.e("lightType:" + lightType);
             if (lightType == 1) {
-                frameNum = 0;
-                getConfigFile(frameNum);
+                if(!name.equals(SaveSharedPreferences.getString(context, CommonValue.CONFIGDEVICE))){
+                    frameNum = 0;
+                    LogUtil.e("开始获取配置文件");
+                    getConfigFile(frameNum);
+                    hide = new Hide();
+                    hide.setHide(true);
+                    EventBus.getDefault().post(hide);
+                } else {
+                    LogUtil.e("设备以保存配置文件");
+                }
             }
 //            openFileRead();
             App.getInstance().setTcpConnected(true);
@@ -905,25 +929,41 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                         sendFrameApplyData(lampModel, index, lampIndex);
                     }
                 } else {
-                    eventApply = new EventApply();
-                    eventApply.setStatus(3);
-                    EventBus.getDefault().post(eventApply);
-                    Toast.makeText(context, "apply fail code:" + ByteUtil.byte2hex(originReadData.getBodyData()), Toast.LENGTH_SHORT).show();
-                    LogUtil.e("apply失败");
+                    if (originReadData.getBodyData()[1] == 0x03) {
+                        isFinish = true;
+                        LogUtil.e("apply 失败发送一个結束帧");
+                        eventApply = new EventApply();
+                        eventApply.setStatus(1);
+                        EventBus.getDefault().post(eventApply);
+                        sendFinishData();
+                    } else {
+                        eventApply = new EventApply();
+                        eventApply.setStatus(3);
+                        EventBus.getDefault().post(eventApply);
+                        Toast.makeText(context, "apply fail code:" + ByteUtil.byte2hex(originReadData.getBodyData()), Toast.LENGTH_SHORT).show();
+                        LogUtil.e("apply失败");
+                    }
+
                 }
                 break;
             case (byte) 0x90:
                 LogUtil.e("配置文件");
                 if (originReadData.getBodyData()[3] == 0) {
                     if (originReadData.getBodyData().length - 6 < 1024) {
-                        byte[] body = new byte[originReadData.getBodyData().length - 6];
-                        System.arraycopy(originReadData.getBodyData(), 6, body, 0, originReadData.getBodyData().length - 6);
-                        configBody = ByteUtil.byteMerger(configBody, body);
-                        String config_str = new String(configBody, Charset.forName(EasySocket.getInstance().getOptions().getCharsetName()));
-                        SaveSharedPreferences.save(context, CommonValue.CONFIGFILE, config_str);
-                        treeData = new Gson().fromJson(config_str, TreeData.class);
-                        EventBus.getDefault().post(new EventConfigSuccess());
-                        setSizeRowColumn(treeData);
+                        try {
+                            byte[] body = new byte[originReadData.getBodyData().length - 6];
+                            System.arraycopy(originReadData.getBodyData(), 6, body, 0, originReadData.getBodyData().length - 6);
+                            configBody = ByteUtil.byteMerger(configBody, body);
+                            String config_str = new String(configBody, Charset.forName(EasySocket.getInstance().getOptions().getCharsetName()));
+                            SaveSharedPreferences.save(context, CommonValue.CONFIGFILE, config_str);
+                            SaveSharedPreferences.save(context, CommonValue.CONFIGDEVICE, name);
+                            treeData = new Gson().fromJson(config_str, TreeData.class);
+                            EventBus.getDefault().post(new EventConfigSuccess());
+                            setSizeRowColumn(treeData);
+                            LogUtil.e("配置文件获取成功");
+                        } catch (Exception e) {
+                            LogUtil.e("配置文件Exception：" + e.toString());
+                        }
                     } else {
                         if (frameNum == 0) {
                             byte[] body = new byte[originReadData.getBodyData().length - 6];
@@ -962,6 +1002,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         }
     }
 
+
     private void sendFinishData() {
         byte[] lampData = new byte[0];
         byte[] headData = new byte[10];
@@ -978,7 +1019,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         byte[] bodyData = ByteUtil.byteMerger(headData, lampData);
         byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
         byte[] applyData = ByteUtil.byteMerger(send_head_data, bodyData);
-        EasySocket.getInstance().upBytes(applyData);
+        try {
+            EasySocket.getInstance().upBytes(applyData);
+        } catch (Exception e) {
+
+        }
     }
 
     private Lamps lamps;
@@ -1041,7 +1086,11 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      */
     private void getConfigFile(int frameNum) {
         bodyData = getConfigFileData(frameNum);
-        EasySocket.getInstance().upBytes(bodyData);
+        try {
+            EasySocket.getInstance().upBytes(bodyData);
+        } catch (Exception e) {
+
+        }
     }
 
 
@@ -1062,8 +1111,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      * 获取开关灯时间状态
      */
     private void getLampTimerState() {
-        bodyData = getLampTimer();
-        EasySocket.getInstance().upBytes(bodyData);
+        try {
+            bodyData = getLampTimer();
+            EasySocket.getInstance().upBytes(bodyData);
+        } catch (Exception e) {
+
+        }
     }
 
     /**
@@ -1415,8 +1468,14 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      * 获取灯的开关状态
      */
     private void getLampOpenState() {
-        bodyData = getLampState((byte) 0x81);
-        EasySocket.getInstance().upBytes(bodyData);
+
+        try {
+            bodyData = getLampState((byte) 0x81);
+            EasySocket.getInstance().upBytes(bodyData);
+        } catch (Exception e) {
+
+        }
+
     }
 
     /**
@@ -1436,8 +1495,12 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
      * 同步时间
      */
     private void toSendTime() {
-        bodyData = getTime();
-        EasySocket.getInstance().upBytes(bodyData);
+        try {
+            bodyData = getTime();
+            EasySocket.getInstance().upBytes(bodyData);
+        } catch (Exception e) {
+
+        }
     }
 
     /**

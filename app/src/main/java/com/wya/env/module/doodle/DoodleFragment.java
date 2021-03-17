@@ -465,29 +465,9 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                 } else {
                     painter_type = 1;
                 }
-                switch (lightType) {
-                    case 0:
-                        lampView.setPaintBold(true);
-                        break;
-                    case 1:
-                        lampTreeView.setPaintBold(true);
-                        break;
-                    default:
-                        break;
-                }
                 setPainter(painter_type);
                 break;
             case R.id.ll_thin_paint:
-                switch (lightType) {
-                    case 0:
-                        lampView.setPaintBold(false);
-                        break;
-                    case 1:
-                        lampTreeView.setPaintBold(false);
-                        break;
-                    default:
-                        break;
-                }
                 if (painter_type == 2) {
                     painter_type = 0;
                 } else {
@@ -512,16 +492,6 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                     }
                 } else {
                     painter_type = 3;
-                }
-                switch (lightType) {
-                    case 0:
-                        lampView.setPaintBold(false);
-                        break;
-                    case 1:
-                        lampTreeView.setPaintBold(false);
-                        break;
-                    default:
-                        break;
                 }
                 setPainter(painter_type);
                 break;
@@ -732,12 +702,14 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             imgBoldPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.cubidianji));
             switch (lightType) {
                 case 0:
+                    lampView.setPaintBold(true);
                     lampView.setChoseColor(chose_color, w);
-                    lampView.setShowColor(chose_color);
+                    lampView.setShowColor(show_color);
                     break;
                 case 1:
+                    lampTreeView.setPaintBold(true);
                     lampTreeView.setChoseColor(chose_color, w);
-                    lampTreeView.setShowColor(chose_color);
+                    lampTreeView.setShowColor(show_color);
                     break;
                 default:
                     break;
@@ -746,12 +718,14 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             imgThinPainter.setImageDrawable(this.getResources().getDrawable(R.drawable.xibidianji));
             switch (lightType) {
                 case 0:
+                    lampView.setPaintBold(false);
                     lampView.setChoseColor(chose_color, w);
-                    lampView.setShowColor(chose_color);
+                    lampView.setShowColor(show_color);
                     break;
                 case 1:
+                    lampTreeView.setPaintBold(false);
                     lampTreeView.setChoseColor(chose_color, w);
-                    lampTreeView.setShowColor(chose_color);
+                    lampTreeView.setShowColor(show_color);
                     break;
                 default:
                     break;
@@ -760,10 +734,12 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
             imgClean.setImageDrawable(this.getResources().getDrawable(R.drawable.cachudianji));
             switch (lightType) {
                 case 0:
+                    lampView.setPaintBold(false);
                     lampView.setChoseColor("#000000", 0);
                     lampView.setShowColor("#000000");
                     break;
                 case 1:
+                    lampTreeView.setPaintBold(false);
                     lampTreeView.setChoseColor("#000000", 0);
                     lampTreeView.setShowColor("#000000");
                     break;
@@ -963,7 +939,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
         }).start();
     }
 
-//    @Subscribe(threadMode = ThreadMode.MAIN)
+    //    @Subscribe(threadMode = ThreadMode.MAIN)
 //    public void onMessageEvent(LampSetting lampSetting) {
 //        LogUtil.e("设备更换");
 //        initData();
@@ -971,7 +947,7 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
 //
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventConfigSuccess eventConfigSuccess) {
-        if(lampTreeView != null){
+        if (lampTreeView != null) {
             if (!TextUtils.isEmpty(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE))) {
                 lampTreeView.setConfigData(SaveSharedPreferences.getString(getActivity(), CommonValue.CONFIGFILE));
                 lampTreeView.requestLayout();
@@ -1023,24 +999,25 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                     chose_light = 100;
                     switch (lightType) {
                         case 0:
+                            if (colorType == 0) {
+                                w = 0;
+                            }
                             lampView.setChoseColor(chose_color, w);
                             lampView.setShowColor(show_color);
                             lampView.setColorType(colorType);
+                            break;
+                        case 1:
                             if (colorType == 0) {
                                 w = 0;
                             }
-                            break;
-                        case 1:
                             lampTreeView.setChoseColor(chose_color, w);
                             lampTreeView.setShowColor(show_color);
                             lampTreeView.setColorType(colorType);
-                            if (colorType == 0) {
-                                w = 0;
-                            }
                             break;
                         default:
                             break;
                     }
+                    setPainter(painter_type);
                     hideLoading();
                     break;
                 case 1:
@@ -1081,34 +1058,33 @@ public class DoodleFragment extends BaseMvpFragment<DoodleFragmentPresenter> imp
                     chose_light = 100;
                     switch (lightType) {
                         case 0:
+                            if (colorType == 0) {
+                                w = 0;
+                            }
                             lampView.setChoseColor(chose_color, w);
                             lampView.setShowColor(show_color);
                             lampView.setColorType(colorType);
+                            lampView.setTwinkle(isTwinkle);
+                            lampView.startSendUpdData();
+                            lampView.startTwinkle();
                             lampView.clean();
                             break;
                         case 1:
+                            if (colorType == 0) {
+                                w = 0;
+                            }
                             lampTreeView.setChoseColor(chose_color, w);
                             lampTreeView.setShowColor(show_color);
                             lampTreeView.setColorType(colorType);
+                            lampTreeView.setTwinkle(isTwinkle);
+                            lampTreeView.startSendUpdData();
+                            lampTreeView.startTwinkle();
                             lampTreeView.clean();
                             break;
                         default:
                             break;
                     }
-                    switch (lightType) {
-                        case 0:
-                            lampView.startSendUpdData();
-                            lampView.startTwinkle();
-                            lampView.setColorType(colorType);
-                            break;
-                        case 1:
-                            lampTreeView.startSendUpdData();
-                            lampTreeView.startTwinkle();
-                            lampTreeView.setColorType(colorType);
-                            break;
-                        default:
-                            break;
-                    }
+                    setPainter(painter_type);
                     hideLoading();
                     break;
                 default:

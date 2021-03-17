@@ -1,6 +1,7 @@
 package com.wya.env.module.login.start;
 
 import android.content.Intent;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -42,11 +43,24 @@ public class NoFoundDeviceActivity extends BaseActivity {
                 finish();
                 break;
             case R.id.next:
-                startActivity(new Intent(NoFoundDeviceActivity.this, MainActivity.class));
-                ActivityManager.getInstance().exitApp();
+                if(ActivityManager.getInstance().leaveActivity(NoFoundDeviceActivity.class)){
+                    startActivity(new Intent(NoFoundDeviceActivity.this, MainActivity.class));
+                    finish();
+                }
                 break;
             default:
                 break;
         }
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            ActivityManager.getInstance().popOthersActivity(Start1Activity.class);
+            return true;
+        }else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
 }

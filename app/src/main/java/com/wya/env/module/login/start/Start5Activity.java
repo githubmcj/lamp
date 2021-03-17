@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.view.RxView;
+import com.wya.env.App;
 import com.wya.env.MainActivity;
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
@@ -84,6 +85,7 @@ public class Start5Activity extends BaseActivity {
         }
         Ble.getInstance().connect(bleDevice, connectCallback);
     }
+
 
     private BleConnectCallback<BleDevice> connectCallback = new BleConnectCallback<BleDevice>() {
         @Override

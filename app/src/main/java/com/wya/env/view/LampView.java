@@ -275,6 +275,14 @@ public class LampView extends View {
      */
     private int colorType = 0;
 
+    public int getW() {
+        return w;
+    }
+
+    public String getShowColor() {
+        return showColor;
+    }
+
     public int getColorType() {
         return colorType;
     }

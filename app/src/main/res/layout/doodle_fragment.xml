@@ -476,6 +476,15 @@
                         </LinearLayout>
 
                     </TableRow>
+
+                    <TextView
+                        android:id="@+id/tv_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="點我"
+                        android:visibility="gone">
+
+                    </TextView>
                 </LinearLayout>
 
             </RelativeLayout>

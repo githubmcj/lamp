@@ -2,12 +2,9 @@ package com.wya.env.manager;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.wya.env.bean.ActivityData;
-import com.wya.env.module.login.LoginActivity;
-import com.wya.env.module.login.StartUpActivity;
 import com.wya.utils.utils.LogUtil;
 
 import java.lang.ref.WeakReference;
@@ -45,6 +42,9 @@ public class ActivityManager {
                     mActivityStack = new Stack<>();
                 }
                 mActivityStack.add(activity);
+                for (int i = 0; i < mActivityStack.size(); i++) {
+                    LogUtil.e("activity:---" + mActivityStack.get(i).getLocalClassName());
+                }
                 LogUtil.e("mActivityStack.size():" + mActivityStack.size());
                 setTopActivityWeakRef(activity);
             }
@@ -80,6 +80,9 @@ public class ActivityManager {
             public void onActivityDestroyed(Activity activity) {
                 if (null != mActivityStack && !mActivityStack.isEmpty() && null != activity) {
                     mActivityStack.remove(activity);
+                    for (int i = 0; i < mActivityStack.size(); i++) {
+                        LogUtil.e("activity:---" + mActivityStack.get(i).getLocalClassName());
+                    }
                     LogUtil.e("mActivityStack.size():" + mActivityStack.size());
                 }
             }
@@ -269,5 +272,41 @@ public class ActivityManager {
      */
     public void removeFirstActivityDataList() {
         mActivityDataList.remove(mActivityDataList.size() - 1);
+    }
+
+
+    private boolean has;
+    public boolean leaveActivity(Class<?> className) {
+        has = false;
+        try {
+            for (Activity activity : mActivityStack) {
+                LogUtil.e(activity.getClass().getName());
+                if (!activity.getClass().getName().equals(className.getName())) {
+                    finishActivity(activity);
+                } else {
+                    has = true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return has;
+    }
+
+    public boolean hasActivity(Class<?> className) {
+        has = false;
+        try {
+            for (Activity activity : mActivityStack) {
+                if (activity.getClass().getName().equals(className.getName())) {
+                    has = true;
+                    break;
+                } else {
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return has;
     }
 }

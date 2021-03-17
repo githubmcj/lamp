@@ -105,12 +105,13 @@ dependencies {
 
     // 蓝牙
     implementation 'cn.com.superLei:blelibrary:3.1.0'
-    implementation 'pub.devrel:easypermissions:1.2.0'
+    //  Android
+    implementation 'pub.devrel:easypermissions:2.0.1'
 
-
-    // TODO del bugl
-    implementation 'com.tencent.bugly:crashreport:latest.release'
-    implementation 'com.tencent.bugly:crashreport:latest.release'
+//
+//    // TODO del bugl
+//    implementation 'com.tencent.bugly:crashreport:latest.release'
+//    implementation 'com.tencent.bugly:crashreport:latest.release'
 
 //    // leakcanary
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'

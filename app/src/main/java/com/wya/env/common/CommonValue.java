@@ -34,6 +34,10 @@ public interface CommonValue {
      * 圣诞树数据
      */
     String CONFIGFILE = "config_file";
+    /**
+     * 存的设备
+     */
+    String CONFIGDEVICE = "config_device";
 
     int UDP_PORT = 6000;
     int TCP_PORT = 6600;

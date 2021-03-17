@@ -7,10 +7,12 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wya.env.R;
 import com.wya.env.base.BaseActivity;
 import com.wya.env.bean.doodle.LampSetting;
+import com.wya.env.manager.ActivityManager;
 import com.wya.utils.utils.LogUtil;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
@@ -103,8 +105,9 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
                     if (ble.isScanning()) {
                         ble.stopScan();
                     }
-                    startActivity(new Intent(Start1Activity.this, Start5Activity.class).putExtra("device", device));
-//                        deviceAdapter.notifyDataSetChanged();
+                    if (!ActivityManager.getInstance().hasActivity(LinkActivity.class)) {
+                        startActivity(new Intent(Start1Activity.this, Start5Activity.class).putExtra("device", device));
+                    }
                 }
 //                    }
             }
@@ -133,6 +136,8 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
         public void onScanFailed(int errorCode) {
             super.onScanFailed(errorCode);
             LogUtil.e("onScanFailed: " + errorCode);
+            Toast.makeText(Start1Activity.this, errorCode+"", Toast.LENGTH_SHORT).show();
+
         }
     };
 
@@ -183,5 +188,16 @@ public class Start1Activity extends BaseActivity implements EasyPermissions.Perm
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
         LogUtil.e("onPermissionsDenied");
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            scanCallback = null;
+            Ble.getInstance().stopScan();
+        } catch (Exception e) {
+
+        }
     }
 }
