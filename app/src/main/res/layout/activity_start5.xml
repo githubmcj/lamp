@@ -11,68 +11,88 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_200"
         android:gravity="center"
-        android:text="Congratulation!\nYou are connected"
         android:padding="@dimen/dp_10"
+        android:text="Bluetooth is connected, please choose a suitable connection mode and proceed to the next step"
         android:textColor="@color/app_blue"
         android:textSize="30sp"></TextView>
+
+    <ImageView
+        android:id="@+id/img_wifi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/tv_content"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/wifi">
+
+    </ImageView>
 
     <TextView
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title"
+        android:layout_above="@+id/use"
         android:gravity="bottom"
         android:padding="@dimen/dp_20"
-        android:layout_above="@id/use"
         android:text="We strongly advise you to connect your Deluxlight device to your local WiFi network, once you connect to local WiFi, you do not have to setup every single time before using Deluxlight."
         android:textColor="@color/c666666"
         android:textSize="14sp"></TextView>
 
 
-
     <com.wya.uikit.button.WYAButton
         android:id="@+id/use"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/tv"
+        android:layout_above="@id/img_local"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="@dimen/dp_20"
         android:layout_marginRight="@dimen/dp_20"
         android:layout_marginBottom="@dimen/dp_20"
-        android:padding="@dimen/dp_10"
+        android:padding="@dimen/dp_20"
         android:text="USE LOCAL WIFI"
         android:textSize="@dimen/sp_18"
         app:backColor="@color/app_blue"
         app:backColorPress="@color/app_blue_press"
         app:fillet="true"
-        app:wya_button_radius="5"
-        app:textColor="@color/white" />
+        app:textColor="@color/white"
+        app:wya_button_radius="100" />
+
+    <ImageView
+        android:id="@+id/img_local"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/tv"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/local">
+
+    </ImageView>
 
     <TextView
         android:id="@+id/tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@id/add"
         android:gravity="bottom"
         android:padding="@dimen/dp_20"
-        android:layout_above="@id/add"
         android:text="Your smart device cannot use the network during this connection mode. However, if you do not have any local WiFi nearby, you can choose this direct connection."
         android:textColor="@color/c666666"
         android:textSize="14sp"></TextView>
 
     <com.wya.uikit.button.WYAButton
         android:id="@+id/add"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="@dimen/dp_20"
         android:layout_marginRight="@dimen/dp_20"
         android:layout_marginBottom="@dimen/dp_50"
-        android:padding="@dimen/dp_10"
+        android:padding="@dimen/dp_20"
         android:text="USE DIRECT WIFI"
         android:textSize="@dimen/sp_18"
         app:backColor="@color/app_blue"
         app:backColorPress="@color/app_blue_press"
         app:fillet="true"
-        app:wya_button_radius="5"
-        app:textColor="@color/white" />
+        app:textColor="@color/white"
+        app:wya_button_radius="100" />
 
 </RelativeLayout>

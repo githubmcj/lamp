@@ -56,6 +56,7 @@ public class SearchDeviceActivity extends BaseActivity {
     private List<LampSetting> lampSettings = new ArrayList<>();
     private DeviceAdapter deviceAdapter;
     private String loc_ip;
+    private boolean sendData2;
 
     @Override
     protected void initView() {
@@ -83,8 +84,10 @@ public class SearchDeviceActivity extends BaseActivity {
 
 
     private void getDevices() {
+        loadingDialog.show();
         loc_ip = getIpAddressString();
         addMode = 0;
+        sendData2 = false;
         if (modelExecutorService == null) {
             modelExecutorService = new ScheduledThreadPoolExecutor(1,
                     new BasicThreadFactory.Builder().namingPattern("getDivice").daemon(true).build());
@@ -96,10 +99,15 @@ public class SearchDeviceActivity extends BaseActivity {
                 addMode++;
                 if (addMode < 10) {
                     sendData(1);
+                    if (sendData2) {
+                        sendData(2);
+                    }
                 } else {
+                    loadingDialog.dismiss();
                     stopSendUdpModeData();
                     if (lampSettings != null && lampSettings.size() > 0) {
                         LogUtil.e("搜到设备" + lampSettings.size() + "台");
+                        deviceAdapter.setNewData(lampSettings);
                     } else {
                         LogUtil.e("无设备");
                         startActivity(new Intent(SearchDeviceActivity.this, NoFoundDeviceActivity.class));
@@ -157,7 +165,7 @@ public class SearchDeviceActivity extends BaseActivity {
             loadingDialog.show();
             // 跳转到主界面
 
-            if(ActivityManager.getInstance().leaveActivity(SearchDeviceActivity.class)){
+            if (ActivityManager.getInstance().leaveActivity(SearchDeviceActivity.class)) {
                 startActivity(new Intent(SearchDeviceActivity.this, MainActivity.class));
                 finish();
             }
@@ -200,7 +208,7 @@ public class SearchDeviceActivity extends BaseActivity {
 
 
     private void sendData(int type) {
-        LogUtil.e("发送广播");
+        LogUtil.e("发送广播" + type);
         byte[] send_data;
         if (type == 1) {
             byte[] bytes = new byte[1];
@@ -235,6 +243,7 @@ public class SearchDeviceActivity extends BaseActivity {
                         handler.sendMessage(msg);
                         break;
                     case (byte) 0x83:
+                        LogUtil.e("data:" + bytesToHex(data));
                         msg.what = 2;
                         bundle.putString("ip", ip);
                         bundle.putInt("size", Integer.parseInt(bytesToHex(data).substring(20, 22) + bytesToHex(data).substring(18, 20), 16));
@@ -306,7 +315,6 @@ public class SearchDeviceActivity extends BaseActivity {
                                 lampSettings.get(i).setSize(size);
                                 lampSettings.get(i).setDeviceName(deviceName);
                                 lampSettings.get(i).setColorType(colorType);
-                                deviceAdapter.setNewData(lampSettings);
                                 break;
                             }
                         }
@@ -327,7 +335,6 @@ public class SearchDeviceActivity extends BaseActivity {
                                 lampSetting.setDeviceName(deviceName);
                                 lampSetting.setColorType(colorType);
                                 lampSettings.add(lampSetting);
-                                deviceAdapter.setNewData(lampSettings);
                             }
                         }
                     } else {
@@ -345,10 +352,9 @@ public class SearchDeviceActivity extends BaseActivity {
                             lampSetting.setDeviceName(deviceName);
                             lampSetting.setColorType(colorType);
                             lampSettings.add(lampSetting);
-                            deviceAdapter.setNewData(lampSettings);
                         }
                     }
-                    sendData(2);
+                    sendData2 = true;
                     break;
                 case 2:
                     if (lampSettings != null && lampSettings.size() > 0) {
@@ -362,7 +368,6 @@ public class SearchDeviceActivity extends BaseActivity {
                                 lampSettings.get(i).setRow(row);
                                 lampSettings.get(i).setSize(size);
                                 lampSettings.get(i).setColumn(column);
-                                deviceAdapter.setNewData(lampSettings);
                                 break;
                             }
                         }
