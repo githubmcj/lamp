@@ -13,6 +13,7 @@ import com.wya.env.bean.home.AddModel;
 import com.wya.env.module.doodle.DoodleFragment;
 import com.wya.env.module.home.fragment.HomeFragment;
 import com.wya.env.module.mine.MineFragment;
+import com.wya.env.module.netdata.NetDataFragment;
 import com.wya.uikit.tabbar.WYATabBar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -36,6 +37,7 @@ public class MainActivity extends BaseActivity {
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private HomeFragment fragment1;
+    private NetDataFragment netDataFragment;
     private MineFragment fragment2;
     private DoodleFragment doodleFragment;
 
@@ -78,13 +80,15 @@ public class MainActivity extends BaseActivity {
     private void initFragment() {
         fragment1 = new HomeFragment();
         fragment2 = new MineFragment();
+        netDataFragment = new NetDataFragment();
         doodleFragment = new DoodleFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.content, fragment1);
+        fragmentTransaction.add(R.id.content, netDataFragment);
         fragmentTransaction.add(R.id.content, doodleFragment);
         fragmentTransaction.add(R.id.content, fragment2);
-        fragmentTransaction.show(fragment1).hide(fragment2).hide(doodleFragment).commit();
+        fragmentTransaction.show(fragment1).hide(netDataFragment).hide(fragment2).hide(doodleFragment).commit();
     }
 
     private void setToolBar() {
@@ -97,13 +101,16 @@ public class MainActivity extends BaseActivity {
             fragmentTransaction = fragmentManager.beginTransaction();
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    fragmentTransaction.show(fragment1).hide(fragment2).hide(doodleFragment).commit();
+                    fragmentTransaction.show(fragment1).hide(netDataFragment).hide(fragment2).hide(doodleFragment).commit();
+                    break;
+                case R.id.navigation_more:
+                    fragmentTransaction.show(netDataFragment).hide(doodleFragment).hide(fragment2).hide(fragment1).commit();
                     break;
                 case R.id.navigation_doodle:
-                    fragmentTransaction.show(doodleFragment).hide(fragment2).hide(fragment1).commit();
+                    fragmentTransaction.show(doodleFragment).hide(netDataFragment).hide(fragment2).hide(fragment1).commit();
                     break;
                 case R.id.navigation_equipment:
-                    fragmentTransaction.show(fragment2).hide(fragment1).hide(doodleFragment).commit();
+                    fragmentTransaction.show(fragment2).hide(netDataFragment).hide(fragment1).hide(doodleFragment).commit();
                     break;
                 default:
                     break;

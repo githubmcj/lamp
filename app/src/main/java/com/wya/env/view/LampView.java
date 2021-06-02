@@ -1390,6 +1390,13 @@ public class LampView extends View {
 //        toStopSendUdpModeData(true, false);
     }
 
+    public void setFps(int fps) {
+        modelFrameTime = 1000 / fps;
+        LogUtil.e("=============4");
+        stopSendUdpModeData();
+//        toStopSendUdpModeData(true, false);
+    }
+
     public void setClean(boolean clean) {
         clean = true;
     }

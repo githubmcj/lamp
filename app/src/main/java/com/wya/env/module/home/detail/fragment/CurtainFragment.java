@@ -6,8 +6,6 @@ import com.wya.env.R;
 import com.wya.env.base.BaseLazyFragment;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.event.EventSendUpd;
-import com.wya.env.common.CommonValue;
-import com.wya.env.util.SaveSharedPreferences;
 import com.wya.env.view.LampView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -26,11 +24,13 @@ public class CurtainFragment extends BaseLazyFragment {
     @BindView(R.id.curtain)
     LampView curtain;
     private LampModel model;
+    private boolean toShow;
 
     private int colorType;
 
-    public CurtainFragment(LampModel model, int colorType) {
+    public CurtainFragment(LampModel model, int colorType, boolean toShow) {
         this.model = model;
+        this.toShow = toShow;
         this.colorType = colorType;
     }
 
@@ -49,15 +49,21 @@ public class CurtainFragment extends BaseLazyFragment {
         curtain.requestLayout();
         curtain.setModelName(model.getName());
         curtain.setMirror(model.getMirror());
-        curtain.setSpeed(model.getSpeed());
-        curtain.setModel(model.getModeArr(), model.getLight(), false);
+        if(toShow){
+            curtain.setFps(model.getFps());
+        } else {
+            curtain.setSpeed(model.getSpeed());
+        }
+        curtain.setModel(model.getModeArr(), model.getLight(), toShow);
         setUdp();
     }
 
     private void setUdp() {
-        EventSendUpd eventSendUpd = new EventSendUpd();
-        eventSendUpd.setLampModel(model);
-        EventBus.getDefault().post(eventSendUpd);
+        if(!toShow){
+            EventSendUpd eventSendUpd = new EventSendUpd();
+            eventSendUpd.setLampModel(model);
+            EventBus.getDefault().post(eventSendUpd);
+        }
     }
 
     public void setSpeed(int speed) {
@@ -66,9 +72,33 @@ public class CurtainFragment extends BaseLazyFragment {
         setUdp();
     }
 
+    public void setFps(int fps) {
+        this.model.setFps(fps);
+        curtain.setFps(fps);
+    }
+
+
     public void setLampModel(LampModel mLampModel) {
         this.model = mLampModel;
-        curtain.setModel(model.getModeArr(), model.getLight(), false);
+        curtain.setModel(model.getModeArr(), model.getLight(), toShow);
         setUdp();
+    }
+
+    public void setLampModel2(LampModel mLampModel) {
+        this.model = mLampModel;
+        curtain.setModel(model.getModeArr(), model.getLight(), toShow);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (toShow) {
+            stop();
+        }
+    }
+
+    private void stop() {
+        curtain.toStopSendUdpModeData(true, false);
+        curtain.stopSendUdpData();
     }
 }

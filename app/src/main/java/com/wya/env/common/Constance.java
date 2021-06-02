@@ -8,5 +8,6 @@ package com.wya.env.common;
  */
 
 public class Constance {
-    public static final String BASE_URL = "http://47.97.174.34:8080/";
+    public static final String BASE_URL = "http://118.178.92.27:8089/";
+    public static String json = "";
 }

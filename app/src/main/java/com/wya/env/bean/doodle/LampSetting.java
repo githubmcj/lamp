@@ -1,5 +1,15 @@
 package com.wya.env.bean.doodle;
 
+//
+//hashMap.put("pilotType", "0");
+//        hashMap.put("pilotUUID", "AC67B2E8BCF0");
+//        hashMap.put("lampNum", "200");
+//        hashMap.put("modelID", "LL200-0000000001");
+//        hashMap.put("oem2", "00000000");
+//        hashMap.put("oem1", "JY");
+//        hashMap.put("take", take);
+//        hashMap.put("skip", skip + "");
+
 public class LampSetting {
     private String name;
     private String deviceName;

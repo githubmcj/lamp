@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:layout_margin="@dimen/dp_20">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@drawable/white_pick_view_bg"
+        android:paddingTop="@dimen/dp_20"
+        android:paddingBottom="@dimen/dp_10">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="speed"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_14">
+
+        </TextView>
+
+        <SeekBar
+            android:id="@+id/seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="@dimen/dp_20"
+            android:layout_marginBottom="@dimen/dp_20"
+            android:max="50"
+            android:min="1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:maxHeight="@dimen/dp_10"
+            android:minHeight="@dimen/dp_10"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:progress="5"
+            android:progressDrawable="@drawable/seekbar_speed_shape"
+            android:thumb="@drawable/seek_bar" />
+
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.wya.uikit.button.WYAButton
+                android:id="@+id/cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_20"
+                android:layout_weight="1"
+                android:padding="@dimen/dp_10"
+                android:paddingLeft="@dimen/dp_50"
+                android:paddingRight="@dimen/dp_50"
+                android:text="CANCEL"
+                android:textSize="@dimen/sp_14"
+                android:textStyle="bold"
+                app:backColor="@color/white"
+                app:backColorPress="@color/white"
+                app:fillet="true"
+                app:textColor="@color/app_blue"
+                app:wya_button_radius="10" />
+
+            <com.wya.uikit.button.WYAButton
+                android:id="@+id/create"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_20"
+                android:layout_weight="1"
+                android:padding="@dimen/dp_10"
+                android:paddingLeft="@dimen/dp_50"
+                android:paddingRight="@dimen/dp_50"
+                android:text="APPLY"
+                android:textSize="@dimen/sp_14"
+                android:textStyle="bold"
+                app:backColor="@color/white"
+                app:backColorPress="@color/white"
+                app:fillet="true"
+                app:wya_button_radius="10"
+                app:textColor="@color/app_blue" />
+
+
+        </TableRow>
+
+
+    </LinearLayout>
+
+</LinearLayout>

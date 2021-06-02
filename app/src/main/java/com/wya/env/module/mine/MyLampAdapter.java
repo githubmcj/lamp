@@ -1,15 +1,16 @@
 package com.wya.env.module.mine;
 
 import android.annotation.SuppressLint;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ import com.jakewharton.rxbinding2.view.RxView;
 import com.wya.env.App;
 import com.wya.env.R;
 import com.wya.env.bean.doodle.Doodle;
+import com.wya.env.bean.doodle.DoodleConfig;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.LampModel;
 import com.wya.env.bean.doodle.LampSetting;
@@ -298,7 +300,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             helper.getView(R.id.img_del).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(data.get(helper.getAdapterPosition()).isChose()){
+                    if (data.get(helper.getAdapterPosition()).isChose()) {
                         isClick = false;
                         data.remove(helper.getAdapterPosition());
                         stopTcp();
@@ -616,9 +618,10 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             toStartHeart();
             getLampOpenState();
             getLampTimerState();
+            getDeviceInfo();
             LogUtil.e("lightType:" + lightType);
             if (lightType == 1) {
-                if(!name.equals(SaveSharedPreferences.getString(context, CommonValue.CONFIGDEVICE))){
+                if (!name.equals(SaveSharedPreferences.getString(context, CommonValue.CONFIGDEVICE))) {
                     frameNum = 0;
                     LogUtil.e("开始获取配置文件");
                     getConfigFile(frameNum);
@@ -698,6 +701,18 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
             EventBus.getDefault().post(hide);
         }
     };
+
+    private void getDeviceInfo() {
+        try {
+            byte[] bodyData = new byte[1];
+            bodyData[0] = 0x12;
+            byte[] send_head_data = ByteUtil.getHeadByteData(bodyData);
+            byte[] openStateData = ByteUtil.byteMerger(send_head_data, bodyData);
+            EasySocket.getInstance().upBytes(openStateData);
+        } catch (Exception e) {
+
+        }
+    }
 
     /**
      * 获取的数据处理
@@ -997,9 +1012,30 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
                     LogUtil.e("配置文件获取失败");
                 }
                 break;
+            case (byte) 0x92:
+                String device_str = new String(ByteUtil.bytesPart(originReadData.getBodyData(), 3, originReadData.getBodyData().length - 3), Charset.forName(EasySocket.getInstance().getOptions().getCharsetName()));
+                onClickCopy(ByteUtil.bytesToHex(originReadData.getBodyData()));
+                DoodleConfig doodleConfig = new DoodleConfig();
+                try{
+                    doodleConfig = new Gson().fromJson(device_str, DoodleConfig.class);
+                } catch (Exception e){
+
+                }
+                Toast.makeText(context, new Gson().toJson(doodleConfig), Toast.LENGTH_LONG).show();
+                SaveSharedPreferences.save(context, CommonValue.DOODLECONFIG,new Gson().toJson(doodleConfig));
+                break;
+
             default:
                 break;
         }
+    }
+
+    public void onClickCopy(String content) {
+        // 从API11开始android推荐使用android.content.ClipboardManager
+        // 为了兼容低版本我们这里使用旧版的android.text.ClipboardManager，虽然提示deprecated，但不影响使用。
+        ClipboardManager cm = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        // 将文本内容放到系统剪贴板里。
+        cm.setText(content);
     }
 
 
@@ -1477,6 +1513,7 @@ public class MyLampAdapter extends BaseQuickAdapter<LampSetting, BaseViewHolder>
         }
 
     }
+
 
     /**
      * @param function 0x00获取灯声控状态； 0x81 获取灯开关状态；

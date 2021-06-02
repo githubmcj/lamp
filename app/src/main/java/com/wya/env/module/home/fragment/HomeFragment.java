@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +25,10 @@ import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.EventAddMode;
 import com.wya.env.bean.doodle.LampModel;
-import com.wya.env.bean.doodle.LampSetting;
 import com.wya.env.bean.doodle.SaveModel;
 import com.wya.env.bean.event.EventCustomLampModel;
 import com.wya.env.bean.event.EventFavarite;
+import com.wya.env.bean.event.EventSaveFSuccess;
 import com.wya.env.bean.event.EventSaveSuccess;
 import com.wya.env.bean.event.EventSendUpd;
 import com.wya.env.bean.event.EventtDeviceName;
@@ -209,17 +211,41 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventCustomLampModel eventCustomLampModel) {
-        LampModel lampModel = (LampModel) copy(eventCustomLampModel.getLampModel());
-        lampModelsL.add(lampModelsL.size() - 1, lampModel);
-        adapterL.notifyDataSetChanged();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                loginInfo.setLampModels(lampModelsL);
-                SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
-                handler.sendEmptyMessage(6);
+        if (eventCustomLampModel.getNetType() == 1) {
+            changeFavorite = true;
+            if (eventCustomLampModel.isFavorite()) {
+                LampModel lampModel = (LampModel) copy(eventCustomLampModel.getLampModel());
+                lampModelsF.add(lampModel);
+                adapterF.notifyDataSetChanged();
+            } else {
+                for (int i = 0; i < lampModelsF.size(); i++) {
+                    if (lampModelsF.get(i).getNetModel().getId() == eventCustomLampModel.getLampModel().getNetModel().getId()) {
+                        lampModelsF.remove(i);
+                        break;
+                    }
+                }
+                adapterF.notifyDataSetChanged();
             }
-        }).start();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    SaveSharedPreferences.save(getActivity(), CommonValue.FAVORITE, new Gson().toJson(lampModelsF));
+                    handler.sendEmptyMessage(7);
+                }
+            }).start();
+        } else {
+            LampModel lampModel = (LampModel) copy(eventCustomLampModel.getLampModel());
+            lampModelsL.add(lampModelsL.size() - 1, lampModel);
+            adapterL.notifyDataSetChanged();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    loginInfo.setLampModels(lampModelsL);
+                    SaveSharedPreferences.save(getActivity(), CommonValue.LOGIN_INFO, new Gson().toJson(loginInfo));
+                    handler.sendEmptyMessage(6);
+                }
+            }).start();
+        }
     }
 
     /**
@@ -362,6 +388,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventFavarite eventFavarite) {
+        showLoading();
         changeFavorite = true;
         switch (eventFavarite.getTypeLamp()) {
             case 0:
@@ -408,6 +435,7 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
             @Override
             public void run() {
                 SaveSharedPreferences.save(getActivity(), CommonValue.FAVORITE, new Gson().toJson(lampModelsF));
+                hideLoading();
             }
         }).start();
     }
@@ -563,17 +591,23 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                 lampModelsF.get(position).setChose(1 - lampModelsF.get(position).isChose());
                 adapter.notifyDataSetChanged();
             } else {
-                startActivity(new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("position", position)
-                        .putExtra("title", lampModelsF.get(position).getName())
-                        .putExtra("typeLamp", typeLamp)
-                        .putExtra("createTime", lampModelsF.get(position).getCreatTime())
-                        .putExtra("music", lampModelsF.get(position).isMusic())
-                        .putExtra("copyModeIndex", lampModelsF.get(position).getCopyModeIndex())
-                        .putExtra("modeType", lampModelsF.get(position).getModeType())
-                        .putExtra("speed", lampModelsF.get(position).getSpeed())
-                        .putExtra("modeArr", lampModelsF.get(position).getModeType() == 1 ? (Serializable) lampModelsF.get(position).getModeArr() : null)
-                        .putExtra("copyModeColor", (Serializable) lampModelsF.get(position).getCopyModeColor()));
+                if (lampModelsF.get(position).getNetModel() != null && !TextUtils.isEmpty(lampModelsF.get(position).getNetModel().getJson())) {
+                    startActivity(new Intent(getActivity(), DetailActivity.class)
+                            .putExtra("netType", 1)
+                            .putExtra("netModel", (Serializable) lampModelsF.get(position).getNetModel()));
+                } else {
+                    startActivity(new Intent(getActivity(), DetailActivity.class)
+                            .putExtra("position", position)
+                            .putExtra("title", lampModelsF.get(position).getName())
+                            .putExtra("typeLamp", typeLamp)
+                            .putExtra("createTime", lampModelsF.get(position).getCreatTime())
+                            .putExtra("music", lampModelsF.get(position).isMusic())
+                            .putExtra("copyModeIndex", lampModelsF.get(position).getCopyModeIndex())
+                            .putExtra("modeType", lampModelsF.get(position).getModeType())
+                            .putExtra("speed", lampModelsF.get(position).getSpeed())
+                            .putExtra("modeArr", lampModelsF.get(position).getModeType() == 1 ? (Serializable) lampModelsF.get(position).getModeArr() : null)
+                            .putExtra("copyModeColor", (Serializable) lampModelsF.get(position).getCopyModeColor()));
+                }
             }
         });
 
@@ -1834,6 +1868,11 @@ public class HomeFragment extends BaseMvpFragment<HomeFragmentPresenter> impleme
                     EventSaveSuccess saveSuccess = new EventSaveSuccess();
                     saveSuccess.setSuccess(true);
                     EventBus.getDefault().post(saveSuccess);
+                    break;
+                case 7:
+                    EventSaveFSuccess saveFSuccess = new EventSaveFSuccess();
+                    saveFSuccess.setSuccess(true);
+                    EventBus.getDefault().post(saveFSuccess);
                     break;
                 case 5:
                     hideLoading();

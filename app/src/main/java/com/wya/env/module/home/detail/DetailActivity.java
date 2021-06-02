@@ -25,9 +25,12 @@ import com.wya.env.bean.doodle.Doodle;
 import com.wya.env.bean.doodle.DoodlePattern;
 import com.wya.env.bean.doodle.EventAddMode;
 import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.doodle.NetModel;
 import com.wya.env.bean.event.EventApply;
+import com.wya.env.bean.event.EventCustomLampModel;
 import com.wya.env.bean.event.EventFavarite;
-import com.wya.env.bean.event.EventSendUpd;
+import com.wya.env.bean.event.EventSaveFSuccess;
+import com.wya.env.bean.event.EventSaveSuccess;
 import com.wya.env.bean.home.MusicModel;
 import com.wya.env.bean.home.MusicSuccess;
 import com.wya.env.bean.login.Lamps;
@@ -135,60 +138,75 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private List<DoodlePattern> modeArr;
     private int speed;
 
+    private int netType;
+    private NetModel netModel;
+    private String json;
+    private DetailPresent detailPresent = new DetailPresent();
+
     @Override
     protected void initView() {
-        title = getIntent().getStringExtra("title");
-        position = getIntent().getIntExtra("position", 0);
-        music = getIntent().getIntExtra("music", 1);
-        speed = getIntent().getIntExtra("speed", 1);
-        typeLamp = getIntent().getIntExtra("typeLamp", 1);
-        creatTime = getIntent().getStringExtra("createTime");
-        modeType = getIntent().getIntExtra("modeType", 0);
-        if (modeType == 1) {
-            modeArr = (List<DoodlePattern>) getIntent().getSerializableExtra("modeArr");
-            llEdit.setVisibility(View.GONE);
+        detailPresent.mView = this;
+        netType = getIntent().getIntExtra("netType", 0);
+        if (netType == 1) {
+            netModel = (NetModel) getIntent().getSerializableExtra("netModel");
+            json = netModel.getJson();
+            detailPresent.getJson(json);
         } else {
-            llEdit.setVisibility(View.VISIBLE);
-        }
-        copyModeColor = (List<CopyModeColor>) getIntent().getSerializableExtra("copyModeColor");
-        copyModeIndex = getIntent().getIntExtra("copyModeIndex", 0);
-        showLoading();
-        v_ok = false;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                lamps = new Gson().fromJson(SaveSharedPreferences.getString(DetailActivity.this, CommonValue.LAMPS), Lamps.class);
-                handler.sendEmptyMessage(1);
+            title = getIntent().getStringExtra("title");
+            position = getIntent().getIntExtra("position", 0);
+            music = getIntent().getIntExtra("music", 1);
+            speed = getIntent().getIntExtra("speed", 1);
+            typeLamp = getIntent().getIntExtra("typeLamp", 1);
+            creatTime = getIntent().getStringExtra("createTime");
+            modeType = getIntent().getIntExtra("modeType", 0);
+            if (modeType == 1) {
+                modeArr = (List<DoodlePattern>) getIntent().getSerializableExtra("modeArr");
+                llEdit.setVisibility(View.GONE);
+            } else {
+                llEdit.setVisibility(View.VISIBLE);
             }
-        }).start();
+            copyModeColor = (List<CopyModeColor>) getIntent().getSerializableExtra("copyModeColor");
+            copyModeIndex = getIntent().getIntExtra("copyModeIndex", 0);
+            showLoading();
+            v_ok = false;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    lamps = new Gson().fromJson(SaveSharedPreferences.getString(DetailActivity.this, CommonValue.LAMPS), Lamps.class);
+                    handler.sendEmptyMessage(1);
+                }
+            }).start();
 
-        favorite = false;
-        f_ok = false;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                lampModelsF = new Gson().fromJson(SaveSharedPreferences.getString(DetailActivity.this, CommonValue.FAVORITE), new TypeToken<List<LampModel>>() {
-                }.getType());
-                if (lampModelsF != null) {
-                    for (int i = 0; i < lampModelsF.size(); i++) {
-                        if (creatTime.equals(lampModelsF.get(i).getCreatTime())) {
-                            favorite = true;
+            favorite = false;
+            f_ok = false;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    lampModelsF = new Gson().fromJson(SaveSharedPreferences.getString(DetailActivity.this, CommonValue.FAVORITE), new TypeToken<List<LampModel>>() {
+                    }.getType());
+                    if (lampModelsF != null) {
+                        for (int i = 0; i < lampModelsF.size(); i++) {
+                            if (creatTime.equals(lampModelsF.get(i).getCreatTime())) {
+                                favorite = true;
+                            }
                         }
                     }
+                    handler.sendEmptyMessage(0);
                 }
-                handler.sendEmptyMessage(0);
+            }).start();
+            try {
+                setMusic();
+            } catch (Exception e) {
+
             }
-        }).start();
-        try {
-            setMusic();
-        } catch (Exception e) {
+            if (modeType == 0) {
+                imgDel.setVisibility(View.GONE);
+            } else {
+                imgDel.setVisibility(View.VISIBLE);
+            }
 
         }
-        if (modeType == 0) {
-            imgDel.setVisibility(View.GONE);
-        } else {
-            imgDel.setVisibility(View.VISIBLE);
-        }
+
 
         setLeftOnclickListener(new onLeftOnclickListener() {
             @Override
@@ -217,20 +235,37 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                         fragmentManager = getSupportFragmentManager();
                         fragmentTransaction = fragmentManager.beginTransaction();
                         colorType = getColorType();
-                        if (lightType == 0) {
-                            mLampModel = getModels(copyModeIndex, lightType);
-                            curtainFragment = new CurtainFragment(mLampModel, colorType);
-                            fragmentTransaction.add(R.id.view, curtainFragment);
-                            fragmentTransaction.show(curtainFragment).commit();
+                        if (netType == 1) {
+                            lightType = mLampModel.getLightType();
+                            if (lightType == 0) {
+                                curtainFragment = new CurtainFragment(mLampModel, colorType, true);
+                                fragmentTransaction.add(R.id.view, curtainFragment);
+                                fragmentTransaction.show(curtainFragment).commit();
+                            } else {
+                                treeFragment = new TreeFragment(mLampModel, colorType, true);
+                                fragmentTransaction.add(R.id.view, treeFragment);
+                                fragmentTransaction.show(treeFragment).commit();
+                            }
+                            if (v_ok && f_ok) {
+                                hideLoading();
+                            }
                         } else {
-                            mLampModel = getModels(copyModeIndex, lightType);
-                            treeFragment = new TreeFragment(mLampModel, colorType);
-                            fragmentTransaction.add(R.id.view, treeFragment);
-                            fragmentTransaction.show(treeFragment).commit();
+                            if (lightType == 0) {
+                                mLampModel = getModels(copyModeIndex, lightType);
+                                curtainFragment = new CurtainFragment(mLampModel, colorType, false);
+                                fragmentTransaction.add(R.id.view, curtainFragment);
+                                fragmentTransaction.show(curtainFragment).commit();
+                            } else {
+                                mLampModel = getModels(copyModeIndex, lightType);
+                                treeFragment = new TreeFragment(mLampModel, colorType, false);
+                                fragmentTransaction.add(R.id.view, treeFragment);
+                                fragmentTransaction.show(treeFragment).commit();
+                            }
+                            if (v_ok && f_ok) {
+                                hideLoading();
+                            }
                         }
-                        if (v_ok && f_ok) {
-                            hideLoading();
-                        }
+
                     } else {
                         Toast.makeText(DetailActivity.this, "please connect device", Toast.LENGTH_SHORT).show();
                         DetailActivity.this.finish();
@@ -370,20 +405,29 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 EventBus.getDefault().post(musicModel);
                 break;
             case R.id.ll_like:
-                favorite = !favorite;
-                setFavorite(favorite);
-                EventFavarite eventFavarite = new EventFavarite();
-                eventFavarite.setCreatTime(creatTime);
-                eventFavarite.setPosition(position);
-                eventFavarite.setTypeLamp(typeLamp);
-                eventFavarite.setFavorite(favorite);
-                EventBus.getDefault().post(eventFavarite);
-                if (typeLamp == 1 && !favorite) {
-                    finish();
+                if (netType == 1) {
+                    toSave(favorite);
+                } else {
+                    favorite = !favorite;
+                    setFavorite(favorite);
+                    EventFavarite eventFavarite = new EventFavarite();
+                    eventFavarite.setCreatTime(creatTime);
+                    eventFavarite.setPosition(position);
+                    eventFavarite.setTypeLamp(typeLamp);
+                    eventFavarite.setFavorite(favorite);
+                    EventBus.getDefault().post(eventFavarite);
+                    if (typeLamp == 1 && !favorite) {
+                        finish();
+                    }
                 }
                 break;
             case R.id.ll_edit:
-                showEditDialog();
+                if(netType == 1){
+                    showEditSpeedDialog();
+                } else {
+                    showEditDialog();
+                }
+
                 break;
             case R.id.ll_save:
                 EventBus.getDefault().post(mLampModel);
@@ -398,6 +442,94 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
                 break;
         }
     }
+
+
+    private WYACustomDialog editSpeedDialog;
+    private int chose_fps;
+    private void showEditSpeedDialog() {
+        editSpeedDialog = new WYACustomDialog.Builder(this)
+                .setLayoutId(R.layout.lamp_edit_speed_layout, new CustomListener() {
+                    @Override
+                    public void customLayout(View v) {
+                        SeekBar mSeekBar = (SeekBar) v.findViewById(R.id.seekbar);
+                        LogUtil.e(mLampModel.getFps() + "--------");
+                        mSeekBar.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                isShow = true;
+                                chose_fps = mLampModel.getFps();
+                                mSeekBar.setProgress(51 - mLampModel.getFps());
+
+                            }
+                        });
+                        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                chose_fps = 51 - progress;
+                            }
+
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar) {
+                            }
+
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar) {
+
+                            }
+                        });
+                        WYAButton cancel = v.findViewById(R.id.cancel);
+                        cancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                isShow = false;
+                                editSpeedDialog.dismiss();
+                            }
+                        });
+                        WYAButton sure = v.findViewById(R.id.create);
+                        sure.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mLampModel.setFps(chose_fps);
+                                if (lightType == 0) {
+                                    curtainFragment.setFps(chose_fps);
+                                    curtainFragment.setLampModel2(mLampModel);
+                                } else {
+                                    treeFragment.setSpeed(chose_speed);
+                                    treeFragment.setLampModel(mLampModel);
+                                }
+                                editSpeedDialog.dismiss();
+                            }
+                        });
+                    }
+                })
+                .build();
+        editSpeedDialog.show();
+    }
+
+    /**
+     * 收藏
+     * @param favorite
+     */
+    private void toSave(boolean favorite) {
+        showLoading();
+        EventCustomLampModel eventCustomLampModel = new EventCustomLampModel();
+        mLampModel.setNetModel(netModel);
+        eventCustomLampModel.setLampModel(mLampModel);
+        eventCustomLampModel.setNetType(1);
+        eventCustomLampModel.setFavorite(!favorite);
+        EventBus.getDefault().post(eventCustomLampModel);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventSaveFSuccess eventSaveFSuccess) {
+        if (eventSaveFSuccess.isSuccess()) {
+            Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
+            favorite = !favorite;
+            setFavorite(favorite);
+        }
+        hideLoading();
+    }
+
 
     private WYACustomDialog editDialog;
     private LampColorAdapter lampColorAdapter;
@@ -847,45 +979,50 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     private List<List<CopyModeColor>> data_colors = new ArrayList<>();
 
     private LampModel getModels(int copyModeIndex, int type) {
-        data_colors.clear();
-        switch (copyModeIndex) {
-            case 0:
-                lampModel = getModel1(type);
-                break;
-            case 1:
-                lampModel = getModel2(type);
-                break;
-            case 2:
-                lampModel = getModel3(type);
-                break;
-            case 3:
-                lampModel = getModel4(type);
-                break;
-            case 4:
-                lampModel = getModel5(type);
-                break;
-            case 5:
-                lampModel = getModel6(type);
-                break;
-            case 6:
-                lampModel = getModel7(type);
-                break;
-            case 7:
-                lampModel = getModel8(type);
-                break;
-            case 8:
-                lampModel = getModel9(type);
-                break;
-            case 9:
-                lampModel = getModel10(type);
-                break;
-            default:
-                break;
+        if (typeLamp == 3) {
+            lampModel = (LampModel) getIntent().getSerializableExtra("lampModel");
+        } else {
+            data_colors.clear();
+            switch (copyModeIndex) {
+                case 0:
+                    lampModel = getModel1(type);
+                    break;
+                case 1:
+                    lampModel = getModel2(type);
+                    break;
+                case 2:
+                    lampModel = getModel3(type);
+                    break;
+                case 3:
+                    lampModel = getModel4(type);
+                    break;
+                case 4:
+                    lampModel = getModel5(type);
+                    break;
+                case 5:
+                    lampModel = getModel6(type);
+                    break;
+                case 6:
+                    lampModel = getModel7(type);
+                    break;
+                case 7:
+                    lampModel = getModel8(type);
+                    break;
+                case 8:
+                    lampModel = getModel9(type);
+                    break;
+                case 9:
+                    lampModel = getModel10(type);
+                    break;
+                default:
+                    break;
+            }
+            if (modeType == 1) {
+                lampModel.setModeArr(modeArr);
+                lampModel.setName(title);
+            }
         }
-        if (modeType == 1) {
-            lampModel.setModeArr(modeArr);
-            lampModel.setName(title);
-        }
+
         initCurtainData(lampModel);
 
         return lampModel;
@@ -1819,6 +1956,54 @@ public class DetailActivity extends BaseMvpActivity<DetailPresent> implements De
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+
+    @Override
+    public void onJsonResult(LampModel lampModel) {
+        mLampModel = lampModel;
+        title = lampModel.getName();
+        music = lampModel.isMusic();
+        speed = lampModel.getSpeed();
+        setTitle(lampModel.getName());
+        showLoading();
+        v_ok = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                lamps = new Gson().fromJson(SaveSharedPreferences.getString(DetailActivity.this, CommonValue.LAMPS), Lamps.class);
+                handler.sendEmptyMessage(1);
+            }
+        }).start();
+
+        favorite = false;
+        f_ok = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                lampModelsF = new Gson().fromJson(SaveSharedPreferences.getString(DetailActivity.this, CommonValue.FAVORITE), new TypeToken<List<LampModel>>() {
+                }.getType());
+                if (lampModelsF != null) {
+                    for (int i = 0; i < lampModelsF.size(); i++) {
+                        if (!TextUtils.isEmpty(lampModel.getModel_id()) && lampModel.getModel_id().equals(lampModelsF.get(i).getModel_id())) {
+                            favorite = true;
+                        } else if (lampModelsF.get(i).getCreatTime().equals(creatTime)) {
+                            favorite = true;
+                        }
+
+                    }
+                }
+                handler.sendEmptyMessage(0);
+            }
+        }).start();
+
+
+        try {
+            setMusic();
+        } catch (Exception e) {
+
+        }
+        imgDel.setVisibility(View.GONE);
     }
 
 }

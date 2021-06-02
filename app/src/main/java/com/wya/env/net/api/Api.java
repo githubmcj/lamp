@@ -7,14 +7,19 @@ import java.util.Map;
 import io.reactivex.Observable;
 
 import com.wya.env.bean.BaseResult;
+import com.wya.env.bean.doodle.LampModel;
+import com.wya.env.bean.doodle.NetModel;
 import com.wya.env.bean.doodle.SaveModel;
 import com.wya.env.bean.login.LoginInfo;
 
 import retrofit2.http.Body;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
+import retrofit2.http.QueryMap;
+import retrofit2.http.Url;
 
 /**
  * @date: 2018/7/3 13:44
@@ -79,4 +84,21 @@ public interface Api {
      */
     @POST("loanFlow/template/getList")
     Observable<BaseResult<List<SaveModel>>> getSaveModels(@HeaderMap Map<String, String> headerMap, @Body HashMap<String, String> hashMap);
+
+    /**
+     * 获取模板
+     *
+     * @param headerMap
+     * @param hashMap
+     * @return
+     */
+    @GET("loanFlow/template/getTemplates")
+    Observable<BaseResult<List<NetModel>>> getModels(@HeaderMap Map<String, String> headerMap, @QueryMap HashMap<String, String> hashMap);
+
+    /**
+     * 获取模板
+     * @return
+     */
+    @GET()
+    Observable<LampModel> getJson(@Url String json);
 }

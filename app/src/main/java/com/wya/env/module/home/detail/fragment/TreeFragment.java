@@ -22,10 +22,12 @@ public class TreeFragment extends BaseLazyFragment {
     private LampModel model;
 
     private int colorType;
+    private boolean toShow;
 
 
-    public TreeFragment(LampModel model, int colorType) {
+    public TreeFragment(LampModel model, int colorType, boolean toShow) {
         this.model = model;
+        this.toShow = toShow;
         this.colorType = colorType;
     }
 
@@ -42,15 +44,17 @@ public class TreeFragment extends BaseLazyFragment {
         tree.setModelName(model.getName());
         tree.setMirror(model.getMirror());
         tree.setSpeed(model.getSpeed());
-        tree.setModel(model.getModeArr(), model.getLight(), false);
+        tree.setModel(model.getModeArr(), model.getLight(), toShow);
         tree.requestLayout();
         setUdp();
     }
 
     private void setUdp() {
-        EventSendUpd eventSendUpd = new EventSendUpd();
-        eventSendUpd.setLampModel(model);
-        EventBus.getDefault().post(eventSendUpd);
+        if(!toShow){
+            EventSendUpd eventSendUpd = new EventSendUpd();
+            eventSendUpd.setLampModel(model);
+            EventBus.getDefault().post(eventSendUpd);
+        }
     }
 
 
@@ -60,9 +64,23 @@ public class TreeFragment extends BaseLazyFragment {
         setUdp();
     }
 
+
     public void setLampModel(LampModel mLampModel) {
         this.model = mLampModel;
-        tree.setModel(model.getModeArr(), model.getLight(), false);
+        tree.setModel(model.getModeArr(), model.getLight(), toShow);
         setUdp();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(toShow){
+            stop();
+        }
+    }
+
+    private void stop(){
+        tree.toStopSendUdpModeData(true, false);
+        tree.stopSendUdpData();
     }
 }

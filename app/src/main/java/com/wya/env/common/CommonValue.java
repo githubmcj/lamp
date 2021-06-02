@@ -38,6 +38,10 @@ public interface CommonValue {
      * 存的设备
      */
     String CONFIGDEVICE = "config_device";
+    /**
+     * 设备信息
+     */
+    String DOODLECONFIG = "doodle_config";
 
     int UDP_PORT = 6000;
     int TCP_PORT = 6600;
@@ -48,7 +52,7 @@ public interface CommonValue {
     String COLUMN = "column";
     String SIZE = "size";
     String ROW = "row";
-    
+
     String COLOR_TYPE = "color_type";
     String IP = "ip";
 }

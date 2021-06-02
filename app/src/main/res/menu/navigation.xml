@@ -7,6 +7,10 @@
         android:title="@string/title_home" />
 
     <item
+        android:id="@+id/navigation_more"
+        android:icon="@drawable/more2"
+        android:title="@string/title_more" />
+    <item
         android:id="@+id/navigation_doodle"
         android:icon="@drawable/tuyabi"
         android:title="@string/title_doodle" />

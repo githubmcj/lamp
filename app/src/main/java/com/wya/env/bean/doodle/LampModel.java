@@ -11,8 +11,12 @@ import java.util.List;
  * @describe: 模板
  */
 public class LampModel implements Cloneable, Serializable {
+
+    private NetModel netModel;
+
     private List<DoodlePattern> modeArr;
     String name;
+    String model_id;
     int id;
     int music;
     int isChose;
@@ -46,7 +50,33 @@ public class LampModel implements Cloneable, Serializable {
      */
     int speed = 1;
 
+    int fps = 1;
+
     String creatTime;
+
+    public int getFps() {
+        return fps;
+    }
+
+    public void setFps(int fps) {
+        this.fps = fps;
+    }
+
+    public NetModel getNetModel() {
+        return netModel;
+    }
+
+    public void setNetModel(NetModel netModel) {
+        this.netModel = netModel;
+    }
+
+    public String getModel_id() {
+        return model_id;
+    }
+
+    public void setModel_id(String model_id) {
+        this.model_id = model_id;
+    }
 
     public String getCreatTime() {
         return creatTime;
